@@ -1,0 +1,22 @@
+---
+layout: ../layouts/Layout.astro
+title: "System Architecture"
+---
+import Card from '../components/Card.astro';
+
+LAFINA relies on a robust 3-layer architecture designed for entirely offline execution.
+
+### 1. UI/UX Layer
+This layer is built using **React Native**, serving as the primary mobile app interface. It handles background job queues, schedule management screens, and the critical microphone input required for voice interaction.
+
+### 2. AI Layer
+The core intelligence of LAFINA runs completely offline on the device using GGML/C++ binaries.
+
+<Card title="AI Models Used">
+- **Whisper.cpp (Tiny/Base quantized)**: Provides accurate and fast on-device Speech-to-Text capabilities.
+- **SmolLM2-135M-Instruct**: Responsible for intent parsing and crafting the natural language responses based on the student's context.
+- **Kokoro 82M**: Handles Text-to-Speech synthesis to deliver human-like audio.
+</Card>
+
+### 3. Storage Layer
+Local persistence is achieved using **SQLite** and **Async Storage**. This layer securely keeps track of student schedules, pre-crafted AI responses, and trigger times without ever sending data to the cloud.

@@ -1,0 +1,128 @@
+---
+layout: ../layouts/Layout.astro
+title: "AI Models Deep Dive"
+description: "A detailed look at SmolLM2, Whisper.cpp, and Kokoro 82M — the three on-device AI models powering LAFINA's offline voice pipeline."
+---
+import Alert from '../components/Alert.astro';
+import Card from '../components/Card.astro';
+import Badge from '../components/Badge.astro';
+
+<Alert type="info" title="All Models Run Offline">
+  Every model in LAFINA's AI pipeline runs entirely on-device via GGML/C++ binaries. No audio, text, or scheduling data ever leaves the phone.
+</Alert>
+
+## The Three-Model Pipeline
+
+LAFINA's voice intelligence is powered by a carefully selected chain of three specialized models, each chosen to maximize accuracy within the strict constraints of a mobile device with 4GB RAM.
+
+<div style="display:grid; gap:1.5rem; margin: 1.5rem 0;">
+
+<div style="border:1px solid color-mix(in srgb,#7c3aed 25%,transparent); border-radius:0.875rem; padding:1.5rem; background:color-mix(in srgb,#7c3aed 6%,transparent);">
+
+### 🎙️ Whisper.cpp — Speech-to-Text (STT)
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+  <Badge variant="info">STT</Badge>
+  <Badge variant="default">~39–74 MB</Badge>
+  <Badge variant="default">Whisper.cpp Runtime</Badge>
+</div>
+
+| Property | Detail |
+|---|---|
+| **Model** | OpenAI Whisper Tiny / Base (Quantized) |
+| **Task** | Transcribes spoken user audio into text |
+| **Size** | ~39 MB (Tiny) / ~74 MB (Base) |
+| **Runtime** | Whisper.cpp — C++ port, no Python required |
+| **Language** | Multilingual; handles Filipino accents & Taglish |
+
+**Why Whisper over alternatives?**
+
+Whisper was chosen for its exceptional robustness with accented and non-native English speakers. Competing options like CMU PocketSphinx have significantly lower accuracy with Taglish speech patterns, while cloud-based solutions (Google STT, Azure) violate the offline-first requirement.
+
+The *quantized* Tiny/Base models reduce memory footprint by 50–70% compared to full-precision models with minimal accuracy loss for short scheduling commands.
+
+</div>
+
+<div style="border:1px solid color-mix(in srgb,#4f46e5 25%,transparent); border-radius:0.875rem; padding:1.5rem; background:color-mix(in srgb,#4f46e5 6%,transparent);">
+
+### 🧠 SmolLM2-135M-Instruct — Language Model (NLU)
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+  <Badge variant="success">NLU / Intent</Badge>
+  <Badge variant="default">135M Parameters</Badge>
+  <Badge variant="default">llama.cpp Runtime</Badge>
+</div>
+
+| Property | Detail |
+|---|---|
+| **Model** | SmolLM2-135M-Instruct (HuggingFace) |
+| **Task** | Intent classification, slot-filling, response generation |
+| **Size** | ~270 MB (Q4 quantized) |
+| **Runtime** | llama.cpp — GGML binary |
+| **Capability** | Extracts date, time, and task from natural language |
+
+**Why SmolLM2 over alternatives?**
+
+| Model | Params | RAM Use | Why Not Chosen |
+|---|---|---|---|
+| **SmolLM2-135M** ✅ | 135M | ~270 MB | Chosen — optimal for mobile |
+| Qwen2.5-0.5B | 500M | ~1 GB | Too heavy for background execution |
+| Regex / Rule-based | — | Minimal | Fails on messy, conversational inputs |
+| GPT-4 / Cloud API | — | N/A | Requires internet; violates privacy model |
+
+SmolLM2's instruct-tuned variant excels at structured output generation — it can be prompted to return clean JSON (`{"task": "study review", "date": "2025-05-14", "time": "18:00"}`) from conversational input like *"remind me to review my notes tonight at six."*
+
+</div>
+
+<div style="border:1px solid color-mix(in srgb,#0ea5e9 25%,transparent); border-radius:0.875rem; padding:1.5rem; background:color-mix(in srgb,#0ea5e9 6%,transparent);">
+
+### 🔊 Kokoro 82M — Text-to-Speech (TTS)
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+  <Badge variant="warning">TTS</Badge>
+  <Badge variant="default">82M Parameters</Badge>
+  <Badge variant="default">GGML Runtime</Badge>
+</div>
+
+| Property | Detail |
+|---|---|
+| **Model** | Kokoro 82M |
+| **Task** | Converts LLM-generated text into natural speech |
+| **Size** | ~164 MB (Q4 quantized) |
+| **Runtime** | GGML binary |
+| **Voice Quality** | Natural prosody, low latency, suitable for phone calls |
+
+**Why Kokoro over alternatives?**
+
+Kokoro 82M was selected for its balance between voice naturalness and model size. Traditional rule-based TTS engines (eSpeak, Festival) produce robotic output unsuitable for a conversational phone call context. Larger neural TTS systems exceed LAFINA's memory budget.
+
+Kokoro generates warm, natural-sounding audio that feels appropriate for a simulated phone call — a critical factor since the call metaphor relies on the voice sounding human-enough to trigger the user's social conditioning to engage.
+
+</div>
+
+</div>
+
+## How They Chain Together
+
+```
+User speaks → [Whisper.cpp STT] → text transcript
+text transcript → [SmolLM2 NLU] → intent + JSON schedule
+JSON schedule → [stored in SQLite] → triggers at reminder time
+At reminder time → [SmolLM2 generates reminder text]
+reminder text → [Kokoro TTS] → audio over phone call
+User speaks back → [Whisper.cpp STT] → acknowledgment text
+acknowledgment text → [SmolLM2 intent evaluation] → confirmed / delay / reschedule
+```
+
+## Total On-Device AI Footprint
+
+| Model | Quantized Size | Task |
+|---|---|---|
+| Whisper.cpp Base | ~74 MB | STT |
+| SmolLM2-135M Q4 | ~270 MB | NLU |
+| Kokoro 82M Q4 | ~164 MB | TTS |
+| **Total** | **~508 MB** | **Full pipeline** |
+
+<Alert type="success" title="Well Within Budget">
+  The combined ~508 MB AI footprint fits comfortably within LAFINA's 1–1.5 GB storage allocation and the 4 GB RAM constraint, with significant headroom for the React Native framework and SQLite database.
+</Alert>

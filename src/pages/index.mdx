@@ -1,18 +1,52 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Introduction"
+description: "LAFINA is a voice-first AI scheduler for university students — a proactive call-based reminder system that calls you instead of sending a push notification."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
+import Hero from '../components/Hero.astro';
+import StatCard from '../components/StatCard.astro';
 
-<Alert type="success" title="Welcome to the LAFINA Wiki">
-  This is the official documentation for LAFINA, an innovative voice-first scheduler built for university students.
-</Alert>
+<Hero />
 
-**LAFINA** is a mobile-based AI application specifically designed to combat "notification fatigue" among university students. 
+## What is LAFINA?
 
-Instead of passive push notifications, it uses a proactive, voice-first approach—initiating simulated human-like phone calls to ensure task compliance and schedule adherence. 
+**LAFINA** is a mobile-based AI application designed to combat **notification fatigue** among university students. Instead of passive push notifications that are easily ignored, LAFINA takes a proactive, voice-first approach — it **initiates simulated phone calls** to ensure tasks are actually acknowledged and schedules are actually followed.
 
-<Card title="Offline-First Approach">
-  LAFINA's architecture is completely offline-first. This is crucial for students with unstable internet access, guaranteeing that schedules and AI interactions are always available securely on-device without cloud dependencies.
+Every component of LAFINA runs entirely on the user's device. No cloud. No internet required. No voice data transmitted anywhere.
+
+## The Problem in Numbers
+
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin:1.5rem 0;">
+  <StatCard value="8B" label="Voice assistant devices worldwide" source="Statista, 2023–2024" color="primary" />
+  <StatCard value="4.3%" label="of voice users use them for reminders" source="Adobe Voice Survey, 2022" color="accent" />
+  <StatCard value="39%" label="fewer missed appointments with call reminders" source="Mehranbod et al." color="success" />
+</div>
+
+The gap is clear: voice assistants are everywhere, but almost nobody uses them for what they're actually good at — proactive schedule enforcement.
+
+## The LAFINA Approach
+
+<Card title="Offline-First Architecture">
+  LAFINA runs entirely on-device. Whisper.cpp (STT), SmolLM2-135M (NLU), and Kokoro 82M (TTS) all execute via GGML binaries on the phone's local CPU — no Wi-Fi, no cloud, no data charges required.
 </Card>
+
+<Card title="Proactive Voice Calls">
+  Instead of a silent push notification banner, LAFINA triggers the device's native ringing mechanism — the same one used for actual phone calls. Humans are conditioned to answer calls. Notifications, not so much.
+</Card>
+
+<Card title="Closed-Loop Confirmation">
+  The AI doesn't just deliver the reminder — it verifies acknowledgment. If you reply "give me five more minutes," SmolLM2 understands and re-queues the reminder. The loop closes only when you've truly acknowledged.
+</Card>
+
+## Explore the Wiki
+
+| Page | What You'll Find |
+|---|---|
+| [Problem & Goals](/problem-and-goals) | Research background, objectives, and scope |
+| [AI Models](/ai-models) | Deep dive on Whisper, SmolLM2, and Kokoro |
+| [Interaction Flow](/interaction-flow) | Step-by-step animated call flow |
+| [Proactive vs. Reactive](/proactive-vs-reactive) | Paradigm comparison table + scenarios |
+| [Team](/team) | Research members and examination committee |
+| [Glossary](/glossary) | Definitions for GGML, STT, TTS, TOSDS, and more |

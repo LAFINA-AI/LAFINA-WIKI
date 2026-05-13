@@ -1,6 +1,7 @@
 ---
 layout: ../layouts/Layout.astro
 title: "AI Model Evaluation & Benchmarks"
+description: "Benchmarking methodology, on-device performance targets, and comparative analysis for LAFINA's SmolLM2-135M-Instruct language model."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
@@ -12,7 +13,7 @@ import Badge from '../components/Badge.astro';
 
 ## Task-Specific Accuracy
 
-To ensure reliability, we evaluate the model using a "Golden Dataset" containing 50 to 100 typical voice commands. This dataset includes straightforward requests, messy inputs, and relative time expressions. The primary metric is the **Exact Match Rate** for accurately extracting JSON schedule data from these spoken inputs [cite: 347, 348, 349, 353].
+To ensure reliability, we evaluate the model using a "Golden Dataset" containing 50 to 100 typical voice commands. This dataset includes straightforward requests, messy inputs, and relative time expressions. The primary metric is the **Exact Match Rate** for accurately extracting JSON schedule data from these spoken inputs.
 
 ## On-Device System Performance
 
@@ -22,24 +23,26 @@ Given the strict hardware constraints of mobile devices, system performance is c
 | :--- | :--- | :--- |
 | **Latency** | Time to first token generation | Minimization for real-time feel |
 | **Throughput** | Tokens generated per second | Fluid conversational output |
-| **Memory** | Active RAM consumption during inference | Strict adherence to the 4GB RAM constraint [cite: 357, 359, 361, 362] |
+| **Memory** | Active RAM consumption during inference | Strict adherence to the 4GB RAM constraint |
 
 ## Comparative Analysis
 
-LAFINA's selected architecture was chosen after extensive comparative testing against alternative methods.
+LAFINA's selected architecture was chosen after extensive comparative testing against alternative methods. See the [AI Models](/ai-models) page for the full model-by-model breakdown.
 
 <Card title="Vs. Traditional Regex">
-  The LLM approach significantly outperforms regular expressions when handling conversational or messy inputs [cite: 364, 365].
+  The LLM approach significantly outperforms regular expressions when handling conversational or messy inputs.
 </Card>
 
 <Card title="Vs. Larger Local Models (Qwen2.5-0.5B)">
-  While larger models offer expansive knowledge, SmolLM2 uses significantly less battery and RAM, making it optimal for background mobile execution [cite: 366, 367].
+  While larger models offer expansive knowledge, SmolLM2 uses significantly less battery and RAM, making it optimal for background mobile execution.
 </Card>
 
 <Card title="Vs. Cloud APIs">
-  Unlike cloud-based solutions, SmolLM2 offers zero internet dependency, zero latency from network drops, and total user privacy [cite: 368, 369].
+  Unlike cloud-based solutions, SmolLM2 offers zero internet dependency, zero latency from network drops, and total user privacy.
 </Card>
 
 ## Handling Imperfect English
 
-A key strength of the SmolLM2 implementation is its robustness in handling imperfect English. The model successfully processes misspelled words, heavy regional accents, and "Taglish" transcriptions passed down from the Whisper STT layer [cite: 370, 371].
+A key strength of the SmolLM2 implementation is its robustness in handling imperfect English. The model successfully processes misspelled words, heavy regional accents, and "Taglish" transcriptions passed down from the Whisper STT layer.
+
+This is especially important for the Philippine context: USTP students frequently switch between Filipino and English mid-sentence. A rigid keyword-based system would fail; SmolLM2's instruction-tuned training handles this naturally.

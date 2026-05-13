@@ -20,12 +20,12 @@ Built with **React Native**. This layer handles all user interaction, microphone
 ### Layer 2: AI Layer <Badge variant="success">Offline-First</Badge>
 All models are open-source, run via GGML/C++ binaries, and operate entirely offline for privacy and accessibility.
 
-* **Speech-to-Text (STT):** Whisper.cpp Tiny/Base (Quantized). Transcribes user voice into text.
-* **Language Model (LLM):** SmolLM2-135M-Instruct. Interprets intent, extracts scheduling details, and crafts conversational responses.
-* **Text-to-Speech (TTS):** Kokoro 82M. Converts the generated text responses into a natural-sounding voice output.
+* **Natural Language Understanding (NLU):** SmolLM2-135M-Instruct — **135 million parameters**, with a quantized on-device footprint of **723 MB**. Interprets intent, extracts scheduling details, and crafts conversational responses.
+* **Speech-to-Text (STT):** Whisper.cpp (Tiny/Base quantized). Transcribes user voice into text with support for accented and Taglish speech.
+* **Text-to-Speech (TTS):** Kokoro-82M. Converts LLM-generated text responses into natural-sounding voice output.
 
 ### Layer 3: Storage Layer
-Utilizes Local Storage/Async Storage alongside a serverless **SQLite** database to securely hold scheduling data, pre-crafted responses, and call trigger times locally.
+Utilizes a serverless, **on-device SQLite** database to securely hold scheduling data, pre-crafted dialogue responses, and call trigger times — entirely local, with no external database server required.
 
 <Alert type="success" title="Privacy Assured">
   Because the AI Layer and Storage Layer run completely on-device, no sensitive scheduling data or audio recordings are ever transmitted to the cloud.

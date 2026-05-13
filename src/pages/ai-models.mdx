@@ -57,7 +57,8 @@ The *quantized* Tiny/Base models reduce memory footprint by 50–70% compared to
 |---|---|
 | **Model** | SmolLM2-135M-Instruct (HuggingFace) |
 | **Task** | Intent classification, slot-filling, response generation |
-| **Size** | ~270 MB (Q4 quantized) |
+| **Parameters** | **135 million** |
+| **On-Device Footprint** | **723 MB** |
 | **Runtime** | llama.cpp — GGML binary |
 | **Capability** | Extracts date, time, and task from natural language |
 
@@ -65,7 +66,7 @@ The *quantized* Tiny/Base models reduce memory footprint by 50–70% compared to
 
 | Model | Params | RAM Use | Why Not Chosen |
 |---|---|---|---|
-| **SmolLM2-135M** ✅ | 135M | ~270 MB | Chosen — optimal for mobile |
+| **SmolLM2-135M** ✅ | **135M** | **723 MB** | Chosen — optimal for mobile |
 | Qwen2.5-0.5B | 500M | ~1 GB | Too heavy for background execution |
 | Regex / Rule-based | — | Minimal | Fails on messy, conversational inputs |
 | GPT-4 / Cloud API | — | N/A | Requires internet; violates privacy model |
@@ -116,13 +117,13 @@ acknowledgment text → [SmolLM2 intent evaluation] → confirmed / delay / resc
 
 ## Total On-Device AI Footprint
 
-| Model | Quantized Size | Task |
+| Model | Footprint | Task |
 |---|---|---|
 | Whisper.cpp Base | ~74 MB | STT |
-| SmolLM2-135M Q4 | ~270 MB | NLU |
+| SmolLM2-135M | **723 MB** | NLU |
 | Kokoro 82M Q4 | ~164 MB | TTS |
-| **Total** | **~508 MB** | **Full pipeline** |
+| **Total** | **~961 MB** | **Full pipeline** |
 
 <Alert type="success" title="Well Within Budget">
-  The combined ~508 MB AI footprint fits comfortably within LAFINA's 1–1.5 GB storage allocation and the 4 GB RAM constraint, with significant headroom for the React Native framework and SQLite database.
+  The combined ~961 MB AI footprint fits comfortably within LAFINA's 1 GB minimum storage allocation and the 4 GB RAM constraint, with headroom for the React Native framework and SQLite database.
 </Alert>

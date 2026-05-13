@@ -43,3 +43,19 @@ A student is commuting home through an area with no cell service or Wi-Fi. Becau
 <Card title="Is my voice data sent to the cloud?">
   No. Because the entire AI layer operates via GGML binaries directly on your device, your voice data and schedule details are never transmitted over the internet, ensuring complete privacy.
 </Card>
+
+---
+
+## Scope & Limitations
+
+<Alert type="warning" title="Manage Your Expectations">
+  LAFINA is purpose-built for one job: proactive schedule enforcement. Understanding what it does **not** do is just as important as knowing what it does.
+</Alert>
+
+<Card title="⚠️ Strictly Task-Oriented — No Casual Chat">
+  LAFINA is a **closed-domain TOSDS** (Task-Oriented Spoken Dialogue System). It is designed exclusively to create, confirm, delay, or cancel scheduled reminders. It will not answer general questions, tutor you on academic subjects, play music, engage in small talk, or perform any function outside of academic schedule management. Attempts to use it as a general-purpose AI assistant will result in it redirecting you back to scheduling tasks.
+</Card>
+
+<Card title="⚠️ Acoustic Constraint — Background Noise">
+  LAFINA's Speech-to-Text engine (Whisper.cpp, Tiny/Base quantized) is optimized for typical indoor acoustic environments. **Extreme background noise** — such as a loud cafeteria, a busy street, or a crowded event space — may significantly degrade transcription accuracy. In such environments, the AI may misinterpret your response or ask you to repeat yourself. For best results, speak clearly in a reasonably quiet environment.
+</Card>

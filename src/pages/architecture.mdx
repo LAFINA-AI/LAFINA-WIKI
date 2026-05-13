@@ -1,22 +1,32 @@
 ---
 layout: ../layouts/Layout.astro
-title: "System Architecture"
+title: "System Architecture & Methodology"
 ---
+import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
+import Badge from '../components/Badge.astro';
 
-LAFINA relies on a robust 3-layer architecture designed for entirely offline execution.
+## Development Methodology
 
-### 1. UI/UX Layer
-This layer is built using **React Native**, serving as the primary mobile app interface. It handles background job queues, schedule management screens, and the critical microphone input required for voice interaction.
+The project utilizes the **Agile** methodology. This supports flexible, iterative development, allowing features like voice input processing, reminder scheduling, and call-based notifications to be developed and tested progressively.
 
-### 2. AI Layer
-The core intelligence of LAFINA runs completely offline on the device using GGML/C++ binaries.
+## Three-Layer Architecture
 
-<Card title="AI Models Used">
-- **Whisper.cpp (Tiny/Base quantized)**: Provides accurate and fast on-device Speech-to-Text capabilities.
-- **SmolLM2-135M-Instruct**: Responsible for intent parsing and crafting the natural language responses based on the student's context.
-- **Kokoro 82M**: Handles Text-to-Speech synthesis to deliver human-like audio.
-</Card>
+LAFINA is built upon a robust, offline-capable architecture divided into three distinct layers.
 
-### 3. Storage Layer
-Local persistence is achieved using **SQLite** and **Async Storage**. This layer securely keeps track of student schedules, pre-crafted AI responses, and trigger times without ever sending data to the cloud.
+### Layer 1: UI/UX Layer
+Built with **React Native**. This layer handles all user interaction, microphone input capture, and rendering of the Reminder and Job Queue components.
+
+### Layer 2: AI Layer <Badge variant="success">Offline-First</Badge>
+All models are open-source, run via GGML/C++ binaries, and operate entirely offline for privacy and accessibility.
+
+* **Speech-to-Text (STT):** Whisper.cpp Tiny/Base (Quantized). Transcribes user voice into text.
+* **Language Model (LLM):** SmolLM2-135M-Instruct. Interprets intent, extracts scheduling details, and crafts conversational responses.
+* **Text-to-Speech (TTS):** Kokoro 82M. Converts the generated text responses into a natural-sounding voice output.
+
+### Layer 3: Storage Layer
+Utilizes Local Storage/Async Storage alongside a serverless **SQLite** database to securely hold scheduling data, pre-crafted responses, and call trigger times locally.
+
+<Alert type="success" title="Privacy Assured">
+  Because the AI Layer and Storage Layer run completely on-device, no sensitive scheduling data or audio recordings are ever transmitted to the cloud.
+</Alert>

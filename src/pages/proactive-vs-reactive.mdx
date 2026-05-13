@@ -1,0 +1,56 @@
+---
+layout: ../layouts/Layout.astro
+title: "Reactive vs. Proactive Systems"
+description: "A side-by-side paradigm comparison between standard reactive alarms and LAFINA's proactive voice-call reminder system, with real-world scenarios."
+---
+import Alert from '../components/Alert.astro';
+import Card from '../components/Card.astro';
+import ComparisonTable from '../components/ComparisonTable.astro';
+
+<Alert type="info" title="The Core Innovation">
+  Understanding the shift from reactive to proactive systems is the single most important concept behind LAFINA's design.
+</Alert>
+
+## Two Paradigms, One Problem
+
+Schedule adherence technology has historically operated in a **reactive** mode. The user must initiate — setting alarms, creating reminders, checking calendars. The system passively waits and fires a notification. If the user ignores it, the system has failed.
+
+LAFINA introduces a **proactive** model: the system initiates. It calls the user, speaks the reminder, and requires verbal confirmation before closing the loop.
+
+## Side-by-Side Comparison
+
+<ComparisonTable />
+
+## Why This Matters: Alert Fatigue
+
+The reactive paradigm breaks down at scale. The average smartphone user receives **65–80 push notifications per day** (Localytics, 2023). At that volume, the brain begins filtering notifications as background noise — a phenomenon called **alert fatigue**.
+
+Healthcare literature demonstrates this clearly: patients who receive standard appointment reminder texts have a no-show rate of ~27%, while patients who receive telephone call reminders have a no-show rate of only ~16% — a **39% relative reduction** (Mehranbod et al.). LAFINA applies this proven telephony advantage to academic scheduling.
+
+## The Three Proactive Mechanisms
+
+<Card title="1. Simulated Voice Calls">
+  Instead of a silent banner, LAFINA triggers the device's native ringing mechanism — the same one that rings when your mother calls. Humans are psychologically conditioned to answer phone calls, making this far more attention-capturing than any visual notification.
+</Card>
+
+<Card title="2. Forced Cognitive Engagement">
+  A push notification can be dismissed with a subconscious thumb swipe. A phone call requires the user to consciously pick up, listen, and respond verbally. This forces active cognitive processing of the reminder content.
+</Card>
+
+<Card title="3. Closed-Loop Confirmation">
+  The system does not consider a reminder "delivered" until the user has verbally acknowledged it. SmolLM2 evaluates the response and can re-schedule if the user says "give me five more minutes" — something no alarm clock can do.
+</Card>
+
+## Real-World Scenarios
+
+### Scenario A: The Silent Phone Problem
+
+A student has their phone on silent during a library study session. A standard push notification for their upcoming thesis defense rehearsal is completely invisible. LAFINA bypasses silent mode by triggering an **audible native call ring** — the same audio channel used for actual phone calls, which is not suppressed by the standard silent/vibrate toggle.
+
+### Scenario B: Intent-Based Acknowledgment
+
+LAFINA calls a student 10 minutes before their group meeting. The student is finishing a meal and responds: *"I'll be there in five minutes."* A keyword-spotting alarm would fail — it expected "Yes" or "Dismiss." SmolLM2 correctly interprets the intent as a **brief delay acknowledgment** and re-queues a follow-up prompt.
+
+### Scenario C: Fully Offline Delivery
+
+A student commutes through a rural area with no cell service. Because LAFINA's entire AI pipeline (Whisper.cpp, SmolLM2, Kokoro) runs on the device's local processor, the reminder call fires precisely on schedule — **no internet required**.

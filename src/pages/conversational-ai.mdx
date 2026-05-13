@@ -1,0 +1,29 @@
+---
+layout: ../layouts/Layout.astro
+title: "System Classification: Conversational AI"
+---
+import Alert from '../components/Alert.astro';
+import Card from '../components/Card.astro';
+import Badge from '../components/Badge.astro';
+
+<Alert type="info" title="System Design">
+  LAFINA is meticulously designed as a closed-domain system to maximize efficiency on mobile devices.
+</Alert>
+
+## Task-Oriented Spoken Dialogue System (TOSDS)
+
+LAFINA is explicitly defined as a **Task-Oriented Spoken Dialogue System (TOSDS)** [cite: 402, 403]. It is a closed-domain model designed to accomplish specific scheduling tasks. 
+
+It is important to note that LAFINA is **not** an open-domain chit-chat bot. It does not possess the capability to answer general knowledge inquiries, write essays, or engage in casual conversation outside of its scheduling parameters [cite: 404]. This strict scoping allows the models to remain small enough to run offline.
+
+## Multi-Turn Interaction Loop
+
+LAFINA completely redefines the standard reminder format. 
+
+We must contrast LAFINA against zero-turn alarms (which only ring) and single-turn voice commands (like asking Siri to set a timer) [cite: 407, 408]. LAFINA requires a sophisticated **multi-turn, bi-directional exchange**. In this loop, the AI initiates the call, the user responds, the AI evaluates that response, and finally, the AI closes the loop autonomously [cite: 409, 410].
+
+## Intent Evaluation
+
+A critical component of LAFINA's conversational intelligence is its nuanced intent evaluation. 
+
+Instead of relying on strict, rigid keyword spotting like "Yes" or "Stop", LAFINA utilizes the **SmolLM2** language model to evaluate natural language intent [cite: 416, 417, 418]. For example, if a user replies with "Give me five minutes," the AI comprehends the request for a delay rather than failing due to a missing keyword.

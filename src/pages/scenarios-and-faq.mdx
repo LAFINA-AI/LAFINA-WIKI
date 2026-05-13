@@ -1,6 +1,7 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Use Case Scenarios & FAQ"
+description: "Real-world scenarios where LAFINA's proactive call system outperforms standard reminders, plus frequently asked questions."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
@@ -12,29 +13,31 @@ import Badge from '../components/Badge.astro';
 
 ## Scenarios
 
+For the full side-by-side paradigm comparison, visit the [Proactive vs. Reactive](/proactive-vs-reactive) page.
+
 ### Overcoming Notification Fatigue
-A student has their phone on silent mode during a busy day. They completely miss a standard, silent push notification for an upcoming assignment. However, because LAFINA triggers an audible, native phone call, the student's attention is immediately captured [cite: 390, 391, 392, 393].
+A student has their phone on silent mode during a busy day. They completely miss a standard, silent push notification for an upcoming assignment. However, because LAFINA triggers an audible, native phone call, the student's attention is immediately captured — silent mode does not suppress the native call ringer.
 
 ### Intent-Based Acknowledgment
-LAFINA calls a student to remind them of a quiz in ten minutes. The student is currently finishing up a meal and replies, "Give me five more minutes." The AI comprehends this complex intent and proactively adjusts the schedule to call back slightly later [cite: 394, 395, 396].
+LAFINA calls a student to remind them of a quiz in ten minutes. The student is currently finishing up a meal and replies, "Give me five more minutes." The AI comprehends this complex intent and proactively adjusts the schedule to call back slightly later.
 
 ### Autonomous Execution (Offline)
-A student is commuting home through an area with no cell service or Wi-Fi. Because LAFINA's AI models run entirely on the local device hardware, the student still receives their critical study reminder call precisely on time [cite: 398, 399, 400].
+A student is commuting home through an area with no cell service or Wi-Fi. Because LAFINA's AI models run entirely on the local device hardware, the student still receives their critical study reminder call precisely on time.
 
 ---
 
 ## Frequently Asked Questions (FAQ)
 
 <Card title="Is LAFINA a chatbot?">
-  No, LAFINA is a closed-domain, task-oriented spoken dialogue system. It does not engage in general chit-chat or answer trivia questions. Its sole purpose is to manage and enforce your academic schedule.
+  No, LAFINA is a closed-domain, task-oriented spoken dialogue system (TOSDS). It does not engage in general chit-chat or answer trivia questions. Its sole purpose is to manage and enforce your academic schedule. See the [Glossary](/glossary) for a definition of TOSDS.
 </Card>
 
 <Card title="Does it need Wi-Fi or data to work?">
-  No. LAFINA is completely offline-first. All Voice-to-Text, Language Modeling, and Text-to-Speech processing occur directly on your phone's processor.
+  No. LAFINA is completely offline-first. All Voice-to-Text (Whisper.cpp), Language Modeling (SmolLM2), and Text-to-Speech (Kokoro) processing occur directly on your phone's processor via GGML binaries.
 </Card>
 
 <Card title="Why does it call me instead of sending a text?">
-  Text messages and push notifications contribute to "alert fatigue" and are easily ignored. A simulated phone call forces you to actively answer and verbally engage, vastly improving task compliance and awareness.
+  Text messages and push notifications contribute to "alert fatigue" and are easily ignored. A simulated phone call forces you to actively answer and verbally engage, vastly improving task compliance and awareness. Healthcare studies show this approach reduces missed appointments by up to 39%.
 </Card>
 
 <Card title="Is my voice data sent to the cloud?">

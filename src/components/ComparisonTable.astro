@@ -1,0 +1,56 @@
+---
+const rows = [
+  { label: 'Who initiates the reminder?', reactive: 'The user (manual alarm set)', proactive: 'LAFINA (autonomous trigger)' },
+  { label: 'User effort required', reactive: 'High — must remember to set it', proactive: 'Low — set once, AI handles delivery' },
+  { label: 'Works on silent mode?', reactive: '❌ Silent push notification is missed', proactive: '✅ Triggers audible native ring' },
+  { label: 'Handles acknowledgment?', reactive: '❌ Swiping away counts as "dismissed"', proactive: '✅ Requires verbal confirmation' },
+  { label: 'Works offline?', reactive: '⚠️ Depends on cloud push service', proactive: '✅ 100% on-device, no internet needed' },
+  { label: 'Understands natural language?', reactive: '❌ Binary dismiss/snooze only', proactive: '✅ SmolLM2 interprets intent (e.g., "5 more minutes")' },
+  { label: 'Response to being ignored?', reactive: 'Fails silently', proactive: 'Can re-trigger or escalate per schedule' },
+];
+---
+
+<div class="comparison-wrapper">
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th class="col-feature">Feature</th>
+        <th class="col-reactive">
+          <span class="col-badge reactive">Reactive</span>
+          Standard Alarm / Push
+        </th>
+        <th class="col-proactive">
+          <span class="col-badge proactive">Proactive</span>
+          LAFINA
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row, i) => (
+        <tr class={i % 2 === 0 ? 'row-even' : ''}>
+          <td class="feature-cell">{row.label}</td>
+          <td class="reactive-cell">{row.reactive}</td>
+          <td class="proactive-cell">{row.proactive}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .comparison-wrapper { overflow-x:auto; margin:1.5rem 0; border-radius:.875rem; border:1px solid color-mix(in srgb, var(--color-muted) 20%, transparent); }
+  .comparison-table { width:100%; border-collapse:collapse; font-size:.875rem; }
+  .comparison-table thead tr { background:var(--color-surface); }
+  .comparison-table th { padding:.875rem 1rem; text-align:left; font-weight:700; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--color-muted); border-bottom:2px solid color-mix(in srgb, var(--color-muted) 20%, transparent); }
+  .col-reactive { color:#ef4444 !important; }
+  .col-proactive { color:#4f46e5 !important; }
+  .col-badge { display:inline-block; font-size:.65rem; font-weight:700; border-radius:999px; padding:.15rem .5rem; margin-bottom:.25rem; }
+  .col-badge.reactive { background:color-mix(in srgb,#ef4444 12%,transparent); color:#ef4444; }
+  .col-badge.proactive { background:color-mix(in srgb,#4f46e5 12%,transparent); color:#4f46e5; }
+  .comparison-table td { padding:.75rem 1rem; vertical-align:top; line-height:1.5; border-bottom:1px solid color-mix(in srgb, var(--color-muted) 12%, transparent); }
+  .row-even td { background:color-mix(in srgb, var(--color-surface) 60%, transparent); }
+  .feature-cell { font-weight:600; color:var(--color-text); white-space:nowrap; }
+  .reactive-cell { color:color-mix(in srgb,#ef4444 80%, var(--color-text)); }
+  .proactive-cell { color:color-mix(in srgb,#4f46e5 80%, var(--color-text)); font-weight:500; }
+  .dark .proactive-cell { color:color-mix(in srgb,#818cf8 90%, var(--color-text)); }
+</style>

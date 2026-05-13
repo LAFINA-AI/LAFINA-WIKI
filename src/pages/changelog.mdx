@@ -1,0 +1,61 @@
+---
+layout: ../layouts/Layout.astro
+title: "Changelog & Development Log"
+description: "Sprint-by-sprint development history of LAFINA, documenting the Agile methodology applied across all major feature milestones."
+---
+import Alert from '../components/Alert.astro';
+import Badge from '../components/Badge.astro';
+
+<Alert type="info" title="Agile Development">
+  LAFINA was developed using the Agile methodology — iterative, sprint-based development allowing each major feature to be built, tested, and refined progressively.
+</Alert>
+
+## Development Timeline
+
+| Sprint | Focus Area | Key Deliverables | Status |
+|---|---|---|---|
+| **Sprint 1** | Project Setup & Research | Requirements gathering, literature review, team role assignment, initial repo setup | ✅ Complete |
+| **Sprint 2** | Voice Input (STT) | Whisper.cpp integration, on-device transcription pipeline, Taglish accuracy testing | ✅ Complete |
+| **Sprint 3** | LLM Integration (NLU) | SmolLM2 integration via llama.cpp, JSON slot-filling prompts, Golden Dataset benchmarking | ✅ Complete |
+| **Sprint 4** | TTS Output | Kokoro 82M integration, audio rendering over device speakers, voice quality evaluation | ✅ Complete |
+| **Sprint 5** | Call System | Native telephony trigger, SQLite job queue, background service, call lifecycle management | ✅ Complete |
+| **Sprint 6** | UI/UX Layer | React Native scheduling interface, Reminder view, Job Queue view, microphone input | ✅ Complete |
+| **Sprint 7** | Evaluation & Testing | SUS questionnaire administration, on-device benchmark collection, accuracy metrics | ✅ Complete |
+| **Sprint 8** | Documentation & Defense | Wiki documentation, final paper write-up, capstone defense preparation | 🔄 In Progress |
+
+## Feature Milestones
+
+### Voice Input Pipeline
+<Badge variant="success">Sprint 2</Badge>
+
+The first major technical milestone was establishing a fully on-device speech-to-text pipeline. Whisper.cpp (Tiny/Base, quantized) was compiled as a GGML binary and integrated into the React Native application via a native module bridge. Accuracy was validated against a 50-item Taglish test set.
+
+### Natural Language Understanding
+<Badge variant="success">Sprint 3</Badge>
+
+SmolLM2-135M-Instruct was integrated via llama.cpp. A structured prompt template was developed to extract scheduling slots (`date`, `time`, `task`) from conversational voice input as JSON. The Golden Dataset of 50–100 typical commands was used to validate the Exact Match Rate against regex and Qwen2.5-0.5B alternatives.
+
+### Text-to-Speech Delivery
+<Badge variant="success">Sprint 4</Badge>
+
+Kokoro 82M was integrated for the reminder delivery phase. Audio naturalness was evaluated subjectively by the team, confirming the voice quality was appropriate for the simulated phone call context.
+
+### Proactive Call System
+<Badge variant="success">Sprint 5</Badge>
+
+The core innovation sprint. SQLite's job queue was implemented with a background polling service. At trigger time, the service invokes the Android telephony API to initiate an outgoing call, plays the Kokoro TTS audio over the active call audio channel, captures the user's response via Whisper STT, and closes the loop via SmolLM2 intent evaluation.
+
+### System Evaluation
+<Badge variant="success">Sprint 7</Badge>
+
+A cohort of USTP students participated in SUS usability testing. Performance benchmarks (latency to first token, throughput in tokens/sec, peak RAM usage) were collected on target hardware (Android 11+, Octa-Core, 4GB RAM).
+
+## Known Constraints & Design Decisions
+
+| Decision | Rationale |
+|---|---|
+| Android-only (no iOS) | iOS restricts native call APIs and background audio in ways incompatible with LAFINA's call model |
+| 64-bit ARM only | GGML binaries require ARM64; 32-bit devices cannot run the AI models efficiently |
+| Closed-domain NLU | Keeping SmolLM2 scoped to scheduling tasks allows the 135M parameter model to achieve high accuracy within its domain |
+| Quantized models (Q4) | Reduces model size by ~75% with minimal accuracy loss, critical for the 1–1.5 GB storage budget |
+| SQLite over cloud DB | Enforces offline-first architecture; no scheduling data ever leaves the device |

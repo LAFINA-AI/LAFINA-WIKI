@@ -1,0 +1,28 @@
+---
+interface Props {
+  type?: 'info' | 'warning' | 'success';
+  title?: string;
+}
+const { type = 'info', title } = Astro.props;
+
+const icons = {
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+  warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+  success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+};
+
+const styles = {
+  info: 'bg-primary/10 border-primary/20 text-text',
+  warning: 'bg-yellow-500/10 border-yellow-500/20 text-text',
+  success: 'bg-green-500/10 border-green-500/20 text-text'
+};
+---
+<div class={`my-6 flex gap-4 p-4 rounded-lg border ${styles[type]}`}>
+  <div class="flex-shrink-0 mt-0.5 text-primary" set:html={icons[type]} />
+  <div>
+    {title && <h5 class="font-semibold mb-1 mt-0">{title}</h5>}
+    <div class="text-sm opacity-90 prose-p:my-0 prose-p:leading-relaxed">
+      <slot />
+    </div>
+  </div>
+</div>

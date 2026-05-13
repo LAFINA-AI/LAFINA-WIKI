@@ -1,0 +1,26 @@
+---
+layout: ../layouts/Layout.astro
+title: "Technical Requirements"
+---
+import Alert from '../components/Alert.astro';
+
+To run LAFINA efficiently, specific hardware and software constraints must be met due to its offline-first AI operations.
+
+### Hardware Requirements
+
+- **OS**: Android 11.0+ (API 30)
+- **Architecture**: 64-bit ARM64-v8a
+- **Processor**: Octa-Core processor (2.0 GHz+)
+- **Memory**: 4GB RAM minimum
+- **Storage**: At least 1GB of free internal storage for the quantized AI models.
+
+<Alert type="info" title="Storage Note">
+  The 1GB storage requirement is necessary to securely hold the GGML binaries for Whisper, SmolLM2, and Kokoro entirely on-device.
+</Alert>
+
+### Software Stack
+
+- **Framework**: React Native with TypeScript/JavaScript
+- **Native Modules**: C++
+- **Database**: SQLite
+- **AI Backend**: GGML / llama.cpp

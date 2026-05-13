@@ -1,14 +1,35 @@
 ---
-const links = [
-  { text: 'Introduction', href: '/' },
-  { text: 'Problem & Goals', href: '/problem-and-goals' },
-  { text: 'System Architecture', href: '/architecture' },
-  { text: 'Interaction Flow', href: '/interaction-flow' },
-  { text: 'Requirements', href: '/requirements' },
-  { text: 'Core Concepts', href: '/core-concepts' },
-  { text: 'Conversational AI', href: '/conversational-ai' },
-  { text: 'Model Evaluation', href: '/model-evaluation' },
-  { text: 'Scenarios & FAQ', href: '/scenarios-and-faq' },
+const groups = [
+  {
+    label: 'Overview',
+    links: [
+      { text: 'Introduction', href: '/' },
+      { text: 'Problem & Goals', href: '/problem-and-goals' },
+      { text: 'System Architecture', href: '/architecture' },
+      { text: 'Interaction Flow', href: '/interaction-flow' },
+      { text: 'Requirements', href: '/requirements' },
+      { text: 'Scenarios & FAQ', href: '/scenarios-and-faq' },
+    ],
+  },
+  {
+    label: 'Deep Dives',
+    links: [
+      { text: 'AI Models', href: '/ai-models' },
+      { text: 'Core Concepts', href: '/core-concepts' },
+      { text: 'Conversational AI', href: '/conversational-ai' },
+      { text: 'Model Evaluation', href: '/model-evaluation' },
+      { text: 'Proactive vs. Reactive', href: '/proactive-vs-reactive' },
+    ],
+  },
+  {
+    label: 'Reference',
+    links: [
+      { text: 'Glossary', href: '/glossary' },
+      { text: 'Team & About', href: '/team' },
+      { text: 'References', href: '/references' },
+      { text: 'Changelog', href: '/changelog' },
+    ],
+  },
 ];
 
 const pathname = new URL(Astro.request.url).pathname;
@@ -16,24 +37,26 @@ const pathname = new URL(Astro.request.url).pathname;
 <aside class="hidden lg:block sticky top-16 shrink-0 w-64 h-[calc(100vh-4rem)] overflow-y-auto border-r border-muted/20 py-10 pr-6">
   <nav class="text-sm leading-6 relative">
     <ul>
-      <li class="mt-12 lg:mt-8">
-        <h5 class="mb-4 font-semibold text-text">Overview</h5>
-        <ul class="space-y-6 lg:space-y-2 border-l border-muted/20">
-          {links.map((link) => {
-            const isActive = pathname === link.href || pathname === link.href + '/';
-            return (
-              <li>
-                <a 
-                  class={`block border-l -ml-px transition-colors pl-4 ${isActive ? 'border-primary text-primary font-medium' : 'border-transparent hover:border-muted text-muted hover:text-text'}`}
-                  href={link.href}
-                >
-                  {link.text}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </li>
+      {groups.map((group) => (
+        <li class="mt-8 first:mt-0">
+          <h5 class="mb-3 font-semibold text-text text-xs uppercase tracking-wider opacity-60">{group.label}</h5>
+          <ul class="space-y-1 border-l border-muted/20">
+            {group.links.map((link) => {
+              const isActive = pathname === link.href || pathname === link.href + '/';
+              return (
+                <li>
+                  <a
+                    class={`block border-l -ml-px transition-colors pl-4 py-0.5 ${isActive ? 'border-primary text-primary font-medium' : 'border-transparent hover:border-muted text-muted hover:text-text'}`}
+                    href={link.href}
+                  >
+                    {link.text}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </li>
+      ))}
     </ul>
   </nav>
 </aside>

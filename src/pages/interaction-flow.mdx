@@ -1,0 +1,20 @@
+---
+layout: ../layouts/Layout.astro
+title: "Interaction Flow"
+---
+import CodeBlock from '../components/CodeBlock.astro';
+
+The LAFINA interaction flow is completely automated and runs in the background.
+
+1. **Trigger**: The SQLite database hits a scheduled time for a task reminder.
+2. **Call Initiation**: The React Native app triggers an outgoing phone call interface to immediately grab the user's attention.
+3. **Delivery**: The Kokoro Text-to-Speech engine verbally delivers the pre-crafted message.
+4. **Acknowledgment**: The user speaks to confirm receipt of the reminder. Whisper handles the Speech-to-Text, and SmolLM2 evaluates the intent.
+5. **Termination**: The AI delivers a short closing statement and hangs up.
+
+<CodeBlock title="Flow Example" language="text">
+AI: "Hey, it's time for your Advanced Calculus study session. Are you ready to start?"
+User: "Yeah, I'm opening the book now."
+AI: "Great! Good luck with your session. Bye!"
+[Call Ends]
+</CodeBlock>

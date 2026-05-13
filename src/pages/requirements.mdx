@@ -1,26 +1,40 @@
 ---
 layout: ../layouts/Layout.astro
-title: "Technical Requirements"
+title: "Technical Requirements & Evaluation"
 ---
 import Alert from '../components/Alert.astro';
+import Badge from '../components/Badge.astro';
 
-To run LAFINA efficiently, specific hardware and software constraints must be met due to its offline-first AI operations.
+## Hardware Requirements
 
-### Hardware Requirements
+To ensure real-time natural language processing without cloud connectivity, the target device must meet the following hardware specifications:
 
-- **OS**: Android 11.0+ (API 30)
-- **Architecture**: 64-bit ARM64-v8a
-- **Processor**: Octa-Core processor (2.0 GHz+)
-- **Memory**: 4GB RAM minimum
-- **Storage**: At least 1GB of free internal storage for the quantized AI models.
+| Component | Specification |
+| :--- | :--- |
+| **Operating System** | Android 11.0 (API level 30) or higher |
+| **Architecture** | 64-bit (ARM64-v8a) |
+| **Processor** | Octa-Core (2.0 GHz or higher recommended) |
+| **Memory** | 4GB RAM minimum |
+| **Storage** | At least 1 GB to 1.5 GB of free internal space |
 
-<Alert type="info" title="Storage Note">
-  The 1GB storage requirement is necessary to securely hold the GGML binaries for Whisper, SmolLM2, and Kokoro entirely on-device.
+<Alert type="warning" title="Storage Allocation">
+  The storage space is strictly required for localized AI model weights and database management.
 </Alert>
 
-### Software Stack
+## Software Requirements
 
-- **Framework**: React Native with TypeScript/JavaScript
-- **Native Modules**: C++
-- **Database**: SQLite
-- **AI Backend**: GGML / llama.cpp
+The application is built upon a modern, cross-platform software stack:
+
+| Category | Technology |
+| :--- | :--- |
+| **Framework** | React Native |
+| **Languages** | JavaScript, TypeScript, C++ |
+| **Database** | SQLite |
+| **AI Engine/Runtime** | GGML / llama.cpp (via Whisper.cpp) |
+| **Development Tools** | Visual Studio Code, Android Studio, Git/GitHub |
+
+## System Evaluation Strategy
+
+The system undergoes evaluation using a 5-point Likert scale (1 = Strongly Disagree to 5 = Strongly Agree). 
+
+It utilizes the **System Usability Scale (SUS)** questionnaire to measure ease of use, functionality, and overall satisfaction, aligning with ISO/IEC 25010 standards for functional suitability.

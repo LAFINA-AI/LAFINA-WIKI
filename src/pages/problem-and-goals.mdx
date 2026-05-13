@@ -1,10 +1,12 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Introduction, Problem & Objectives"
+description: "The research background, localized Philippine context, core objectives, and scope of the LAFINA voice-call reminder system."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
+import StatCard from '../components/StatCard.astro';
 
 <Alert type="info" title="Research Context">
   This section details the foundational research, localized context, and core objectives that drive the development of the LAFINA application.
@@ -12,15 +14,27 @@ import Badge from '../components/Badge.astro';
 
 ## Background & Statistical Context
 
-The rapid evolution of digital technologies has shifted productivity tools from manual planners to AI assistants. Industry reports estimate over **8 billion** voice assistant devices are in use worldwide. Voice search adoption is expanding, with **20 to 25 percent** of internet users relying on voice queries regularly. 
+The rapid evolution of digital technologies has shifted productivity tools from manual planners to AI assistants. The voice assistant market has reached massive scale:
 
-Empirical studies show AI assistants can improve productivity by up to 40 percent depending on task complexity (Noy & Zhang, 2023). However, a significant gap remains: while people use voice for calls or messages, only **4.3 percent** use them for alarms or reminders.
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin:1.5rem 0;">
+  <StatCard value="8B+" label="Voice assistant devices in use worldwide" source="Statista, 2023–2024" color="primary" />
+  <StatCard value="20–25%" label="of internet users rely on voice queries regularly" source="Industry Reports, 2023" color="accent" />
+  <StatCard value="40%" label="potential productivity improvement with AI assistants" source="Noy & Zhang, 2023" color="success" />
+</div>
+
+Despite this scale, a significant gap remains: while people use voice assistants for calls, music, and searches, only **4.3%** use them for alarms or reminders — the most practical scheduling use case.
 
 ## The Localized Problem (Philippines Context)
 
-The Philippines has high mobile penetration (over 90 percent), and roughly 57 percent of the population owns smartphones. Despite this, students face high cognitive loads balancing subjects, projects, and part-time work. 
+The Philippines has high mobile penetration (over 90%) and roughly 57% of the population owns smartphones. Despite this, students face high cognitive loads balancing subjects, projects, and part-time work.
 
-Relying on standard push notifications leads to **"alert fatigue"**, where users become desensitized and ignore them. In contrast, healthcare studies show telephone call reminders can reduce missed appointments by up to **39 percent**.
+Relying on standard push notifications leads to **"alert fatigue"** — users become desensitized and ignore them. In contrast, healthcare studies show telephone call reminders can reduce missed appointments by up to:
+
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin:1rem 0 1.5rem;">
+  <StatCard value="39%" label="reduction in missed appointments with call reminders vs. push notifications" source="Mehranbod et al." color="warning" />
+</div>
+
+LAFINA applies this proven telephony advantage from healthcare directly to academic scheduling at USTP.
 
 ## General Objective
 

@@ -1,0 +1,35 @@
+---
+const links = [
+  { text: 'Introduction', href: '/' },
+  { text: 'Problem & Goals', href: '/problem-and-goals' },
+  { text: 'System Architecture', href: '/architecture' },
+  { text: 'Interaction Flow', href: '/interaction-flow' },
+  { text: 'Requirements', href: '/requirements' },
+];
+
+const pathname = new URL(Astro.request.url).pathname;
+---
+<aside class="hidden lg:block fixed z-20 inset-0 top-[3.8125rem] left-[max(0px,calc(50%-45rem))] right-auto w-[19rem] pb-10 px-8 overflow-y-auto">
+  <nav class="lg:text-sm lg:leading-6 relative pt-8">
+    <ul>
+      <li class="mt-12 lg:mt-8">
+        <h5 class="mb-4 font-semibold text-text">Overview</h5>
+        <ul class="space-y-6 lg:space-y-2 border-l border-muted/20">
+          {links.map((link) => {
+            const isActive = pathname === link.href || pathname === link.href + '/';
+            return (
+              <li>
+                <a 
+                  class={`block border-l -ml-px transition-colors pl-4 ${isActive ? 'border-primary text-primary font-medium' : 'border-transparent hover:border-muted text-muted hover:text-text'}`}
+                  href={link.href}
+                >
+                  {link.text}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>

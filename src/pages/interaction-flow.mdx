@@ -1,9 +1,10 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Voice-Call Interaction Flow"
+description: "A step-by-step breakdown of LAFINA's proactive six-stage call flow, from SQLite trigger to closed-loop termination."
 ---
-import CodeBlock from '../components/CodeBlock.astro';
 import Alert from '../components/Alert.astro';
+import FlowDiagram from '../components/FlowDiagram.astro';
 
 <Alert type="info" title="Combating Notification Fatigue">
   LAFINA combats alert fatigue by elevating standard notifications to simulated phone calls, demanding immediate cognitive engagement.
@@ -11,18 +12,30 @@ import Alert from '../components/Alert.astro';
 
 ## Initial Setup (Use Case)
 
-The user taps the microphone input. The AI receives the input, crafts a response, creates a schedule specifying the delivery time, and saves it to the local database.
+The user taps the microphone input. The AI receives the input, crafts a response, creates a schedule specifying the delivery time, and saves it to the local SQLite database job queue.
 
 ## The Proactive Call Flow
 
-The core innovation of LAFINA is its proactive call delivery system, which operates in five distinct stages:
+The core innovation of LAFINA is its proactive call delivery system, which operates in six distinct stages:
 
-1. **Trigger:** The background SQLite database detects that a specific reminder time has been reached.
-2. **Call Initiation:** Instead of a push notification, the application triggers an actual outgoing phone call to the user's device using native calling interfaces and telephony protocols.
-3. **Delivery:** When the user answers, the Kokoro 82M TTS module verbally delivers the pre-crafted reminder message over the active audio line.
-4. **Acknowledgment:** The user must verbally acknowledge the reminder. The audio is captured over the line, processed by Whisper STT, and evaluated by SmolLM2 to confirm intent.
-5. **Termination:** Upon confirmation, the AI generates a brief closing statement, automatically terminates the call, and marks the job queue as complete in the database.
+<FlowDiagram />
 
-<CodeBlock title="Flow Overview" language="text">
-Trigger -> Call Initiation -> TTS Delivery -> STT Acknowledgment -> Intent Evaluation -> Termination
-</CodeBlock>
+## Stage Breakdown
+
+1. **Trigger** — The background SQLite job queue detects that a specific reminder time has been reached and wakes the call service.
+
+2. **Call Initiation** — Instead of a push notification, the application triggers an actual outgoing phone call to the user's device using native Android telephony interfaces.
+
+3. **TTS Delivery** — When the user answers, the Kokoro 82M TTS module verbally delivers the pre-crafted reminder message over the active audio line.
+
+4. **STT Acknowledgment** — The user's verbal response is captured over the live call, processed by Whisper.cpp, and converted to a text transcript in real time.
+
+5. **Intent Evaluation** — SmolLM2 analyzes the transcript to determine intent. It understands natural phrasing: *"Give me five more minutes"* triggers a re-queue, not a failure.
+
+6. **Termination** — Upon confirmed acknowledgment, the AI generates a brief closing statement, automatically ends the call, and marks the job queue entry as complete.
+
+## Why Not a Simple Alarm?
+
+A standard alarm or push notification is a **zero-turn** interaction — fire and forget. LAFINA's call flow is **multi-turn and bi-directional**: the AI initiates, the user responds, the AI evaluates, and the AI closes the loop. This is what separates a voice-call reminder system from a glorified notification.
+
+See the [Proactive vs. Reactive](/proactive-vs-reactive) page for a full comparison.

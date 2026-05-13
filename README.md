@@ -14,8 +14,19 @@ Inside of your Astro project, you'll see the following folders and files:
 /
 ├── public/
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── components/      # Reusable UI (Card, Alert, Badge, Sidebar)
+│   ├── layouts/         # Core page layout structure
+│   ├── pages/           # MDX Documentation Pages
+│   │   ├── index.mdx
+│   │   ├── problem-and-goals.mdx
+│   │   ├── architecture.mdx
+│   │   ├── interaction-flow.mdx
+│   │   ├── requirements.mdx
+│   │   ├── core-concepts.mdx
+│   │   ├── conversational-ai.mdx
+│   │   ├── model-evaluation.mdx
+│   │   └── scenarios-and-faq.mdx
+│   └── styles/          # Tailwind CSS global styles
 └── package.json
 ```
 

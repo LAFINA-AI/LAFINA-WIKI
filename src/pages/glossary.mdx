@@ -1,0 +1,115 @@
+---
+layout: ../layouts/Layout.astro
+title: "Glossary"
+description: "Definitions of technical terms and acronyms used throughout the LAFINA Wiki, from GGML and STT to alert fatigue and quantization."
+---
+import Alert from '../components/Alert.astro';
+
+<Alert type="info" title="Quick Reference">
+  Terms are listed alphabetically. If you encounter an unfamiliar term while reading the wiki, look it up here.
+</Alert>
+
+## A
+
+**Alert Fatigue**
+The cognitive desensitization that occurs when a user is overwhelmed by too many notifications. After exposure to high volumes of alerts, the brain begins filtering them as background noise, leading to missed or ignored reminders. A primary motivator behind LAFINA's proactive call-based approach.
+
+**ARM64 (ARM64-v8a)**
+A 64-bit processor architecture used in modern Android smartphones. LAFINA's GGML-based AI models require an ARM64 device to run efficiently. 32-bit (ARM32) devices are not supported.
+
+## C
+
+**Closed-Domain System**
+An AI system designed to handle only a specific, predefined set of tasks or topics. LAFINA is a closed-domain system — it manages academic schedules and cannot answer general knowledge questions, write essays, or engage in casual conversation.
+
+**Conversational AI**
+AI systems designed to engage in natural dialogue with humans using spoken or written language. LAFINA is a specialized form of conversational AI focused exclusively on scheduling tasks.
+
+## G
+
+**GGML**
+A tensor library for machine learning designed specifically for efficient inference on CPU hardware, without requiring a GPU. GGML enables LAFINA's AI models (SmolLM2, Kokoro) to run on standard smartphone processors.
+
+**Golden Dataset**
+A curated, hand-labeled set of 50–100 representative voice inputs used to benchmark LAFINA's SmolLM2 model for scheduling accuracy. It includes straightforward requests, messy inputs, and Taglish phrases.
+
+## I
+
+**Intent Evaluation**
+The process by which SmolLM2 analyzes a user's verbal response during a reminder call to determine their intention — whether they are confirming, requesting a delay, or rescheduling. Unlike keyword spotting, intent evaluation understands natural phrasing like "give me five minutes."
+
+**ISO/IEC 25010**
+An international standard that defines a model for software product quality, covering characteristics like functional suitability, performance efficiency, usability, reliability, security, and maintainability. LAFINA's evaluation strategy aligns with this standard.
+
+## J
+
+**Job Queue**
+LAFINA's SQLite-backed internal scheduler that stores pending reminder jobs. When a reminder's trigger time is reached, the job queue dispatches the call flow and marks the job as complete upon successful acknowledgment.
+
+## L
+
+**llama.cpp**
+An open-source C++ library for running large language models locally on CPU hardware. LAFINA uses the llama.cpp runtime to execute SmolLM2-135M-Instruct on-device without cloud dependencies.
+
+## M
+
+**Multi-Turn Interaction**
+A conversational exchange that requires multiple back-and-forth exchanges to complete. LAFINA's call flow is multi-turn: the AI initiates, the user responds, the AI evaluates the response, and the AI closes the loop — requiring at least two turns.
+
+## N
+
+**NLU (Natural Language Understanding)**
+A subfield of AI focused on enabling machines to understand the meaning, intent, and structure of human language. In LAFINA, NLU is performed by SmolLM2 to extract scheduling data (date, time, task) from conversational voice input.
+
+**Notification Fatigue** → see *Alert Fatigue*
+
+## Q
+
+**Quantization**
+A model compression technique that reduces the numerical precision of a neural network's weights (e.g., from 32-bit floats to 4-bit integers), significantly shrinking model file size and memory usage with minimal accuracy loss. LAFINA uses Q4 quantized versions of all three AI models.
+
+## R
+
+**React Native**
+A cross-platform mobile framework developed by Meta that allows building native Android and iOS apps using JavaScript and TypeScript. LAFINA's UI layer is built with React Native.
+
+**Reactive System**
+A system that waits for a user action or external event before responding. Traditional alarm apps are reactive — the user must set the alarm, and the system fires a passive notification. Contrast with *Proactive System*.
+
+## S
+
+**SLM (Small Language Model)**
+A language model with significantly fewer parameters than frontier models (e.g., GPT-4), designed for efficient on-device execution. SmolLM2-135M is an SLM with 135 million parameters — small enough to run in the background on a smartphone.
+
+**SmolLM2-135M-Instruct**
+The specific small language model used by LAFINA for natural language understanding and response generation. Published by HuggingFace, it has 135 million parameters and is fine-tuned for instruction-following tasks.
+
+**SQLite**
+A lightweight, serverless, embedded relational database engine. LAFINA stores all scheduling data, reminder jobs, and pre-crafted responses in a local SQLite database on the device, requiring no network connection.
+
+**STT (Speech-to-Text)**
+The process of converting spoken audio into a text transcript. LAFINA uses Whisper.cpp for STT to transcribe both initial scheduling commands and verbal acknowledgments during reminder calls.
+
+**SUS (System Usability Scale)**
+A standardized 10-item questionnaire for measuring the perceived usability of a system. LAFINA's evaluation uses SUS with a 5-point Likert scale to assess ease of use and user satisfaction.
+
+## T
+
+**Taglish**
+A colloquial blend of Tagalog (Filipino) and English widely spoken in the Philippines. For example: "Paalalahin mo ako bukas ng three PM para sa meeting." Whisper.cpp's multilingual training makes it robust to Taglish transcriptions.
+
+**TOSDS (Task-Oriented Spoken Dialogue System)**
+A category of conversational AI that uses spoken language to accomplish specific, well-defined tasks. LAFINA is explicitly classified as a TOSDS — it conducts spoken dialogue to schedule and confirm reminders, not to hold open-ended conversation.
+
+**TTS (Text-to-Speech)**
+The process of converting written text into synthesized spoken audio. LAFINA uses Kokoro 82M for TTS to deliver reminder messages as natural-sounding speech over the simulated phone call.
+
+## U
+
+**USTP (University of Science and Technology of Southern Philippines)**
+The university where LAFINA was developed, located in Cagayan de Oro (CDO), Mindanao, Philippines. The target user base is USTP undergraduate students balancing academic workloads.
+
+## W
+
+**Whisper.cpp**
+A C++ port of OpenAI's Whisper speech recognition model, optimized for CPU inference on mobile and embedded devices. LAFINA uses the Tiny or Base quantized variant for on-device STT.

@@ -4,7 +4,7 @@ interface Props {
 }
 const { title } = Astro.props;
 ---
-<div class="rounded-xl border border-muted/20 bg-surface text-text shadow-sm overflow-hidden my-6">
+<div class="rounded-xl border border-muted/20 bg-surface text-text shadow-sm overflow-hidden my-6 transition-colors hover:border-primary/50">
   {title && (
     <div class="px-6 py-4 border-b border-muted/20 bg-background/50">
       <h3 class="font-semibold text-lg m-0">{title}</h3>

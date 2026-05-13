@@ -5,6 +5,8 @@ import Sidebar from '../components/Sidebar.astro';
 
 const { frontmatter, title: propTitle } = Astro.props;
 const title = frontmatter?.title || propTitle || "LAFINA Wiki";
+const description = frontmatter?.description || "LAFINA — A Conversational Interface for Enhanced Schedule Adherence. NLP-driven automated voice-call reminder system for university students.";
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://lafina-wiki.vercel.app');
 ---
 
 <!doctype html>
@@ -12,9 +14,33 @@ const title = frontmatter?.title || propTitle || "LAFINA Wiki";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+
+    <!-- Primary SEO -->
+    <title>{title === "Introduction" ? "LAFINA Wiki — Voice-Call AI Reminder System" : `${title} — LAFINA Wiki`}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title === "Introduction" ? "LAFINA Wiki" : `${title} — LAFINA Wiki`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="LAFINA Wiki" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title === "Introduction" ? "LAFINA Wiki" : `${title} — LAFINA Wiki`} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
     <!-- Prevent FOUC for dark mode -->
     <script is:inline>
       if (

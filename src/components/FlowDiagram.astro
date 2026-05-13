@@ -1,0 +1,234 @@
+---
+const steps = [
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+    label: 'Trigger',
+    description: 'SQLite detects a reminder time has been reached in the job queue',
+    color: '#4f46e5',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.19 11.9 19.79 19.79 0 0 1 1.12 3.27 2 2 0 0 1 3.1 1.1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>`,
+    label: 'Call Initiation',
+    description: 'Native telephony interface triggers an outgoing simulated phone call',
+    color: '#7c3aed',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`,
+    label: 'TTS Delivery',
+    description: 'Kokoro 82M synthesizes and speaks the reminder message over the call',
+    color: '#0891b2',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>`,
+    label: 'STT Acknowledgment',
+    description: 'Whisper.cpp captures and transcribes the user\'s verbal response in real time',
+    color: '#059669',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`,
+    label: 'Intent Evaluation',
+    description: 'SmolLM2 evaluates natural language intent — "Give me 5 minutes" is understood',
+    color: '#d97706',
+  },
+  {
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    label: 'Termination',
+    description: 'AI closes the loop, ends the call, and marks the job as complete in SQLite',
+    color: '#16a34a',
+  },
+];
+---
+
+<div class="flow-diagram-wrapper">
+  <div class="flow-steps">
+    {steps.map((step, i) => (
+      <div class="flow-item" style={`--step-delay: ${i * 0.4}s; --step-color: ${step.color};`}>
+        <div class="step-card">
+          <div class="step-icon-ring">
+            <span class="step-icon" set:html={step.icon} />
+          </div>
+          <div class="step-number">{i + 1}</div>
+          <div class="step-label">{step.label}</div>
+          <p class="step-description">{step.description}</p>
+        </div>
+        {i < steps.length - 1 && (
+          <div class="flow-arrow">
+            <svg viewBox="0 0 24 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="4" x2="20" y2="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <polyline points="16,1 20,4 16,7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .flow-diagram-wrapper {
+    margin: 2rem 0;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .flow-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: max-content;
+    padding: 1rem 0.5rem;
+  }
+
+  .flow-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    animation: fadeSlideIn 0.5s ease both;
+    animation-delay: var(--step-delay, 0s);
+  }
+
+  .step-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 130px;
+    text-align: center;
+    padding: 1rem 0.5rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--step-color) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--step-color) 25%, transparent);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .step-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--step-color) 15%, transparent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--step-color) 30%, transparent);
+  }
+
+  .step-card:hover::before {
+    opacity: 1;
+  }
+
+  .step-icon-ring {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--step-color) 15%, transparent);
+    border: 2px solid color-mix(in srgb, var(--step-color) 50%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--step-color);
+    animation: pulse 2.5s ease-in-out infinite;
+    animation-delay: var(--step-delay, 0s);
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+  }
+
+  .step-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .step-number {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--step-color);
+    background: color-mix(in srgb, var(--step-color) 12%, transparent);
+    border-radius: 999px;
+    padding: 0.1rem 0.45rem;
+    letter-spacing: 0.05em;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.2;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-description {
+    font-size: 0.65rem;
+    color: var(--color-muted);
+    line-height: 1.4;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .flow-arrow {
+    width: 36px;
+    flex-shrink: 0;
+    color: var(--color-muted);
+    opacity: 0.6;
+    padding: 0 2px;
+    margin-top: -2.5rem;
+  }
+
+  .flow-arrow svg {
+    width: 100%;
+    height: 12px;
+  }
+
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--step-color) 40%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--step-color) 0%, transparent);
+    }
+  }
+
+  /* Responsive: stack vertically on small screens */
+  @media (max-width: 900px) {
+    .flow-steps {
+      flex-direction: column;
+      align-items: center;
+      min-width: unset;
+    }
+
+    .flow-arrow {
+      transform: rotate(90deg);
+      margin: 0.25rem 0;
+      width: 24px;
+    }
+
+    .step-card {
+      width: 260px;
+    }
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+interface Props {
+  value: string;
+  label: string;
+  source?: string;
+  color?: 'primary' | 'accent' | 'success' | 'warning';
+}
+const { value, label, source, color = 'primary' } = Astro.props;
+const colorMap = { primary: '#4f46e5', accent: '#0ea5e9', success: '#16a34a', warning: '#d97706' };
+const c = colorMap[color];
+---
+<div class="stat-card" style={`--stat-color: ${c};`}>
+  <div class="stat-value">{value}</div>
+  <div class="stat-label">{label}</div>
+  {source && <div class="stat-source">{source}</div>}
+</div>
+<style>
+  .stat-card { display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 1.25rem; border-radius:0.875rem; background:color-mix(in srgb, var(--stat-color) 8%, var(--color-surface)); border:1px solid color-mix(in srgb, var(--stat-color) 20%, transparent); transition:transform .2s ease, box-shadow .2s ease; flex:1; min-width:140px; }
+  .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px color-mix(in srgb, var(--stat-color) 20%, transparent); }
+  .stat-value { font-size:2.25rem; font-weight:900; letter-spacing:-0.03em; color:var(--stat-color); line-height:1; margin-bottom:.4rem; }
+  .stat-label { font-size:.8rem; font-weight:600; color:var(--color-text); line-height:1.4; margin-bottom:.35rem; }
+  .stat-source { font-size:.65rem; color:var(--color-muted); font-style:italic; }
+</style>

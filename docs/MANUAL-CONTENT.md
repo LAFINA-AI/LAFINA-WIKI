@@ -1,6 +1,6 @@
 # Manual content and screenshot map
 
-The web guides and downloadable PDF share `src/data/manual.json`. Each step defines instructions, an expected result, an optional note, and an optional screenshot. User screenshots remain untouched in the root `screenshots/` directory.
+The web guides, downloadable PDF, and editable Word document share `src/data/manual.json`. Each step defines instructions, an expected result, an optional note, and an optional screenshot. User screenshots remain untouched in the root `screenshots/` directory.
 
 ## Sources and scope
 
@@ -16,12 +16,13 @@ The web guides and downloadable PDF share `src/data/manual.json`. Each step defi
 1. Edit `src/data/manual.json`. Use stable chapter slugs and step IDs; these form deep links.
 2. For a new image, add the original under `screenshots/` and fill its source filename, friendly output filename, descriptive alt text, and caption.
 3. Run `npm run manual:assets`. This copies the referenced originals into `public/manual/screenshots/`.
-4. Install the optional PDF authoring dependency: `python -m pip install -r scripts/requirements-manual.txt`.
+4. Install the optional document authoring dependencies: `python -m pip install -r scripts/requirements-manual.txt`.
 5. Run `npm run manual:pdf`. This writes the PDF and checksum manifest to `public/manual/`. The generator fails on text or caption overflow.
-6. Render and visually inspect the changed PDF pages. Do not deliver an unreviewed regeneration.
-7. Run `npm run check`, `npm run check:manual`, and `npm run build`. Build validates the checked-in PDF checksum against its content source.
+6. Run `npm run manual:docx` to regenerate the editable Word document and its checksum manifest. Word paragraphs, heading styles, internal links, image alt text, and embedded screenshots remain editable. To refresh contents page references after direct edits in Word, select all and update fields with Ctrl+A then F9.
+7. Render and visually inspect the changed PDF and Word pages. Do not deliver an unreviewed regeneration.
+8. Run `npm run check`, `npm run check:manual`, and `npm run build`. Build validates both documents and their screenshot checksums against the shared source.
 
-The checked-in PDF needs no Python installation to serve or deploy. The PDF uses one page per step, preceded by a cover and two contents pages. If the manual grows enough to overflow its contents pages, update the chapter split and page calculation in the generator together.
+The checked-in documents need no Python installation to serve or deploy. The PDF uses one page per step, preceded by a cover and two contents pages. If the manual grows enough to overflow its contents pages, update the chapter split and page calculation in the generator together.
 
 ## Screenshot placement
 

@@ -8,6 +8,7 @@ The LAFINA research wiki and illustrated Android user manual, built with Astro, 
 - `/user-manual/<topic>` — 13 topic guides with 41 numbered steps, step navigation, and screenshot enlargement.
 - `/user-manual/full` — complete manual with linked topic/step contents and Print / Save PDF.
 - `/manual/LAFINA-User-Manual.pdf` — downloadable 44-page manual with exact page-numbered contents, internal links, and bookmarks.
+- `/manual/LAFINA-User-Manual.docx` — editable Word manual with the same instructions, linked contents, and embedded screenshots.
 
 All 35 unique supplied screenshots are placed beside the relevant instructions. The duplicate original is retained in `screenshots/`. Research pages remain available at their existing routes.
 
@@ -41,10 +42,11 @@ The canonical source is `src/data/manual.json`. Both the website and PDF generat
 npm run manual:assets
 python -m pip install -r scripts/requirements-manual.txt
 npm run manual:pdf
+npm run manual:docx
 npm run check:manual
 ```
 
-Render and visually review regenerated PDF pages before delivery. See [the authoring notes and complete screenshot map](docs/MANUAL-CONTENT.md) for provenance, source limits, and the regeneration workflow.
+Render and visually review regenerated PDF and Word pages before delivery. See [the authoring notes and complete screenshot map](docs/MANUAL-CONTENT.md) for provenance, source limits, and the regeneration workflow.
 
 ## Project structure
 

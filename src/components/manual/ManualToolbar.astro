@@ -4,6 +4,7 @@ const { full = false } = Astro.props;
 <div class="manual-toolbar not-prose">
   <a href={full ? '/user-manual' : '/user-manual/full'} class="manual-button">{full ? '← Step-by-step guides' : 'Full manual & contents'}</a>
   <div class="manual-toolbar-actions">
+    <a class="manual-button" href="/manual/LAFINA-User-Manual.docx" download>Download Word <span aria-hidden="true">↓</span></a>
     <a class="manual-button manual-button-primary" href="/manual/LAFINA-User-Manual.pdf" download>Download PDF <span aria-hidden="true">↓</span></a>
     {full && <button type="button" class="manual-button" data-print-manual>Print / Save PDF</button>}
   </div>

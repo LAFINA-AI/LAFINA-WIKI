@@ -10,6 +10,7 @@
     "check:manual": "node scripts/check-manual.mjs",
     "manual:assets": "node scripts/manual-assets.mjs",
     "manual:pdf": "python scripts/build-manual.py",
+    "manual:docx": "python scripts/build-manual-docx.py",
     "dev": "astro dev",
     "build": "npm run check:manual && astro build",
     "preview": "astro preview",

@@ -1,0 +1,45 @@
+<dialog class="screenshot-dialog" aria-labelledby="screenshot-dialog-title">
+  <div class="screenshot-dialog-header"><p id="screenshot-dialog-title">Screenshot preview</p><button type="button" class="manual-button" data-close-screenshot autofocus>Close <span aria-hidden="true">×</span></button></div>
+  <div class="screenshot-dialog-image"><img alt="" /></div><p data-dialog-caption></p>
+</dialog>
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('.screenshot-dialog');
+  const image = dialog?.querySelector<HTMLImageElement>('img');
+  const caption = dialog?.querySelector<HTMLElement>('[data-dialog-caption]');
+  document.querySelectorAll<HTMLButtonElement>('[data-screenshot]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!dialog || !image || !caption) return;
+      image.src = button.dataset.screenshot ?? '';
+      image.alt = button.querySelector('img')?.alt ?? '';
+      caption.textContent = button.dataset.caption ?? '';
+      dialog.showModal();
+      document.documentElement.classList.add('screenshot-open');
+    });
+  });
+  dialog?.querySelector('[data-close-screenshot]')?.addEventListener('click', () => dialog.close());
+  dialog?.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  dialog?.addEventListener('close', () => document.documentElement.classList.remove('screenshot-open'));
+  document.querySelector<HTMLButtonElement>('[data-print-manual]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    button.textContent = 'Preparing images…';
+    try {
+      await Promise.all(Array.from(document.querySelectorAll<HTMLImageElement>('.manual-figure img')).map(async (img) => {
+        img.loading = 'eager';
+        try { await img.decode(); } catch { /* Keep the printable instructions available if an image fails. */ }
+      }));
+      window.print();
+    } finally { button.disabled = false; button.textContent = 'Print / Save PDF'; }
+  });
+  const search = document.querySelector<HTMLInputElement>('#manual-search');
+  search?.addEventListener('input', () => {
+    const query = search.value.toLocaleLowerCase().trim();
+    const topics = document.querySelectorAll<HTMLElement>('[data-search-text]');
+    let count = 0;
+    topics.forEach((topic) => { const matches = topic.dataset.searchText?.includes(query) ?? false; topic.hidden = !matches; if (matches) count++; });
+    const status = document.querySelector<HTMLElement>('#manual-search-status');
+    if (status) status.textContent = query ? `${count} ${count === 1 ? 'topic matches' : 'topics match'} “${search.value.trim()}”` : `${topics.length} topics · Follow in order or choose what you need`;
+    const empty = document.querySelector<HTMLElement>('#manual-search-empty');
+    if (empty) empty.hidden = count > 0;
+  });
+</script>

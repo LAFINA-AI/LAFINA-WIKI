@@ -1,0 +1,31 @@
+---
+interface Step {
+  id: string;
+  title: string;
+  instructions: string[];
+  result: string;
+  note?: string;
+  image?: { file: string; source: string; alt: string; caption: string };
+}
+interface Props { step: Step; index: number; chapterSlug: string; previousHref?: string; nextHref?: string; }
+const { step, index, chapterSlug, previousHref, nextHref } = Astro.props;
+---
+<section class:list={['manual-step', { 'manual-step-with-image': Boolean(step.image) }]} id={`${chapterSlug}-${step.id}`} aria-labelledby={`${chapterSlug}-${step.id}-title`}>
+  <div class="manual-step-copy">
+    <p class="manual-eyebrow">Step {String(index + 1).padStart(2, '0')}</p>
+    <h3 id={`${chapterSlug}-${step.id}-title`}>{step.title}</h3>
+    <ol>{step.instructions.map((instruction) => <li>{instruction}</li>)}</ol>
+    <p class="manual-result"><strong>What to expect</strong>{step.result}</p>
+    {step.note && <aside class="manual-note"><strong>Keep in mind</strong><p>{step.note}</p></aside>}
+  </div>
+  {step.image && <figure class="manual-figure">
+    <button type="button" class="screenshot-button" data-screenshot={`/manual/screenshots/${step.image.file}`} data-caption={step.image.caption} aria-label={`Enlarge screenshot: ${step.title}`}>
+      <img src={`/manual/screenshots/${step.image.file}`} alt={step.image.alt} width={step.image.file === 'home-dashboard.jpg' ? 637 : 908} height="2048" loading="lazy" decoding="async" />
+      <span class="screenshot-zoom">Enlarge screenshot <span aria-hidden="true">↗</span></span>
+    </button><figcaption>{step.image.caption}</figcaption>
+  </figure>}
+  {(previousHref || nextHref) && <nav class="manual-step-navigation" aria-label={`Step ${index + 1} navigation`}>
+    {previousHref ? <a href={previousHref}>← Previous step</a> : <span />}
+    {nextHref && <a href={nextHref}>Next step →</a>}
+  </nav>}
+</section>

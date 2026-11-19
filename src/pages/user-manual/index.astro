@@ -1,0 +1,22 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import manual from '../../data/manual.json';
+import ManualToolbar from '../../components/manual/ManualToolbar.astro';
+import ManualInteractions from '../../components/manual/ManualInteractions.astro';
+const steps = manual.chapters.reduce((total, chapter) => total + chapter.steps.length, 0);
+---
+<Layout title="User Manual" description={manual.introduction}>
+  <div class="manual-page">
+    <header class="manual-header"><p class="manual-eyebrow">LAFINA / Your everyday guide</p><h1>User Manual</h1><p class="manual-lead">A little guidance.<br />A more organized day.</p><p>{manual.introduction}</p><div class="manual-meta"><span>{manual.chapters.length} topics</span><span>{steps} steps</span><span>Android · {manual.edition}</span></div></header>
+    <ManualToolbar />
+    <aside class="manual-start"><div><h2>New to LAFINA?</h2><p>Get oriented, add your classes, then set your first alarm.</p></div><a class="manual-button" href="/user-manual/getting-started">Start the guide <span aria-hidden="true">→</span></a></aside>
+    <section class="manual-contents" aria-labelledby="topics-heading">
+      <div class="manual-section-heading"><h2 id="topics-heading">Find your next step</h2><a href="/user-manual/full#contents">Table of contents →</a></div>
+      <label class="manual-search-label" for="manual-search">Search the manual</label><input id="manual-search" type="search" placeholder="Try “alarm”, “COR”, or “temporary chat”" autocomplete="off" />
+      <p id="manual-search-status" class="manual-search-status" role="status">{manual.chapters.length} topics · Follow in order or choose what you need</p>
+      <ol class="manual-topic-list">{manual.chapters.map((chapter, index) => <li data-search-text={`${chapter.title} ${chapter.summary} ${chapter.steps.map((step) => `${step.title} ${step.instructions.join(' ')}`).join(' ')}`.toLocaleLowerCase()}><a href={`/user-manual/${chapter.slug}`}><span class="manual-topic-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span class="manual-topic-copy"><span class="manual-topic-group">{chapter.group}</span><strong>{chapter.title}</strong><span>{chapter.summary}</span></span><span class="manual-topic-count">{chapter.steps.length} {chapter.steps.length === 1 ? 'step' : 'steps'} <span aria-hidden="true">↗</span></span></a></li>)}</ol>
+      <p id="manual-search-empty" class="manual-empty" hidden>No matching topics. Try “schedule”, “voice”, or “profile”, or clear your search to see all guides.</p>
+    </section>
+    <footer class="manual-edition"><strong>About this edition</strong><p>{manual.scope}</p><p>The wiki's research sections document the original project design. This manual describes the supplied app screens and current user workflows.</p></footer>
+  </div><ManualInteractions />
+</Layout>

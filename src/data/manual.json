@@ -1,0 +1,790 @@
+{
+  "title": "LAFINA User Manual",
+  "edition": "November 2026",
+  "updated": "2026-11-20",
+  "introduction": "A practical guide to planning your day, organizing academic work, and talking with LAFINA. Follow a topic step by step, or read the complete manual.",
+  "scope": "This edition follows the supplied Android screenshots and the companion LAFINA app source. Names, model choices, and available online features can vary by app version, account, and device. Screenshots show an example student account; use your own details.",
+  "chapters": [
+    {
+      "slug": "getting-started",
+      "title": "Getting started",
+      "group": "Start here",
+      "summary": "Set up the app, find your way around, and personalize your home screen.",
+      "before": "Have LAFINA installed on a supported Android phone. Keep an internet connection available if you plan to sign in or download an AI model.",
+      "steps": [
+        {
+          "id": "first-launch",
+          "title": "Start with an account or as a guest",
+          "instructions": [
+            "Open LAFINA and follow the introduction. Start without an account for local guest use, or choose sign-in if you already have a cloud account.",
+            "Complete the setup prompts that apply to you. Review microphone and notification requests before granting access; Android alarm permissions may open a separate system settings screen.",
+            "For class setup, enter your own academic details and review any imported Certificate of Registration (COR) information before saving. You can also add classes later from Schedule."
+          ],
+          "result": "The main workspace opens with a local profile or your signed-in account.",
+          "note": "Guest mode supports local scheduling. Online chat, cloud services, and synchronization need connectivity and may require an eligible account. No first-launch screenshot was supplied; this step is based on the app source."
+        },
+        {
+          "id": "home",
+          "title": "Find your way around Home",
+          "instructions": [
+            "Tap Home in the bottom navigation to see your dashboard, next class, upcoming tasks, alarms, and today's schedule.",
+            "Use Schedule for calendar views, AI for conversations, Tools for alarms, to-dos and notes, and Profile for personal settings.",
+            "Tap a dashboard item to open its details. Use the central LAFINA button to access the assistant."
+          ],
+          "result": "You can move between the five main areas without losing your place in the app.",
+          "image": {
+            "file": "home-dashboard.jpg",
+            "source": "908737793_1757522452399161_6727713407775977477_n.jpg",
+            "alt": "LAFINA Home showing a next-class card, task and notes shortcuts, study time, alarms, and today's schedule.",
+            "caption": "Home brings your academic day into one dashboard."
+          }
+        },
+        {
+          "id": "customize-home",
+          "title": "Choose what your dashboard shows",
+          "instructions": [
+            "Open the dashboard customization control on Home to display Customize Dashboard.",
+            "Choose Balanced, Class & Free Time, or Exam Crunch as a starting preset.",
+            "Set your minimum free study block and default schedule view. Enable the widgets you want and adjust their order using the available controls.",
+            "Tap Done to apply your choices. Use Reset if you want to return to the default arrangement."
+          ],
+          "result": "Home displays the widgets and study-block settings you selected.",
+          "image": {
+            "file": "customize-dashboard.jpg",
+            "source": "916986049_1128143286494071_3428092842347999980_n.jpg",
+            "alt": "Customize Dashboard sheet with quick presets, study block length, default view, widget switches, Reset and Done.",
+            "caption": "Customize Dashboard controls presets, study blocks, and visible widgets."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "schedule",
+      "title": "Navigate your schedule",
+      "group": "Plan your day",
+      "summary": "Use Month, Week, and Day views and inspect the plan for a selected date.",
+      "before": "Open the Schedule tab. Add classes or events if your calendar is empty.",
+      "steps": [
+        {
+          "id": "month",
+          "title": "See the month at a glance",
+          "instructions": [
+            "Tap Schedule, then select Month at the top.",
+            "Use the left and right arrows to move between periods. Tap Today to return to the current date.",
+            "Tap a date in the month grid to select it. The selected day is highlighted."
+          ],
+          "result": "The calendar and daily plan focus on the date you chose.",
+          "image": {
+            "file": "schedule-month.jpg",
+            "source": "905977989_1863936831426037_3064573646112171982_n.jpg",
+            "alt": "November month calendar with a selected date and a Plan list beneath the date grid.",
+            "caption": "Month view gives you a calendar overview and the selected day's plan."
+          }
+        },
+        {
+          "id": "daily-plan",
+          "title": "Read a selected day's plan",
+          "instructions": [
+            "In Month view, select the date you want to inspect.",
+            "Read the Plan list below the calendar for class or event titles and times.",
+            "Tap an item to inspect its details. Use the plus button beside Plan when you need to add another item."
+          ],
+          "result": "You can check the selected day's commitments without changing calendar views.",
+          "image": {
+            "file": "schedule-plan.jpg",
+            "source": "908383469_4405644443021478_1134226438229626548_n.jpg",
+            "alt": "Selected November date with a Plan list showing class and event entries with time ranges.",
+            "caption": "The Plan list shows the items scheduled on the selected date."
+          }
+        },
+        {
+          "id": "week",
+          "title": "Review the week",
+          "instructions": [
+            "Select Week in the view switcher.",
+            "Choose a day in the date strip, then scroll the timeline to inspect scheduled blocks.",
+            "Tap a class or event block to review its time and details. Return to Today whenever you need to reorient yourself."
+          ],
+          "result": "You can compare commitments across the current week and inspect individual blocks.",
+          "image": {
+            "file": "schedule-week.jpg",
+            "source": "912493879_1162640776219135_3011939931818056052_n.jpg",
+            "alt": "Week view with a horizontal day selector and stacked IT Elective and Gender and Society class blocks.",
+            "caption": "Week view uses a day strip and time-based schedule blocks."
+          }
+        },
+        {
+          "id": "day",
+          "title": "Focus on one day",
+          "instructions": [
+            "Select Day in the view switcher.",
+            "Pick a date and scroll vertically through its hours.",
+            "Use the spaces between scheduled blocks to identify free time. Tap a block to view the corresponding item."
+          ],
+          "result": "The timeline gives you a detailed view of one day's occupied and free hours.",
+          "image": {
+            "file": "schedule-day.jpg",
+            "source": "914887036_1101419149384699_4330279024471686313_n.jpg",
+            "alt": "Day view showing two morning classes and an afternoon class on an hourly timeline.",
+            "caption": "Day view makes gaps between classes easier to see."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "classes",
+      "title": "Add and manage classes",
+      "group": "Plan your day",
+      "summary": "Enter a class schedule, review COR information, and edit repeating subjects.",
+      "before": "Have your class timetable or COR ready. Check the semester dates, weekdays, and AM/PM times before saving.",
+      "steps": [
+        {
+          "id": "calendar-options",
+          "title": "Open class scheduling options",
+          "instructions": [
+            "Open Schedule and tap the options control beside the calendar navigation.",
+            "In Calendar Options, choose Add COR / Class Schedule to enter or scan a timetable.",
+            "Choose View Classes when you want to review or edit classes already saved."
+          ],
+          "result": "You are in the appropriate class entry or class management screen.",
+          "image": {
+            "file": "calendar-options.jpg",
+            "source": "907939059_1622058609041006_5824464249714241437_n.jpg",
+            "alt": "Calendar Options listing View Classes, Add COR / Class Schedule, calendar groups and schedule tools.",
+            "caption": "Calendar Options is the entry point for classes and calendar groups."
+          }
+        },
+        {
+          "id": "add-class",
+          "title": "Enter a class or review a scan",
+          "instructions": [
+            "In Add COR / Class Schedule, use Manual Entry to type the subject code and subject or class title. Add a section if needed.",
+            "Select the correct class days and enter the start and end times. Add a room and instructor when available.",
+            "Choose the schedule duration, such as This Semester or Repeat Weekly. Use Add Subject & Enter Another for additional subjects, then Save to Calendar.",
+            "If using Scan COR / Photo, select your source and carefully review the extracted subjects, days, and times before confirming the import. Correct OCR mistakes instead of accepting them automatically."
+          ],
+          "result": "Your saved subjects appear in Schedule and My Classes.",
+          "note": "Scan availability depends on the installed app and permissions. Manual Entry is the fallback when a photo cannot be read.",
+          "image": {
+            "file": "add-class.jpg",
+            "source": "909329143_1476036191155322_8141928292454302163_n.jpg",
+            "alt": "Add COR / Class Schedule form showing Manual Entry, subject fields, class days, times, room, instructor and Save to Calendar.",
+            "caption": "Review every class field before saving the schedule."
+          }
+        },
+        {
+          "id": "my-classes",
+          "title": "Find, edit, or remove a saved class",
+          "instructions": [
+            "Open Calendar Options, then View Classes.",
+            "Search by subject, code, room, or faculty to narrow the list.",
+            "Tap Edit on a class, adjust its details, and choose Save Changes. Use Add to enter another class.",
+            "Use the delete control only for a class you intend to remove, and read any confirmation before proceeding."
+          ],
+          "result": "The class list and calendar reflect your saved changes.",
+          "image": {
+            "file": "my-classes.jpg",
+            "source": "914383757_1692535445945480_7457554418704702567_n.jpg",
+            "alt": "My Classes sheet with a search field, Add button, and recurring class cards with Edit and delete controls.",
+            "caption": "My Classes collects repeating subject entries in one place."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "calendar-groups",
+      "title": "Calendar groups and birthdays",
+      "group": "Plan your day",
+      "summary": "Control calendar visibility and organize recurring events and birthdays.",
+      "before": "Open Calendar Options from Schedule.",
+      "steps": [
+        {
+          "id": "visibility",
+          "title": "Choose which calendars are visible",
+          "instructions": [
+            "In Calendar Options, open Calendars & Visibility.",
+            "Use the checkboxes in My Calendars to show or hide personal entries, Classes, Birthdays, and Tasks as available.",
+            "Close the sheet and inspect Schedule. Re-enable a hidden calendar when you want its entries visible again."
+          ],
+          "result": "Only the selected calendar layers are shown.",
+          "note": "Hiding a calendar changes visibility; it does not delete its saved entries.",
+          "image": {
+            "file": "calendar-visibility.jpg",
+            "source": "903232067_837357699472521_8560780714660563493_n.jpg",
+            "alt": "My Calendars sheet with visibility checkboxes for the personal calendar, Classes, Birthdays and Tasks.",
+            "caption": "Calendar visibility lets you focus on selected types of commitments."
+          }
+        },
+        {
+          "id": "custom-group",
+          "title": "Create a schedule group",
+          "instructions": [
+            "Choose Add Schedule Group in Calendar Options.",
+            "Enter a group name such as Exams or Org Events and select a color.",
+            "To include an item, enter its title and choose Single Date, Every Week, or This Semester. Set the day or date, start and end time, and optional location.",
+            "Use Save Group for an empty group or Add to Group when an item is filled in. Reopen the group to manage its items."
+          ],
+          "result": "Your group is available in Calendar Options with its saved schedule items.",
+          "image": {
+            "file": "new-schedule-group.jpg",
+            "source": "914265376_1460264366259841_5597591349115312649_n.jpg",
+            "alt": "New Schedule Group form with group name, colors, item title, repeat pattern, selected weekdays and time fields.",
+            "caption": "Use groups to organize exams, organizations, workouts, or other events."
+          }
+        },
+        {
+          "id": "birthdays",
+          "title": "Add a birthday",
+          "instructions": [
+            "Open Birthdays from Calendar Options.",
+            "Enter the person's name, birth month and day. Add the birth year only if you want to record it.",
+            "Choose a relationship group, add an optional gift idea or note, and tap Add Birthday.",
+            "Use the saved list to search, edit, or remove birthdays. Make sure the Birthdays calendar is visible if you want to see them in Schedule."
+          ],
+          "result": "The birthday is saved as a yearly calendar entry.",
+          "image": {
+            "file": "birthdays.jpg",
+            "source": "911662345_1672475380920210_8783219131454069837_n.jpg",
+            "alt": "Birthdays form with person name, month, day, optional birth year and note, relationship chips and saved birthdays.",
+            "caption": "Birthdays repeat yearly and can include a relationship and personal note."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "alarms",
+      "title": "Create and manage alarms",
+      "group": "Plan your day",
+      "summary": "Set a time, choose repeat days, and check that your alarm is enabled.",
+      "before": "Allow the Android notification and alarm access needed by your installed version. Device sound, Do Not Disturb, and battery settings can affect delivery.",
+      "steps": [
+        {
+          "id": "open-alarms",
+          "title": "Open your alarms",
+          "instructions": [
+            "Tap Tools, then choose Alarms.",
+            "Review Next Alarm and All alarms. An empty list means no alarm has been added for this view.",
+            "Tap the plus button to create an alarm."
+          ],
+          "result": "The New alarm editor opens.",
+          "image": {
+            "file": "alarms-empty.jpg",
+            "source": "907328799_2936597933378562_9003281147956758271_n.jpg",
+            "alt": "Tools Alarms tab with No new alarm is on, zero active alarms and an add button.",
+            "caption": "The Alarms tab shows the next alarm and all saved alarms."
+          }
+        },
+        {
+          "id": "set-alarm",
+          "title": "Choose a time and repeat pattern",
+          "instructions": [
+            "Set the hour, minute, and AM/PM in New alarm. Check the displayed next occurrence so you do not accidentally schedule the wrong day.",
+            "Choose Once, Weekdays, Weekends, Every day, or specific weekdays as available.",
+            "Enter a label such as Wake up or Study. Scroll through Alert & Snooze and adjust the available options if needed.",
+            "Tap Set alarm. Use Cancel if you do not want to save."
+          ],
+          "result": "The alarm is saved and appears in All alarms.",
+          "image": {
+            "file": "new-alarm.jpg",
+            "source": "904353058_1133322502634607_863631765778599142_n.jpg",
+            "alt": "New alarm sheet with a 6 AM time picker, repeat-day options, label, Alert & Snooze and Set alarm button.",
+            "caption": "Check AM/PM and repeat days before setting the alarm."
+          }
+        },
+        {
+          "id": "verify-alarm",
+          "title": "Verify, disable, or edit an alarm",
+          "instructions": [
+            "Return to Tools > Alarms and check the Next Alarm card for the next ring time.",
+            "Find your alarm in All alarms. Use its switch to enable or disable it.",
+            "Tap the alarm to edit its time, repeat rule, or label, then save your changes.",
+            "If alerts do not arrive, open Profile > Alarm & Reminder Health and review Android permissions and restrictions."
+          ],
+          "result": "You know which alarm is active and when it is expected to ring.",
+          "note": "Acknowledging or dismissing a reminder does not mark the underlying task complete. Mark a finished task in the to-do list separately.",
+          "image": {
+            "file": "alarms-active.jpg",
+            "source": "907639363_3459845500842855_2591584492021011914_n.jpg",
+            "alt": "Alarms tab with a Next Alarm card and a saved Wake up alarm whose enable switch is on.",
+            "caption": "An enabled alarm appears in the active list with its next ring time."
+          }
+        },
+        {
+          "id": "respond-to-reminder",
+          "title": "Respond when LAFINA reminds you",
+          "instructions": [
+            "When a simulated incoming reminder call appears, read the reminder title and use Answer if you want to respond. This is an app reminder, not a carrier phone call.",
+            "Follow the controls shown after answering. In the local or fallback view, use Acknowledge to confirm receipt or Snooze to delay the alert. If microphone access is unavailable, use these manual controls.",
+            "If an online reminder conversation is offered, review its privacy notice before agreeing. Correct uncertain dates or times and confirm proposed changes only after reviewing them.",
+            "After the reminder ends, return to your task or schedule. Mark the task complete separately when the work is finished."
+          ],
+          "result": "You have acknowledged the alert or chosen to delay it, and can verify any changed reminder time.",
+          "note": "The available call controls depend on the mode and app version. No incoming reminder screenshot was supplied; this step is based on the app source. Answering alone does not complete the underlying task."
+        }
+      ]
+    },
+    {
+      "slug": "tasks",
+      "title": "Manage your to-do list",
+      "group": "Your workspace",
+      "summary": "Create tasks with priorities, categories and due dates, then track completion.",
+      "before": "Open Tools and select Todo.",
+      "steps": [
+        {
+          "id": "new-task",
+          "title": "Add a to-do",
+          "instructions": [
+            "Use the plus button on Todo to open New To-Do.",
+            "Enter the task title and choose High, Medium, or Low priority.",
+            "Choose No due date, Today, Tomorrow, or Pick date. Select a category and enter optional details.",
+            "Tap Add To-Do. Use Cancel to leave without adding it."
+          ],
+          "result": "The task appears in your to-do list with the priority and date you chose.",
+          "image": {
+            "file": "new-todo.jpg",
+            "source": "916486130_4603038289911327_6286670615548811675_n.jpg",
+            "alt": "New To-Do form with title, priority, optional due date, category, details and Add To-Do button.",
+            "caption": "A task can have a priority and category even without a due date."
+          }
+        },
+        {
+          "id": "task-list",
+          "title": "Find and complete tasks",
+          "instructions": [
+            "Use Quick add a to-do for a simple task, or open the full editor when you need more details.",
+            "Use All Open, No Date, Scheduled, or From Notes to narrow the list.",
+            "Tap a task to inspect or edit it. Select its completion checkbox when the work is actually finished.",
+            "Review scheduled tasks against your calendar so the due date reflects your real deadline."
+          ],
+          "result": "Your open list reflects the tasks you still need to finish.",
+          "note": "Task completion and reminder acknowledgment are separate actions. Answering a LAFINA reminder does not finish the task for you.",
+          "image": {
+            "file": "todo-list.jpg",
+            "source": "921070094_2204187587148267_8046802961498164817_n.jpg",
+            "alt": "Todo list with quick entry, All Open and date filters, task completion checkboxes and priority labels.",
+            "caption": "Use filters and completion checkboxes to keep your to-do list current."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "notes",
+      "title": "Write and organize notes",
+      "group": "Your workspace",
+      "summary": "Create notes, use Markdown and checklists, and find saved entries by category.",
+      "before": "Open Tools and choose Notes.",
+      "steps": [
+        {
+          "id": "notes-library",
+          "title": "Browse your notes",
+          "instructions": [
+            "Choose Notes in Tools to view your note cards.",
+            "Select All or a category such as AI Generated, Personal, or Work to narrow the library.",
+            "Tap a note card to open it. Use the plus button to create a new note."
+          ],
+          "result": "The note editor opens for a new or existing note.",
+          "image": {
+            "file": "notes-library.jpg",
+            "source": "917613218_1131463513116045_2831375766955525200_n.jpg",
+            "alt": "Tools Notes tab with category filters and a saved note card.",
+            "caption": "Notes are collected as cards and can be filtered by category."
+          }
+        },
+        {
+          "id": "note-editor",
+          "title": "Write, preview, and save a note",
+          "instructions": [
+            "Enter a title, choose a category, and write in the note body.",
+            "Use the formatting toolbar for headings, emphasis, lists, and other supported Markdown. For a checklist, use the checklist control or Markdown such as - [ ] Review lecture.",
+            "Switch between Write and Preview to check formatting. Use Pin when you want to keep the note prominent.",
+            "Tap Done, then verify that the note appears in your library."
+          ],
+          "result": "Your note is saved with its title, body, and category.",
+          "image": {
+            "file": "note-editor.jpg",
+            "source": "917537252_2121226271859944_8018423131338463302_n.jpg",
+            "alt": "Note editor with title, category choices, Markdown toolbar, Write and Preview modes, Pin and Done.",
+            "caption": "The editor supports formatted writing and a separate preview."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "ai-chat",
+      "title": "Chat with LAFINA",
+      "group": "Talk with LAFINA",
+      "summary": "Ask about your day, attach a schedule image, manage chats, and use temporary chat.",
+      "before": "Open AI. Check the selected engine and connection status. Online services may require sign-in and account access; offline models need to be downloaded and loaded first.",
+      "steps": [
+        {
+          "id": "ask",
+          "title": "Start a conversation",
+          "instructions": [
+            "Tap AI or the central LAFINA button to open the assistant.",
+            "Tap a starter such as Today's Schedule, Free Study Time, Pending Tasks, or Upcoming Schedule, or type in Ask me anything.",
+            "For a scheduling request, include the task, date, and time. Review any proposed changes and confirm only when the details are correct.",
+            "Check the schedule or to-do list after a change is saved."
+          ],
+          "result": "LAFINA responds in the conversation, or presents a change for you to review.",
+          "note": "AI can misread a date or instruction. Verify saved items in the corresponding app screen.",
+          "image": {
+            "file": "ai-home.jpg",
+            "source": "915220829_1874825090185019_9215606920478327097_n.jpg",
+            "alt": "AI assistant home with schedule and free study time prompts and an Ask me anything input.",
+            "caption": "Starter prompts help you ask about the schedule already stored in LAFINA."
+          }
+        },
+        {
+          "id": "attachments",
+          "title": "Attach a photo or schedule",
+          "instructions": [
+            "Tap the plus button beside the chat input.",
+            "Choose Camera for a new photo or Photos & Screenshots for an existing image.",
+            "Grant camera or photo access if you want to use that source, then choose a clear image.",
+            "Explain what you want LAFINA to read. Review extracted text and proposed schedule details before accepting a change."
+          ],
+          "result": "The selected image is available to the conversation's supported image workflow.",
+          "note": "Image processing support varies by model and mode. Use the manual class-entry form if the image cannot be read. Share only the information needed for your request.",
+          "image": {
+            "file": "chat-attachments.jpg",
+            "source": "909329166_1713765083752717_3105958351029224420_n.jpg",
+            "alt": "Add to conversation sheet offering Camera and Photos & Screenshots for photos and schedules.",
+            "caption": "Attach an image from the camera or your existing screenshots."
+          }
+        },
+        {
+          "id": "chat-drawer",
+          "title": "Find or start a chat",
+          "instructions": [
+            "Open the Chat side panel from the assistant's menu control.",
+            "Use Search chats to find a saved conversation, or choose New chat for a fresh conversation.",
+            "Use the All, General, or USTP filters when available. The USTP Handbook shortcut opens handbook questions.",
+            "Select a conversation to reopen it, or close the panel to return to the current chat."
+          ],
+          "result": "You can separate conversations and return to saved history.",
+          "image": {
+            "file": "chat-history.jpg",
+            "source": "906101184_4473837936216643_4044959678811657871_n.jpg",
+            "alt": "Chat panel with search, New chat, Temporary, USTP Handbook, camera, gallery and conversation filters.",
+            "caption": "The Chat panel collects history, conversation actions, and handbook access."
+          }
+        },
+        {
+          "id": "temporary",
+          "title": "Use a temporary conversation",
+          "instructions": [
+            "In the Chat panel, choose Temporary.",
+            "Check that the screen displays Temporary Chat and Not saved in history before entering your message.",
+            "Ask your question as usual. If you need to keep an answer, copy the relevant information to a note yourself.",
+            "Start a normal New chat when you want to return to saved conversations."
+          ],
+          "result": "The assistant displays a conversation marked as temporary.",
+          "note": "Temporary chat is not saved in chat history and is not used as chat memory. Online mode can still send your messages to the configured service; temporary does not mean offline.",
+          "image": {
+            "file": "temporary-chat.jpg",
+            "source": "919714215_2390149188420606_3615322229980619174_n.jpg",
+            "alt": "Temporary Chat screen displaying Not saved in history and a temporary-chat-not-saved-to-memory label.",
+            "caption": "The temporary label makes the conversation's history behavior visible."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "ustp-handbook",
+      "title": "Ask about the USTP handbook",
+      "group": "Talk with LAFINA",
+      "summary": "Open handbook mode and check the source references in policy answers.",
+      "before": "Use an eligible student setup and an available online connection for verified handbook answers. The offline screen still provides an entry point, but cannot verify handbook sources.",
+      "steps": [
+        {
+          "id": "handbook-questions",
+          "title": "Ask a handbook question and check its source",
+          "instructions": [
+            "Choose USTP Handbook in the Chat panel, or Ask LAFINA anything about USTP on the assistant screen.",
+            "Choose a starter such as Dean's List GPA, Grading & GPA, Retention Policy, or Absences Rules, or type a specific policy question.",
+            "If the screen says Offline USTP handbook (not synced), connect and switch to an available online mode before expecting a verified answer.",
+            "Read any page references or source citations in the response and consult the relevant handbook passage. For decisions affecting your enrollment, confirm the applicable policy with the university office."
+          ],
+          "result": "You can distinguish a sourced handbook answer from an unavailable or unverified response.",
+          "note": "Do not treat an offline or uncited AI answer as a verified university policy.",
+          "image": {
+            "file": "ustp-handbook.jpg",
+            "source": "912512435_29874014075555975_6332206563622420047_n.jpg",
+            "alt": "USTP academic policy assistant with handbook starter prompts and an offline handbook not synced notice.",
+            "caption": "The status banner indicates when handbook sources are unavailable offline."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "voice-calls",
+      "title": "Talk to LAFINA by voice",
+      "group": "Talk with LAFINA",
+      "summary": "Review online call privacy, connect, speak, and end a conversation.",
+      "before": "Allow microphone access when you choose voice input. For online Call Lafina, use a working internet connection and any account access required by your app.",
+      "steps": [
+        {
+          "id": "call-privacy",
+          "title": "Read the call notice before starting",
+          "instructions": [
+            "Use the phone control in the assistant to open Call Lafina.",
+            "Read Before you start. The supplied online screen says microphone audio is streamed to ElevenLabs for transcription and speech and selected chat turns are sent to DeepSeek.",
+            "Review the stated app context, including a short summary of upcoming schedule items, overdue items, recent notes, and saved memories shared for the conversation.",
+            "Choose I understand, start only if you want to proceed. Use Back to leave the screen."
+          ],
+          "result": "You make an informed choice about starting an online voice session.",
+          "note": "Online Call Lafina is different from an on-device simulated reminder call. Always read the notice shown by your installed version.",
+          "image": {
+            "file": "call-privacy.jpg",
+            "source": "915665285_1137463952095256_6699483656289082583_n.jpg",
+            "alt": "Call Lafina Before you start notice explaining online audio streaming and shared app context with an I understand, start button.",
+            "caption": "Review the online voice notice before agreeing to start."
+          }
+        },
+        {
+          "id": "connecting",
+          "title": "Wait for the voice connection",
+          "instructions": [
+            "After starting, wait while Call Lafina shows Connecting.",
+            "Keep the connection available and watch for the status to change.",
+            "Use Cancel if you no longer want to connect. If the connection fails, return to text chat or retry after checking your connection."
+          ],
+          "result": "A successful connection moves to the active conversation screen.",
+          "image": {
+            "file": "call-connecting.jpg",
+            "source": "912054065_1846872389767252_38588341555952433_n.jpg",
+            "alt": "Call Lafina screen displaying Connecting, starting secure voice session and a red Cancel control.",
+            "caption": "Connecting appears while the online voice session starts."
+          }
+        },
+        {
+          "id": "speaking",
+          "title": "Listen to LAFINA's response",
+          "instructions": [
+            "When Speaking is displayed, listen to LAFINA and read the transcript below the waveform.",
+            "The supplied screen says Tap to interrupt. Use that control when you want to interrupt a spoken response.",
+            "Use Type for a text input alternative, or Mute when you need to stop microphone input."
+          ],
+          "result": "You can follow the response through audio, text, or both.",
+          "image": {
+            "file": "call-speaking.jpg",
+            "source": "916559237_4178839245749174_6216258856327152405_n.jpg",
+            "alt": "Active online Call Lafina showing Speaking, Tap to interrupt, response transcript, Mute, Type, Stop and End controls.",
+            "caption": "The speaking state shows a transcript and conversation controls."
+          }
+        },
+        {
+          "id": "listening",
+          "title": "Speak and check the transcript",
+          "instructions": [
+            "When Listening is displayed, speak clearly at a comfortable distance from the microphone. Move to a quieter place if transcription is inaccurate.",
+            "Read the recognized words and LAFINA's reply. Correct uncertain names, dates, or times before approving a schedule change.",
+            "If you prefer, use Type to continue with text. Use Mute for privacy while the session remains open."
+          ],
+          "result": "Your request is understood or you have a chance to correct it before saving changes.",
+          "note": "Voice recognition may mishear instructions. A spoken reminder acknowledgment is not task completion.",
+          "image": {
+            "file": "call-listening.jpg",
+            "source": "915238428_1441385548196563_5499528374405420467_n.jpg",
+            "alt": "Call Lafina listening state with elapsed time and a transcript asking the student to confirm a Wake up alarm.",
+            "caption": "Read the transcript and confirm ambiguous schedule details."
+          }
+        },
+        {
+          "id": "end-call",
+          "title": "End the conversation",
+          "instructions": [
+            "Tap the red End control when you finish speaking.",
+            "Check for Call ended and Not connected before leaving the voice screen.",
+            "Use Call Lafina again only when you want to begin another session. Return to Schedule or Tools to verify any saved changes."
+          ],
+          "result": "The voice session is no longer connected.",
+          "image": {
+            "file": "call-ended.jpg",
+            "source": "916021322_1646880097178590_1456194159259115965_n.jpg",
+            "alt": "Call Lafina screen showing Not connected, Call ended, final transcript and Call Lafina again button.",
+            "caption": "The ended screen confirms the conversation has disconnected."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "ai-models",
+      "title": "Choose an AI engine",
+      "group": "Talk with LAFINA",
+      "summary": "Understand online mode, download an offline model, and check readiness.",
+      "before": "Have free device storage and a suitable internet connection for model downloads. Available models and their requirements vary by release.",
+      "steps": [
+        {
+          "id": "engine-selection",
+          "title": "Switch modes or prepare an offline model",
+          "instructions": [
+            "Tap the engine or model label at the top of the AI screen to open AI Engine & Offline Models.",
+            "Choose Online AI for available cloud services, or Offline Mode for supported on-device use.",
+            "In the offline model list, review the storage and hardware requirements. Tap Download & Load for a model appropriate for your phone.",
+            "Wait for the download and loading process to finish. Verify the selected model and status before expecting offline responses.",
+            "If a model cannot load, try a smaller supported model or return to manual scheduling and text entry."
+          ],
+          "result": "The selected engine is ready, or the status tells you what still needs attention.",
+          "note": "The screenshot's model names and size estimates are examples from that build. Use the recommendations displayed by your installed version. Offline mode does not provide verified online handbook answers.",
+          "image": {
+            "file": "ai-engine-models.jpg",
+            "source": "911876649_1456841102478742_3616074648404959316_n.jpg",
+            "alt": "AI Engine & Offline Models sheet with Online AI and Offline Mode controls, a phone recommendation and Download & Load actions.",
+            "caption": "Check readiness and device requirements when choosing an offline model."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "profile-settings",
+      "title": "Profile and preferences",
+      "group": "Make it yours",
+      "summary": "Review your academic profile, tune reminders and voice, and change appearance.",
+      "before": "Open Profile. Review which account is active before changing personal data.",
+      "steps": [
+        {
+          "id": "academic-profile",
+          "title": "Review your academic profile",
+          "instructions": [
+            "Open Profile to review your name, academic information, and enrolled subjects.",
+            "Use the edit control to change supported personal details.",
+            "Review program, year level, section, college, and academic term. Use Replace COR when you intentionally want to update your registration information.",
+            "Check the reviewed subjects and calendar after a COR replacement so imported information is accurate."
+          ],
+          "result": "Your profile and academic schedule match your own registration details.",
+          "image": {
+            "file": "academic-profile.jpg",
+            "source": "914383804_1444740144476038_6086278489217983766_n.jpg",
+            "alt": "Student Profile with an avatar, name, Academic Profile, Replace COR and enrolled subject information.",
+            "caption": "Academic Profile collects the student's registration details."
+          }
+        },
+        {
+          "id": "profile-preferences",
+          "title": "Open scheduling and memory preferences",
+          "instructions": [
+            "Scroll to Preferences in Profile.",
+            "Open Scheduling & Reminder Preferences to adjust the available reminder timing and routine settings.",
+            "Set Week Starts on Monday and Event Defaults according to your preferred calendar behavior.",
+            "Review Memory controls before allowing personal information to be reused in future chats. Use Student Setup to revisit supported student configuration."
+          ],
+          "result": "You can find the controls that affect scheduling, personalization, and student setup.",
+          "image": {
+            "file": "profile-preferences.jpg",
+            "source": "913886357_1004806232065768_1936460990395372266_n.jpg",
+            "alt": "Profile Preferences with scheduling and reminder preferences, week start, event defaults, memory and student setup rows.",
+            "caption": "Preferences groups calendar behavior, memory, and student setup."
+          }
+        },
+        {
+          "id": "routine",
+          "title": "Set your routine and study habits",
+          "instructions": [
+            "In Scheduling & Reminder Preferences, find Daily routine.",
+            "Choose your usual wake-up and sleep times.",
+            "Under Study habits, select your peak study hours and busiest day.",
+            "Review the remaining preferences and use the screen's save control if one is shown before returning to Profile."
+          ],
+          "result": "Your chosen routine is available to the app's scheduling preferences.",
+          "image": {
+            "file": "daily-routine.jpg",
+            "source": "920597953_1468257012181023_5993555221527493292_n.jpg",
+            "alt": "Preferences screen with wake-up time, sleep time, peak study hours and busiest day choices.",
+            "caption": "Routine preferences describe when you usually wake, sleep, and study."
+          }
+        },
+        {
+          "id": "voice-appearance",
+          "title": "Adjust voice, reminder health, and appearance",
+          "instructions": [
+            "In Profile, use Test TTS Voice to check speech playback. Select Offline Voice or Online Voice when you want to change the corresponding voice option.",
+            "Open Alarm & Reminder Health to inspect permission or scheduling problems. Follow the specific Android settings guidance shown there.",
+            "Use Dark Mode and Color Theme to select an appearance. Review Detailed AI Summaries and Markdown Chat Replies if you want to adjust how answers are displayed.",
+            "If Floating LAFINA is available, open its settings and read the Android overlay permission explanation before enabling it."
+          ],
+          "result": "You can check audio output, diagnose reminder access, and choose your preferred appearance.",
+          "note": "Online voice requires connectivity and access to the online service. Local voice output depends on a working Android text-to-speech voice.",
+          "image": {
+            "file": "voice-appearance-settings.jpg",
+            "source": "913792803_1100576646345909_2708149617866636862_n.jpg",
+            "alt": "Profile settings for AI summaries, Markdown replies, TTS voice, offline and online voices, reminder health, dark mode and color theme.",
+            "caption": "Voice, notification health, and appearance have separate controls."
+          }
+        },
+        {
+          "id": "data-account",
+          "title": "Manage app appearance, data, and account access",
+          "instructions": [
+            "Choose an AI Button Design if you want to change the center assistant button's appearance.",
+            "Under About, use App Version, Check for Updates, the walkthrough, and Privacy Policy to inspect the app and its guidance.",
+            "Use Sign Out when you intend to leave the current cloud session. Read the confirmation, especially when using a shared phone.",
+            "Use Clear All Data only when you intend to remove the listed app data. Read the confirmation and preserve anything you need before accepting it."
+          ],
+          "result": "You understand the account and data actions before using them.",
+          "note": "Clear All Data is destructive. Signing out, deleting local app data, and deleting a cloud account are different actions; follow the exact confirmation in your app.",
+          "image": {
+            "file": "data-account-settings.jpg",
+            "source": "910903967_1670871564729371_2252651079811453791_n.jpg",
+            "alt": "Profile lower settings with AI button designs, Clear All Data, app information, walkthrough, Privacy Policy and Sign Out.",
+            "caption": "Read the confirmation carefully before clearing data or signing out."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "troubleshooting",
+      "title": "Troubleshooting and common questions",
+      "group": "Need a hand?",
+      "summary": "Recover from missed alerts, unavailable AI, unreadable scans, and unexpected calendar results.",
+      "before": "Keep your app version and the exact on-screen message available when reporting a problem. Avoid including passwords or private chat content.",
+      "steps": [
+        {
+          "id": "missed-alert",
+          "title": "An alarm or reminder did not arrive",
+          "instructions": [
+            "Check that the alarm is enabled, the date and AM/PM are correct, and the repeat days include the intended day.",
+            "Open Profile > Alarm & Reminder Health. Review notification access, exact alarm access, and any full-screen or battery restrictions reported by the app.",
+            "Check Android alarm volume, Do Not Disturb, and battery settings. Device policies can affect sound and background delivery.",
+            "Create a short test alarm and observe it with the app in the background. Keep using the manual task list while diagnosing reminder delivery."
+          ],
+          "result": "You have checked the schedule and the device settings that can prevent an alert.",
+          "note": "A simulated reminder call is an app alert, not a carrier phone call. It is not guaranteed to override silent mode or all Android restrictions."
+        },
+        {
+          "id": "ai-unavailable",
+          "title": "AI or voice is unavailable",
+          "instructions": [
+            "Check whether the assistant is using Online AI or Offline Mode. For online use, verify connectivity, sign-in, and any access message shown in the app.",
+            "For offline use, open AI Engine & Offline Models and check that a supported model is fully downloaded and loaded, with enough free storage.",
+            "For microphone problems, grant microphone permission only when you want to speak. Try a quieter environment or use Type instead.",
+            "For no speech output, check volume, Test TTS Voice, and the installed Android speech voice. Switch to text while you fix playback."
+          ],
+          "result": "You can identify which mode is unavailable and continue with text or manual controls."
+        },
+        {
+          "id": "calendar-problem",
+          "title": "A class, task, or scanned time looks wrong",
+          "instructions": [
+            "Return to Today and check the selected date and calendar view.",
+            "Open Calendars & Visibility and make sure the relevant calendar is enabled.",
+            "Use View Classes or the task editor to inspect the saved item. Check weekdays, start and end times, recurrence, due date, and semester duration.",
+            "For an incorrect scan, correct the reviewed data or enter it manually. Confirm what is already saved before repeating an import to avoid duplicates."
+          ],
+          "result": "The saved item, selected date, and visibility settings explain or resolve the discrepancy."
+        },
+        {
+          "id": "privacy-and-progress",
+          "title": "Understand offline use, privacy, and completion",
+          "instructions": [
+            "Use local scheduling, to-dos, and notes when you are offline. Prepare any required offline model and speech resources before disconnecting.",
+            "Online AI, online calls, cloud synchronization, and verified handbook retrieval can use the network. Read their current notices and account requirements.",
+            "Temporary Chat changes chat history and memory behavior; it does not turn an online service into an offline one.",
+            "After answering or dismissing a reminder, mark the task complete separately when you have finished the work."
+          ],
+          "result": "You can choose an appropriate mode and keep task progress accurate."
+        }
+      ]
+    }
+  ]
+}

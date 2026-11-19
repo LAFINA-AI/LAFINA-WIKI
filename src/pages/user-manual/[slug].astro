@@ -1,0 +1,24 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import manual from '../../data/manual.json';
+import ManualToolbar from '../../components/manual/ManualToolbar.astro';
+import ManualStep from '../../components/manual/ManualStep.astro';
+import ManualInteractions from '../../components/manual/ManualInteractions.astro';
+export function getStaticPaths() { return manual.chapters.map((chapter, index) => ({ params: { slug: chapter.slug }, props: { chapter, index } })); }
+const { chapter, index } = Astro.props;
+const previous = manual.chapters[index - 1];
+const next = manual.chapters[index + 1];
+---
+<Layout title={chapter.title} description={chapter.summary}>
+  <div class="manual-page">
+    <nav class="manual-breadcrumb" aria-label="Breadcrumb"><a href="/user-manual">User Manual</a><span aria-hidden="true">/</span><span>{chapter.title}</span></nav>
+    <header class="manual-header"><p class="manual-eyebrow">{chapter.group} / Topic {String(index + 1).padStart(2, '0')}</p><h1>{chapter.title}</h1><p class="manual-lead manual-lead-small">{chapter.summary}</p><p class="manual-meta">{chapter.steps.length} {chapter.steps.length === 1 ? 'step' : 'steps'} · {manual.edition}</p></header>
+    <ManualToolbar /><aside class="manual-before"><strong>Before you begin</strong><p>{chapter.before}</p></aside>
+    <nav class="manual-step-index" aria-label="On this page"><h2>In this guide</h2><ol>{chapter.steps.map((step) => <li><a href={`#${chapter.slug}-${step.id}`}>{step.title}</a></li>)}</ol></nav>
+    {chapter.steps.map((step, stepIndex) => <ManualStep step={step} index={stepIndex} chapterSlug={chapter.slug}
+      previousHref={stepIndex > 0 ? `#${chapter.slug}-${chapter.steps[stepIndex - 1].id}` : previous ? `/user-manual/${previous.slug}#${previous.slug}-${previous.steps[previous.steps.length - 1].id}` : '/user-manual'}
+      nextHref={stepIndex < chapter.steps.length - 1 ? `#${chapter.slug}-${chapter.steps[stepIndex + 1].id}` : next ? `/user-manual/${next.slug}#${next.slug}-${next.steps[0].id}` : '/user-manual/full'}
+    />)}
+    <nav class="manual-pagination" aria-label="Guide pagination"><a href={previous ? `/user-manual/${previous.slug}` : '/user-manual'}><span>← {previous ? 'Previous guide' : 'All topics'}</span><strong>{previous?.title ?? 'Manual home'}</strong></a>{next ? <a href={`/user-manual/${next.slug}`}><span>Next guide →</span><strong>{next.title}</strong></a> : <a href="/user-manual/full"><span>Keep a copy →</span><strong>Full manual & contents</strong></a>}</nav>
+  </div><ManualInteractions />
+</Layout>

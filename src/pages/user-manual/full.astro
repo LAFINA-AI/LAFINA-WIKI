@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import manual from '../../data/manual.json';
+import ManualToolbar from '../../components/manual/ManualToolbar.astro';
+import ManualStep from '../../components/manual/ManualStep.astro';
+import ManualInteractions from '../../components/manual/ManualInteractions.astro';
+---
+<Layout title="Full Manual & Table of Contents" description="The complete illustrated LAFINA User Manual, with a linked table of contents and a downloadable PDF.">
+  <div class="manual-page full-manual">
+    <header class="manual-header"><p class="manual-eyebrow">LAFINA / Complete guide</p><h1>Full Manual &<br />Table of Contents</h1><p class="manual-lead manual-lead-small">Every guide, together in one place.</p><p>{manual.introduction}</p><p class="manual-meta">Android · {manual.edition}</p></header>
+    <ManualToolbar full /><aside class="manual-before"><strong>About this manual</strong><p>{manual.scope}</p><p>The downloadable PDF includes page-numbered contents and bookmarks. This web edition links directly to every topic and step.</p></aside>
+    <nav id="contents" class="manual-full-contents" aria-labelledby="contents-title"><h2 id="contents-title">Table of contents</h2><ol>{manual.chapters.map((chapter, index) => <li><a href={`#chapter-${chapter.slug}`}><span class="manual-toc-number">{String(index + 1).padStart(2, '0')}</span><strong>{chapter.title}</strong><span class="manual-toc-count">{chapter.steps.length} steps</span></a><ol>{chapter.steps.map((step) => <li><a href={`#${chapter.slug}-${step.id}`}>{step.title}</a></li>)}</ol></li>)}</ol></nav>
+    {manual.chapters.map((chapter, index) => <section class="manual-full-chapter" id={`chapter-${chapter.slug}`} aria-labelledby={`heading-${chapter.slug}`}><header class="manual-chapter-header"><p class="manual-eyebrow">Chapter {String(index + 1).padStart(2, '0')} / {chapter.group}</p><h2 id={`heading-${chapter.slug}`}>{chapter.title}</h2><p>{chapter.summary}</p><div class="manual-chapter-links"><a href="#contents">↑ Contents</a><a href={`/user-manual/${chapter.slug}`}>Open this guide →</a></div></header><aside class="manual-before"><strong>Before you begin</strong><p>{chapter.before}</p></aside>{chapter.steps.map((step, stepIndex) => <ManualStep step={step} index={stepIndex} chapterSlug={chapter.slug} />)}</section>)}
+    <footer class="manual-edition"><p>End of the {manual.edition} manual.</p><a href="#contents">Back to table of contents ↑</a></footer>
+  </div><ManualInteractions />
+</Layout>

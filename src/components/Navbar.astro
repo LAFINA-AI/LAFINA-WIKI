@@ -1,5 +1,7 @@
 ---
 import ThemeToggle from './ThemeToggle.tsx';
+import { navigation } from '../data/navigation';
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <nav class="sticky top-0 z-40 w-full backdrop-blur flex-none transition-colors duration-500 lg:z-50 lg:border-b border-muted/20 bg-background/95 supports-backdrop-blur:bg-background/60">
@@ -17,6 +19,7 @@ import ThemeToggle from './ThemeToggle.tsx';
           LAFINA Wiki
         </a>
         <div class="flex items-center gap-4">
+          <a href="/user-manual" class="nav-manual-link text-sm font-medium text-primary">User Manual</a>
           <ThemeToggle client:load />
           <a href="https://github.com/LAFINA-AI" target="_blank" rel="noopener noreferrer" class="text-text hover:text-primary transition-colors" aria-label="GitHub">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
@@ -27,4 +30,10 @@ import ThemeToggle from './ThemeToggle.tsx';
       </div>
     </div>
   </div>
+  <details class="mobile-navigation lg:hidden">
+    <summary>Browse the wiki <span aria-hidden="true">⌄</span></summary>
+    <nav aria-label="Mobile wiki navigation">
+      {navigation.map((group) => <div><p>{group.label}</p>{group.links.map((link) => <a href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>{link.text}</a>)}</div>)}
+    </nav>
+  </details>
 </nav>

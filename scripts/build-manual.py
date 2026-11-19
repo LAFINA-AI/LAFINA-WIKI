@@ -173,7 +173,7 @@ for chapter_index, chapter in enumerate(DATA['chapters']):
 
 C.save()
 metadata = {
-    'sourceHash': hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
+    'sourceHash': hashlib.sha256(SOURCE.read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
     'pdfHash': hashlib.sha256(OUT.read_bytes()).hexdigest(),
     'chapters': len(DATA['chapters']), 'steps': steps_count,
     'screenshots': sum(bool(s.get('image')) for c in DATA['chapters'] for s in c['steps']),

@@ -14,7 +14,7 @@ All 35 unique supplied screenshots are placed beside the relevant instructions. 
 
 ## Local development
 
-Requires Node.js 22.12 or newer.
+Requires Node.js 24 LTS, matching the pinned Vercel runtime.
 
 ```powershell
 npm ci

@@ -3,11 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": "24.x"
   },
   "scripts": {
     "check": "astro check",
-    "check:manual": "node scripts/check-manual.mjs",
+    "check:manual": "node --test scripts/manual-source-hash.test.mjs && node scripts/check-manual.mjs",
     "manual:assets": "node scripts/manual-assets.mjs",
     "manual:pdf": "python scripts/build-manual.py",
     "manual:docx": "python scripts/build-manual-docx.py",

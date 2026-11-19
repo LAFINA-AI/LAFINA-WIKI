@@ -257,7 +257,7 @@ for root in (DOC.styles.element, DOC.element):
         border.getparent().remove(border)
 DOC.save(OUT)
 meta = {
-    'sourceHash': hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
+    'sourceHash': hashlib.sha256(SOURCE.read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
     'docxHash': hashlib.sha256(OUT.read_bytes()).hexdigest(),
     'chapters': len(DATA['chapters']), 'steps': steps, 'screenshots': images,
     'screenshotHashes': {

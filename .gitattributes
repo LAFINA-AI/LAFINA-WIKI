@@ -1,0 +1,5 @@
+src/data/manual.json text eol=lf
+public/manual/*.json text eol=lf
+public/manual/*.pdf binary
+public/manual/*.docx binary
+public/manual/screenshots/*.jpg binary

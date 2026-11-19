@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import { readFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const root = fileURLToPath(new URL('../', import.meta.url));
+const source = await readFile(path.join(root, 'src/data/manual.json'));
+const manual = JSON.parse(source);
+const ids = new Set();
+const files = new Set();
+const sources = new Set();
+const screenshotHashes = {};
+const hash = (buffer) => createHash('sha256').update(buffer).digest('hex');
+let steps = 0;
+for (const chapter of manual.chapters) {
+  assert(chapter.title && chapter.before && chapter.summary, `Incomplete chapter: ${chapter.slug}`);
+  assert(!ids.has(chapter.slug), `Duplicate chapter: ${chapter.slug}`);
+  ids.add(chapter.slug);
+  for (const step of chapter.steps) {
+    const id = `${chapter.slug}-${step.id}`;
+    assert(!ids.has(id), `Duplicate anchor: ${id}`);
+    ids.add(id);
+    assert(step.title && step.result && step.instructions.length, `Incomplete step: ${id}`);
+    steps++;
+    if (!step.image) continue;
+    assert(step.image.alt && step.image.caption && step.image.source, `Incomplete screenshot: ${id}`);
+    assert(!files.has(step.image.file), `Duplicate image destination: ${step.image.file}`);
+    assert(!sources.has(step.image.source), `Screenshot used twice: ${step.image.source}`);
+    files.add(step.image.file);
+    sources.add(step.image.source);
+    const bytes = await readFile(path.join(root, 'public/manual/screenshots', step.image.file));
+    assert(bytes.length > 0, `Empty image: ${step.image.file}`);
+    screenshotHashes[step.image.file] = hash(bytes);
+  }
+}
+assert.equal(manual.chapters.length, 13);
+assert(steps > 0, 'The manual must contain steps');
+assert.equal(files.size, 35);
+assert.deepEqual(new Set(await readdir(path.join(root, 'public/manual/screenshots'))), files, 'Orphaned or missing published images');
+const meta = JSON.parse(await readFile(path.join(root, 'public/manual/manual-meta.json'), 'utf8'));
+assert.deepEqual(meta.screenshotHashes, screenshotHashes, 'PDF screenshots are stale; regenerate the PDF');
+assert.equal(meta.sourceHash, hash(source), 'PDF is stale; regenerate with npm run manual:pdf');
+const pdf = await readFile(path.join(root, 'public/manual/LAFINA-User-Manual.pdf'));
+assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
+assert.equal(meta.pdfHash, hash(pdf), 'PDF checksum differs from the generated manifest');
+assert.equal(meta.steps, steps);
+assert.equal(meta.chapters, manual.chapters.length);
+assert.equal(meta.screenshots, files.size);
+assert.equal(meta.pages, steps + 3);
+console.log(`Manual valid: ${manual.chapters.length} chapters, ${steps} steps, ${files.size} screenshots, ${meta.pages}-page PDF.`);

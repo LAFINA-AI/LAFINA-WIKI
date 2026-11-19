@@ -6,8 +6,12 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "check": "astro check",
+    "check:manual": "node scripts/check-manual.mjs",
+    "manual:assets": "node scripts/manual-assets.mjs",
+    "manual:pdf": "python scripts/build-manual.py",
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run check:manual && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

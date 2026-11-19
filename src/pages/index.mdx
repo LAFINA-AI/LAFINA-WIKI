@@ -10,11 +10,15 @@ import StatCard from '../components/StatCard.astro';
 
 <Hero />
 
+<Card title="Using the LAFINA app? Start here.">
+  The new [User Manual](/user-manual) walks you through classes, alarms, tasks, notes, AI conversations, calls, and settings with screenshots from the app. Read the [full manual and table of contents](/user-manual/full), or [download the illustrated PDF](/manual/LAFINA-User-Manual.pdf).
+</Card>
+
 ## What is LAFINA?
 
 **LAFINA** is a mobile-based AI application designed to combat **notification fatigue** among university students. Instead of passive push notifications that are easily ignored, LAFINA takes a proactive, voice-first approach — it **initiates simulated phone calls** to ensure tasks are actually acknowledged and schedules are actually followed.
 
-Every component of LAFINA runs entirely on the user's device. No cloud. No internet required. No voice data transmitted anywhere.
+LAFINA supports local scheduling and optional online services. Online AI, cloud synchronization, and online voice calls require connectivity and can send information to their configured services. See the [User Manual](/user-manual) for current workflows and privacy guidance. The research pages below describe the project's original design.
 
 ## The Problem in Numbers
 
@@ -29,7 +33,7 @@ The gap is clear: voice assistants are everywhere, but almost nobody uses them f
 ## The LAFINA Approach
 
 <Card title="Offline-First Architecture">
-  LAFINA runs entirely on-device. Whisper.cpp (STT), SmolLM2-135M (NLU), and Kokoro 82M (TTS) all execute via GGML binaries on the phone's local CPU — no Wi-Fi, no cloud, no data charges required.
+  Local scheduling, notes, and tasks remain available offline. Supported offline models and native Android speech provide on-device options, while online AI and voice are available when connected. Check model readiness before relying on offline AI.
 </Card>
 
 <Card title="Proactive Voice Calls">

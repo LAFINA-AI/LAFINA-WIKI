@@ -1,0 +1,112 @@
+---
+/**
+ * A simple top-to-bottom flow chart.
+ * Each entry in `steps` is one row: a single box, or an array of boxes shown side by side (a branch).
+ * `edge` is the short label written on the arrow that leads into a box (e.g. "Yes", "Offline").
+ */
+type Kind = 'start' | 'step' | 'decision' | 'store' | 'online' | 'end' | 'stop';
+interface Node {
+  title: string;
+  text?: string;
+  kind?: Kind;
+  edge?: string;
+}
+interface Props {
+  steps: (Node | Node[])[];
+  caption?: string;
+  label?: string;
+}
+const { steps, caption, label } = Astro.props;
+const rows = steps.map((row) => (Array.isArray(row) ? row : [row]));
+---
+
+<figure class="flowchart not-prose" aria-label={label ?? caption}>
+  {rows.map((row, i) => (
+    <>
+      {i > 0 && (
+        <div class="fc-arrow" aria-hidden="true">
+          <svg viewBox="0 0 12 22" width="12" height="22"><line x1="6" y1="0" x2="6" y2="16" /><polyline points="1.5,12 6,19 10.5,12" /></svg>
+        </div>
+      )}
+      <div class="fc-row" style={`--cols: ${row.length}`}>
+        {row.map((node) => (
+          <div class="fc-cell">
+            {node.edge && <span class="fc-edge">{node.edge}</span>}
+            <div class={`fc-node fc-${node.kind ?? 'step'}`}>
+              <strong>{node.title}</strong>
+              {node.text && <span>{node.text}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  ))}
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .flowchart {
+    margin: 1.75rem 0;
+    padding: 1.25rem 1rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    border-radius: 0.875rem;
+    background: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .fc-row {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: 0.75rem;
+    width: 100%;
+    max-width: calc(var(--cols) * 15rem);
+  }
+  .fc-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.3rem;
+  }
+  .fc-edge {
+    align-self: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  .fc-node {
+    --tone: var(--color-muted);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.6rem;
+    border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent);
+    border-left: 4px solid var(--tone);
+    background: color-mix(in srgb, var(--tone) 9%, var(--color-background));
+    color: var(--color-text);
+    text-align: center;
+  }
+  .fc-node strong { font-size: 0.85rem; line-height: 1.3; }
+  .fc-node span { font-size: 0.74rem; line-height: 1.4; color: color-mix(in srgb, var(--color-text) 72%, transparent); }
+  .fc-start { --tone: var(--color-primary); }
+  .fc-decision { --tone: #d97706; border-style: dashed; border-left-style: solid; }
+  .fc-store { --tone: #0891b2; }
+  .fc-online { --tone: #7c3aed; }
+  .fc-end { --tone: #16a34a; }
+  .fc-stop { --tone: #dc2626; }
+  .fc-arrow { color: var(--color-muted); padding: 0.3rem 0; line-height: 0; }
+  .fc-arrow svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  figcaption {
+    margin-top: 0.9rem;
+    font-size: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
+    text-align: center;
+  }
+  @media (max-width: 640px) {
+    .fc-row { grid-template-columns: 1fr; }
+  }
+</style>

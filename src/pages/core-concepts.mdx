@@ -1,36 +1,50 @@
 ---
 layout: ../layouts/Layout.astro
-title: "Core Concepts: Proactive vs. Reactive"
-description: "Understanding the distinction between reactive and proactive reminder systems, and how LAFINA's three mechanisms deliver a truly proactive experience."
+title: "Core Concepts"
+description: "The key ideas behind LAFINA: proactive vs. reactive systems, the AI student companion, offline-first design, and confirm-before-save."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
 
-<Alert type="info" title="Theoretical Foundation">
-  Understanding the distinction between proactive and reactive systems is crucial to grasping the core innovation behind LAFINA. For a full side-by-side comparison, see the <a href="/proactive-vs-reactive">Proactive vs. Reactive</a> page.
+<Alert type="info" title="Four Ideas to Remember">
+  Proactive reminders, a companion students want to talk to, offline-first data, and the student's final say over changes. For a full side-by-side comparison, see the <a href="/proactive-vs-reactive">Proactive vs. Reactive</a> page.
 </Alert>
 
-## Reactive Systems (The Baseline)
+## 1. Reactive vs. Proactive
 
-Traditional systems are fundamentally **reactive**. They are entirely user-dependent and passive. A reactive system waits for a direct user command or relies on passive delivery mechanisms like standard push notifications. In these architectures, the burden of action and cognitive engagement rests entirely on the user. If the user ignores the notification, the system fails to enforce compliance.
+**Reactive** systems wait. They fire a passive notification and leave everything to the user. If the user swipes it away, the system has failed.
 
-## Proactive Systems (The Innovation)
+**Proactive** systems take the initiative. LAFINA starts a high-priority interaction when something is due: a full-screen call that the student answers and responds to.
 
-Conversely, modern AI solutions aim to be **proactive**. Proactive systems are defined as autonomous and initiative-driven. They anticipate user needs based on scheduled data, contextual awareness, and historical behavior. Most importantly, they actively initiate high-priority interactions without waiting for explicit user prompts.
-
-## LAFINA's Proactive Execution
-
-LAFINA embodies a truly proactive architecture designed specifically to combat notification fatigue. It achieves this through three key mechanisms:
-
-<Card title="1. Simulated Voice Calls">
-  Instead of passive text alerts, LAFINA triggers the device's native ringing mechanism. This leverages social conditioning to pull the user out of distractions, as people are psychologically trained to answer phone calls.
+<Card title="Simulated Voice Calls">
+  LAFINA shows a ringing, full-screen incoming call, even over the lock screen. People are conditioned to answer calls far more than they read notifications.
 </Card>
 
-<Card title="2. Forced Cognitive Engagement">
-  The system requires verbal acknowledgment. This forces the user to cognitively process the reminder rather than mindlessly swiping away a notification banner.
+<Card title="Active Acknowledgment">
+  The student responds by voice ("okay", "give me ten minutes") or with a button. This makes them actually process the reminder instead of swiping it away.
 </Card>
 
-<Card title="3. Closed-Loop Interaction">
-  LAFINA operates on a closed-loop system. The AI drives the entire interaction loop from initiation to delivering the payload, evaluating user feedback, and terminating the call autonomously.
+<Card title="Closed Loop">
+  LAFINA handles the whole exchange: it rings, speaks, listens, acknowledges or snoozes, and ends the call. Declined or missed calls snooze automatically, up to a limit.
 </Card>
+
+## 2. The AI Student Companion
+
+LAFINA is more than a scheduler. A companion is something students *want* to open, not only something that nags them. LAFINA:
+
+* chats naturally and answers general and trivia questions (Online Mode),
+* explains lessons and helps with study tools (flashcards, quizzes, Pomodoro, summaries),
+* remembers preferences like study hours or a preferred name,
+* gives a **Morning Briefing** of the day after the alarm,
+* answers USTP questions with sources.
+
+When students already talk to LAFINA every day, its reminders and planning help become part of their routine.
+
+## 3. Offline-First
+
+The phone's SQLite database is the source of truth. Planning, alarms, reminder calls, and supported voice commands work with no internet. Online services add to the core but never replace it, and if they fail, LAFINA falls back to on-device replies.
+
+## 4. The AI Proposes, the Student Decides
+
+Any change the assistant wants to make (add, edit, or delete) appears as a **review card**. The student can edit, cancel, or confirm. This keeps AI mistakes from turning into wrong reminders and keeps the student in control. Only small, easily undone actions (completing a task, snoozing, acknowledging, pinning a note) apply immediately, with an Undo option.

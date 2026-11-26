@@ -1,32 +1,82 @@
 ---
 layout: ../layouts/Layout.astro
 title: "System Architecture & Methodology"
+description: "How LAFINA is built: an offline-first Android app with on-device AI, plus an optional backend for sync and online AI."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
+import FlowChart from '../components/FlowChart.astro';
 
 ## Development Methodology
 
-The project utilizes the **Agile** methodology. This supports flexible, iterative development, allowing features like voice input processing, reminder scheduling, and call-based notifications to be developed and tested progressively.
+The project follows an **Agile**, phase-based process. Each feature (planner, native reminders, voice, AI, sync, Call LAFINA, Ask USTP, study skills) was built, tested, and refined in its own phase, with automated checks (type checking, linting, and Jest tests) before each release.
 
-## Three-Layer Architecture
+## Architecture at a Glance
 
-LAFINA is built upon a robust, offline-capable architecture divided into three distinct layers.
+LAFINA is a **hybrid** system. The phone does the core work, and a backend adds optional online features.
 
-### Layer 1: UI/UX Layer
-Built with **React Native**. This layer handles all user interaction, microphone input capture, and rendering of the Reminder and Job Queue components.
+<FlowChart
+  label="LAFINA architecture"
+  caption="Purple boxes are optional online services. Everything else runs on the phone."
+  steps={[
+    { title: 'Student', text: 'Taps, types, or speaks', kind: 'start' },
+    { title: 'Presentation layer', text: 'React Native + TypeScript screens' },
+    { title: 'Application services', text: 'Understanding, validation, review cards, scheduling' },
+    [
+      { title: 'Local AI', text: 'Whisper.cpp, rule parser, optional GGUF model, phone TTS' },
+      { title: 'Android native', text: 'Alarms, call screen, audio, PDF and OCR' },
+      { title: 'Local storage', text: 'SQLite (lafina.db) + sync outbox', kind: 'store' },
+    ],
+    { title: 'LAFINA backend', text: 'FastAPI on Vercel + Neon PostgreSQL', kind: 'online', edge: 'when signed in + online' },
+    [
+      { title: 'DeepSeek', text: 'Conversation and planning help', kind: 'online' },
+      { title: 'ElevenLabs', text: 'Natural speech and live voice', kind: 'online' },
+      { title: 'Pinecone', text: 'Handbook retrieval', kind: 'online' },
+    ],
+  ]}
+/>
 
-### Layer 2: AI Layer <Badge variant="success">Offline-First</Badge>
-All models are open-source, run via GGML/C++ binaries, and operate entirely offline for privacy and accessibility.
+## The Layers
 
-* **Natural Language Understanding (NLU):** SmolLM2-135M-Instruct — **135 million parameters**, with a quantized on-device footprint of **723 MB**. Interprets intent, extracts scheduling details, and crafts conversational responses.
-* **Speech-to-Text (STT):** Whisper.cpp (Tiny/Base quantized). Transcribes user voice into text with support for accented and Taglish speech.
-* **Text-to-Speech (TTS):** Kokoro-82M. Converts LLM-generated text responses into natural-sounding voice output.
+### Layer 1: Presentation <Badge variant="info">React Native</Badge>
+React Native 0.86 with TypeScript. It provides the five main areas (Home, Schedule, AI, Skills/Tools, Profile), the chat screen and review cards, the reminder call screen, and Call LAFINA. Students can choose from 12 light and dark themes.
 
-### Layer 3: Storage Layer
-Utilizes a serverless, **on-device SQLite** database to securely hold scheduling data, pre-crafted dialogue responses, and call trigger times — entirely local, with no external database server required.
+### Layer 2: Application Services
+TypeScript modules that act as LAFINA's brain:
+* **Conversation orchestrator:** decides whether a message is a planner change, a question about the student's plans, or general conversation.
+* **Intent pipeline:** rule-based fast-path parser, then an optional on-device model, then DeepSeek when online.
+* **Review and validation:** turns proposed changes into review cards and checks for schedule conflicts.
+* **Scheduler:** reminder delivery, snoozes, recurrence, and recovery after reboots.
+* **Memory, Ask USTP retrieval, and study skills.**
 
-<Alert type="success" title="Privacy Assured">
-  Because the AI Layer and Storage Layer run completely on-device, no sensitive scheduling data or audio recordings are ever transmitted to the cloud.
+### Layer 3: Local AI and Android Native <Badge variant="success">Offline</Badge>
+* **Speech-to-text:** Whisper.cpp (`tiny.en`, quantized) with Silero VAD, through a C/C++ JNI module.
+* **Understanding:** a rule-based parser, plus an optional GGUF model run by llama.cpp (SmolLM2, Gemma 3, or Qwen 2.5, chosen by the student).
+* **Text-to-speech:** the phone's own speech engine through `react-native-tts`.
+* **Alerts:** Android `AlarmManager`, a full-screen call activity (including over the lock screen), and recovery receivers.
+* **Documents:** PDFBox for COR PDFs and ML Kit for photo OCR.
+
+### Layer 4: Local Storage <Badge variant="success">Source of truth</Badge>
+One **SQLite** database (OP-SQLite, schema version 28, 36 tables) stores the planner, chats, memories, alarms, delivery state, the sync outbox, and the offline handbook index (FTS5 full-text search).
+
+### Layer 5: Optional Cloud
+The **LAFINA backend** (Python FastAPI on Vercel, with Neon PostgreSQL) provides accounts, personal sync, and access to online AI. Provider API keys live only on the server. The app talks to DeepSeek, ElevenLabs, and Pinecone through the backend. For live voice, the backend issues a short-lived signed session.
+
+<Alert type="success" title="Privacy by Design">
+  Without an account, nothing leaves the phone. With an account, the app sends only what each feature needs. For example, planner details go to DeepSeek only when the question is about your own plans.
 </Alert>
+
+## Online vs. Offline
+
+| Capability | Offline | With Online Mode |
+|---|---|---|
+| Tasks, notes, calendar, alarms | ✅ Full | ✅ Plus sync across devices |
+| Reminder calls | ✅ Phone voice + Whisper | ✅ Can continue into a live online conversation |
+| Planner commands | ✅ Rules + on-device model | ✅ Plus DeepSeek understanding |
+| Small talk | ✅ Built-in replies | ✅ Natural conversation |
+| Trivia, explanations, study help | ❌ Asks you to turn on Online Mode | ✅ DeepSeek |
+| Ask USTP | ✅ Local knowledge pack with sources | ✅ Friendlier answers from retrieved sources |
+| Call LAFINA | ✅ Offline call (Whisper + phone TTS) | ✅ Live voice (ElevenLabs + DeepSeek) |
+
+For step-by-step flows with diagrams, see [How LAFINA Works](/how-it-works).

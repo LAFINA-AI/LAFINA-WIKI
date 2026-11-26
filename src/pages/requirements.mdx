@@ -1,41 +1,58 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Technical Requirements & Evaluation"
+description: "Device requirements, the software stack, and how LAFINA is evaluated."
 ---
 import Alert from '../components/Alert.astro';
 import Badge from '../components/Badge.astro';
 
 ## Hardware Requirements
 
-To ensure real-time natural language processing without cloud connectivity, the target device must meet the following hardware specifications:
-
 | Component | Specification |
 | :--- | :--- |
-| **Operating System** | Android 11.0 (API Level 30) or higher |
-| **Architecture** | 64-bit (ARM64-v8a) |
-| **Processor** | Octa-Core (2.0 GHz or higher recommended) |
-| **Memory** | 4 GB RAM minimum |
-| **Storage** | Minimum 1 GB free internal storage |
-| **Connectivity** | Fully offline — no internet required for the core AI loop |
+| **Operating System** | Android 11 (API level 30) or higher |
+| **Architecture** | 64-bit ARM (arm64-v8a) |
+| **Memory** | 3–4 GB RAM for the small on-device models. Larger optional models recommend 4–6 GB |
+| **Storage** | Space for the app, the Whisper speech model, and the on-device model you choose (about 105 MB to 806 MB) |
+| **Connectivity** | Not required for planning, alarms, reminder calls, or supported voice commands. Required for Online Mode, sync, and online voice |
 
-<Alert type="warning" title="Storage Allocation">
-  The storage space is strictly required for localized AI model weights and database management.
+<Alert type="warning" title="On-Device Models Are Optional">
+  LAFINA works with its built-in rule parser alone ("Fast-Path Only"). Students with stronger phones can download a larger on-device model in Profile for better offline understanding of casual phrasing.
 </Alert>
 
-## Software Requirements
+### Optional On-Device Models
 
-The application is built upon a modern, cross-platform software stack:
+| Model | Approx. Size | Recommended RAM |
+|---|---|---|
+| Fast-Path Only (built-in rules) | none | 2 GB |
+| SmolLM2-135M-Instruct | ~105 MB | 3 GB |
+| Gemma 3 270M | ~253 MB | 4 GB |
+| Qwen 2.5 0.5B | ~491 MB | 4 GB |
+| Gemma 3 1B | ~806 MB | 6 GB |
+
+## Software Stack
 
 | Category | Technology |
 | :--- | :--- |
-| **Framework** | React Native |
-| **Languages** | JavaScript, TypeScript, C++ |
-| **Database** | SQLite |
-| **AI Engine/Runtime** | GGML / llama.cpp (via Whisper.cpp) |
-| **Development Tools** | Visual Studio Code, Android Studio, Git/GitHub |
+| **Mobile framework** | React Native 0.86, React 19 |
+| **Languages** | TypeScript, Kotlin, C/C++ |
+| **Local database** | SQLite (OP-SQLite) with FTS5 search |
+| **Speech recognition** | whisper.cpp + Silero VAD |
+| **On-device understanding** | Rule-based parser + llama.cpp (GGUF models) |
+| **Speech output** | Android system TTS (`react-native-tts`). ElevenLabs online |
+| **Documents** | PDFBox (PDF text), ML Kit (OCR) |
+| **Backend** | Python FastAPI on Vercel, Neon PostgreSQL |
+| **Online AI** | DeepSeek (conversation), ElevenLabs (voice), Pinecone (handbook retrieval) |
+| **Testing** | Jest, React Native Testing Library, ESLint, TypeScript checks |
+| **Tools** | Visual Studio Code, Android Studio, Git/GitHub |
 
 ## System Evaluation Strategy
 
-The system undergoes evaluation using a 5-point Likert scale (1 = Strongly Disagree to 5 = Strongly Agree). 
+LAFINA is evaluated in several ways:
 
-It utilizes the **System Usability Scale (SUS)** questionnaire to measure ease of use, functionality, and overall satisfaction, aligning with ISO/IEC 25010 standards for functional suitability.
+* **Usability:** the **System Usability Scale (SUS)** questionnaire on a 5-point Likert scale (1 = Strongly Disagree to 5 = Strongly Agree), aligned with ISO/IEC 25010 quality characteristics.
+* **Correctness:** automated tests for intent understanding, review rules, scheduling, and sync. A built-in developer benchmark measures response times.
+* **Reliability:** on-device testing of alarm and reminder-call delivery, including a locked screen, a closed app, and reboots.
+* **Speech:** speech recognition accuracy and latency on test phrases.
+
+See [Model Evaluation](/model-evaluation) for details.

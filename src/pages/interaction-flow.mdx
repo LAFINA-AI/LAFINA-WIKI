@@ -1,41 +1,43 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Voice-Call Interaction Flow"
-description: "A step-by-step breakdown of LAFINA's proactive six-stage call flow, from SQLite trigger to closed-loop termination."
+description: "A step-by-step breakdown of LAFINA's proactive reminder call, from the Android alarm trigger to closing the loop."
 ---
 import Alert from '../components/Alert.astro';
 import FlowDiagram from '../components/FlowDiagram.astro';
 
 <Alert type="info" title="Combating Notification Fatigue">
-  LAFINA combats alert fatigue by elevating standard notifications to simulated phone calls, demanding immediate cognitive engagement.
+  LAFINA turns important reminders into simulated phone calls that need a response, instead of banners that are easy to ignore.
 </Alert>
 
-## Initial Setup (Use Case)
+## Setting a Reminder
 
-The user taps the microphone input. The AI receives the input, crafts a response, creates a schedule specifying the delivery time, and saves it to the local SQLite database job queue.
+A student creates a reminder by tapping, typing, or speaking, for example *"Remind me to submit my lab report tomorrow at 5 PM."* LAFINA understands the request, shows a **review card** with the title, date, and time, and saves it to the phone's SQLite database once the student confirms. The reminder is then registered with Android's alarm system.
 
 ## The Proactive Call Flow
-
-The core innovation of LAFINA is its proactive call delivery system, which operates in six distinct stages:
 
 <FlowDiagram />
 
 ## Stage Breakdown
 
-1. **Trigger** — The background SQLite job queue detects that a specific reminder time has been reached and wakes the call service.
+1. **Trigger.** Android's `AlarmManager` fires at the reminder time, even if LAFINA is closed. LAFINA first checks that the reminder is still valid: right account, still pending, and task not already completed.
 
-2. **Call Initiation** — Instead of a push notification, the application triggers an actual outgoing phone call to the user's device using native Android telephony interfaces.
+2. **Incoming call.** A full-screen simulated call appears, even over the lock screen. It is shown inside LAFINA and is not a real telephone call, so it needs no SIM and works offline.
 
-3. **TTS Delivery** — When the user answers, the Kokoro 82M TTS module verbally delivers the pre-crafted reminder message over the active audio line.
+3. **Spoken reminder.** When the student answers, LAFINA reads the reminder aloud with the phone's text-to-speech. If online voice is enabled and available, the call can continue into a live online conversation.
 
-4. **STT Acknowledgment** — The user's verbal response is captured over the live call, processed by Whisper.cpp, and converted to a text transcript in real time.
+4. **Listen.** The microphone opens and **Whisper.cpp** transcribes the reply on the phone.
 
-5. **Intent Evaluation** — SmolLM2 analyzes the transcript to determine intent. It understands natural phrasing: *"Give me five more minutes"* triggers a re-queue, not a failure.
+5. **Understand the reply.** A keyword matcher understands natural replies: *"okay"*, *"got it"* → acknowledge; *"give me five more minutes"* → snooze for 5 minutes. If the reply isn't understood, LAFINA asks again, and after 3 tries it snoozes automatically.
 
-6. **Termination** — Upon confirmed acknowledgment, the AI generates a brief closing statement, automatically ends the call, and marks the job queue entry as complete.
+6. **Close the loop.** LAFINA confirms the outcome aloud, ends the call, and saves the result. If the student declines or doesn't answer, the reminder auto-snoozes. Once the snooze limit is reached, it is marked **missed**.
+
+<Alert type="warning" title="Acknowledged ≠ Done">
+  Acknowledging a reminder does not complete its task. The task stays pending until the student marks it done, so a half-awake "okay" doesn't hide unfinished work.
+</Alert>
 
 ## Why Not a Simple Alarm?
 
-A standard alarm or push notification is a **zero-turn** interaction — fire and forget. LAFINA's call flow is **multi-turn and bi-directional**: the AI initiates, the user responds, the AI evaluates, and the AI closes the loop. This is what separates a voice-call reminder system from a glorified notification.
+A standard alarm or push notification is a **zero-turn** interaction: it fires and is forgotten. LAFINA's call is **multi-turn and two-way**: LAFINA starts the call, the student responds, LAFINA interprets the reply, and LAFINA closes the loop.
 
-See the [Proactive vs. Reactive](/proactive-vs-reactive) page for a full comparison.
+See the [Proactive vs. Reactive](/proactive-vs-reactive) page for a full comparison, and [How LAFINA Works](/how-it-works) for Call LAFINA (the conversation the student starts).

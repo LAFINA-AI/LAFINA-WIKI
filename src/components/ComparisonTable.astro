@@ -1,12 +1,13 @@
 ---
 const rows = [
-  { label: 'Who initiates the reminder?', reactive: 'The user (manual alarm set)', proactive: 'LAFINA (autonomous trigger)' },
-  { label: 'User effort required', reactive: 'High — must remember to set it', proactive: 'Low — set once, AI handles delivery' },
-  { label: 'Works on silent mode?', reactive: '❌ Silent push notification is missed', proactive: '✅ Triggers audible native ring' },
-  { label: 'Handles acknowledgment?', reactive: '❌ Swiping away counts as "dismissed"', proactive: '✅ Requires verbal confirmation' },
-  { label: 'Works offline?', reactive: '⚠️ Depends on cloud push service', proactive: '✅ 100% on-device, no internet needed' },
-  { label: 'Understands natural language?', reactive: '❌ Binary dismiss/snooze only', proactive: '✅ SmolLM2 interprets intent (e.g., "5 more minutes")' },
-  { label: 'Response to being ignored?', reactive: 'Fails silently', proactive: 'Can re-trigger or escalate per schedule' },
+  { label: 'Who initiates the reminder?', reactive: 'The user must check the notification', proactive: 'LAFINA rings with a full-screen call' },
+  { label: 'User effort required', reactive: 'High: must notice and act on it', proactive: 'Low: set once by voice or text, LAFINA handles delivery' },
+  { label: 'Hard to ignore?', reactive: '❌ One swipe dismisses it', proactive: '✅ Ringing call screen, even over the lock screen' },
+  { label: 'Handles acknowledgment?', reactive: '❌ Swiping away counts as "dismissed"', proactive: '✅ Spoken or tapped acknowledge / snooze' },
+  { label: 'Works offline?', reactive: '⚠️ Some reminders depend on cloud push', proactive: '✅ Android alarm + on-device voice, no internet needed' },
+  { label: 'Understands natural language?', reactive: '❌ Fixed buttons only', proactive: '✅ "Give me 5 more minutes" snoozes for 5 minutes' },
+  { label: 'Response to being ignored?', reactive: 'Fails silently', proactive: 'Auto-snoozes and rings again, then marks as missed' },
+  { label: 'Beyond reminders?', reactive: 'Nothing', proactive: 'A companion: chat, study help, Ask USTP, Call LAFINA' },
 ];
 ---
 

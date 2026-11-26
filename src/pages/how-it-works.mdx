@@ -1,0 +1,308 @@
+---
+layout: ../layouts/Layout.astro
+title: "How LAFINA Works (Technical Q&A Guide)"
+description: "The core technical details of the LAFINA capstone in plain language: the big picture, how a chat message is handled, how reminder calls and Call LAFINA work, and likely panel questions."
+---
+import Alert from '../components/Alert.astro';
+import Card from '../components/Card.astro';
+import Badge from '../components/Badge.astro';
+import FlowChart from '../components/FlowChart.astro';
+
+<Alert type="info" title="What this page is for">
+  A study guide for the technical Q&A. It explains the parts of LAFINA that panelists usually ask about, using simple diagrams. It is based on the <strong>current app source (v1.0.7)</strong>, so a few details differ from the original research design in the paper. Those differences are listed in <a href="#paper-design-vs-the-built-app">Paper design vs. the built app</a>. When you're ready, test yourself with <a href="/qa-practice">Q&A Practice</a>.
+</Alert>
+
+## LAFINA in one minute
+
+LAFINA is an **Android app (React Native + TypeScript)** that acts as an **AI student companion**. It keeps your classes, tasks, notes, reminders, and alarms on the phone, and you can manage them by tapping, typing, or talking. With Online Mode it also chats about anything, answers general and trivia questions, and helps you study.
+
+Remember four ideas and you can answer most questions:
+
+1. **Offline-first.** The phone's own SQLite database is the source of truth. Planning, alarms, reminder calls, and basic voice commands work without internet. Online services (DeepSeek, ElevenLabs, Pinecone) are optional extras.
+2. **The AI proposes, the student confirms.** When the assistant wants to add, change, or delete something, it shows a **review card**. Nothing is saved until the student taps Confirm (or says "yes").
+3. **Reminders arrive as a simulated call.** Android's alarm system triggers a full-screen incoming-call screen inside LAFINA. The student answers and speaks "done" or "snooze", or uses the buttons.
+4. **It's a companion, not only a planner.** Online, DeepSeek powers open conversation and study help. Offline, LAFINA still handles small talk and planner commands, and asks for Online Mode for trivia.
+
+## The big picture
+
+<FlowChart
+  label="LAFINA system overview"
+  caption="Purple boxes are optional online services. Everything else runs on the phone."
+  steps={[
+    { title: 'Student', text: 'Taps, types, or speaks', kind: 'start' },
+    { title: 'React Native app', text: 'Screens: Home, Schedule, AI, Skills, Profile' },
+    [
+      { title: 'Understanding', text: 'Rule-based parser + optional on-device model (llama.cpp)' },
+      { title: 'Voice', text: 'Whisper.cpp listens, phone TTS speaks' },
+      { title: 'Android alarms', text: 'AlarmManager rings reminders and alarms' },
+    ],
+    { title: 'SQLite on the phone (lafina.db)', text: 'Tasks, events, reminders, notes, chats, alarms', kind: 'store' },
+    { title: 'Optional: LAFINA backend (FastAPI on Vercel)', text: 'Sign-in, sync, online AI', kind: 'online', edge: 'when online' },
+    [
+      { title: 'DeepSeek', text: 'Online chat replies', kind: 'online' },
+      { title: 'ElevenLabs', text: 'Online voice', kind: 'online' },
+      { title: 'Pinecone', text: 'Handbook search', kind: 'online' },
+    ],
+  ]}
+/>
+
+| Layer | What it does | Built with |
+|---|---|---|
+| **App / UI** | Screens, chat, call screen, review cards | React Native 0.86, TypeScript |
+| **Brain (app services)** | Understands requests, checks them, prepares review cards | TypeScript in `src/ai`, `src/scheduler` |
+| **Local storage** | Working copy of all planner data | SQLite (OP-SQLite), schema version 28 |
+| **Native Android** | Alarms, microphone, speech, PDF/OCR | Kotlin + C/C++ (JNI) |
+| **Cloud (optional)** | Account, sync, online AI and voice | FastAPI on Vercel, Neon PostgreSQL |
+
+<Card title="Q: Why is SQLite the source of truth instead of the cloud?">
+  So the app never depends on the internet to save or ring a reminder. Every edit is written locally first. Sync is a background job that sends queued changes later, when the student is signed in and connected.
+</Card>
+
+## How a conversation works
+
+This is what happens when a student sends a message in the **AI tab**, whether typed or spoken.
+
+<FlowChart
+  label="Chat message flow"
+  caption="Simplified. Conflicts, memories, and handbook citations are added along the way but are left out here."
+  steps={[
+    { title: 'Student sends a message', text: 'Typed, or spoken and turned into text by Whisper', kind: 'start' },
+    { title: 'Save the message', text: 'Stored in the chat history in SQLite', kind: 'store' },
+    { title: 'Figure out the intent', text: 'What does the student want? (see next diagram)' },
+    { title: 'What kind of request is it?', kind: 'decision' },
+    [
+      { title: 'Change a plan', text: 'Add, edit, or delete a task, reminder, note, alarm…', edge: 'change' },
+      { title: 'Ask about plans', text: '"What\'s on my schedule today?"', edge: 'question' },
+      { title: 'General chat', text: 'Greetings, study help, handbook', edge: 'chat' },
+    ],
+    [
+      { title: 'Show a review card', text: 'Student can edit, cancel, or confirm' },
+      { title: 'Read local data', text: 'Answer from SQLite. Nothing is written' },
+      { title: 'Online: DeepSeek reply / Offline: local reply', kind: 'online' },
+    ],
+    { title: 'Save + show the reply', text: 'Optionally read aloud with text-to-speech', kind: 'end' },
+  ]}
+/>
+
+### Step 1: understanding the message (intent extraction)
+
+LAFINA turns a sentence into a structured **intent**: the action plus details such as title, date, and time. It tries the cheapest method first.
+
+<FlowChart
+  label="Intent extraction order"
+  steps={[
+    { title: 'Fast-path parser (rules)', text: 'Instant. Reads clear commands like "remind me tomorrow at 5 PM"', kind: 'start' },
+    { title: 'Is it confident and clean?', kind: 'decision' },
+    [
+      { title: 'Use it', text: 'Confidence ≥ 0.85, clean title, not Taglish', kind: 'end', edge: 'yes' },
+      { title: 'Ask the on-device model', text: 'GGUF model via llama.cpp, if installed', edge: 'no / unclear' },
+    ],
+    { title: 'Online Mode on? Also ask DeepSeek', text: 'For planner commands only. Falls back to local result if it fails', kind: 'online' },
+    { title: 'Validate the intent', text: 'Checks fields and dates. Bad model output becomes plain "chat", which never writes', kind: 'end' },
+  ]}
+/>
+
+The possible intents include `create_task`, `create_reminder`, `create_time_block`, `create_note`, `create_alarm`, their update/delete versions, `snooze`, `acknowledge`, `query_schedule`, `query_notes`, `list_alarms`, `chat`, and `out_of_scope`.
+
+### Step 2: routing (who is allowed to write?)
+
+Every intent belongs to one of three routes. The list is fixed in code, so a new intent cannot be added without choosing its route.
+
+| Route | Examples | Writes data? |
+|---|---|---|
+| **Reviewed change** | create / update / delete tasks, reminders, notes, alarms | Only after Confirm |
+| **Read only** | "What's on my schedule?", "List my alarms" | Never |
+| **Conversation** | greetings, study questions, handbook questions | Never |
+
+### Step 3: the review card (confirm before saving)
+
+<FlowChart
+  label="Review card flow"
+  steps={[
+    { title: 'Assistant prepares a proposal', text: 'Shows title, date, time, and any schedule conflict', kind: 'start' },
+    { title: 'Student decides', kind: 'decision' },
+    [
+      { title: 'Edit', text: 'Fix details, card updates', edge: 'edit' },
+      { title: 'Cancel', text: 'Nothing is saved', kind: 'stop', edge: 'cancel' },
+      { title: 'Confirm', text: 'Saved to SQLite + queued for sync', kind: 'end', edge: 'confirm' },
+    ],
+  ]}
+/>
+
+A few **low-risk** actions skip the card and apply right away, with an **Undo** offer: completing a task, acknowledging or snoozing a reminder, and pinning or re-categorizing a note.
+
+<Card title="Q: Why not let the AI save things directly?">
+  Language models can misunderstand dates and times. A review card lets the student catch mistakes before they become wrong reminders. It also keeps the AI from deleting data on its own: deletion is never prepared from the model's words alone.
+</Card>
+
+### Online vs. offline conversation
+
+| | Offline | Online (signed in + Online Mode) |
+|---|---|---|
+| **Understanding** | Rule parser + optional on-device model | Same, plus DeepSeek extraction for planner commands |
+| **Replies** | Built-in local replies for supported commands | DeepSeek, streamed word by word |
+| **Multi-step help** | No | **Chat agent**: DeepSeek can look up the planner (up to 4 steps) and prepare one review card. The tools run on the phone |
+| **Handbook** | Local search of the USTP handbook pack | Retrieved passages + DeepSeek answer, with citations |
+
+<Card title="Q: Does the cloud see my whole schedule?">
+  No. Planner details are only sent when the question is about the student's own plans. When the chat agent needs data, DeepSeek asks for it with a tool call, and the tool runs on the phone and sends back only what that question needs.
+</Card>
+
+## How the reminder call works
+
+When a reminder is due, LAFINA does not just show a notification. It shows a **simulated incoming call**: a full-screen call screen inside the app. It is **not** a real telephone call and does not use a phone number.
+
+<FlowChart
+  label="Reminder call flow"
+  caption="Acknowledging a call does not complete the task. The task stays pending until the student marks it done."
+  steps={[
+    { title: 'Reminder time arrives', text: 'Android AlarmManager fires, even if the app is closed', kind: 'start' },
+    { title: 'Safety checks', text: 'Right owner? Still pending? Task not already done?' },
+    { title: 'Phone rings with the call screen', text: 'Answer or Decline' },
+    [
+      { title: 'Answered', text: 'LAFINA speaks the reminder', edge: 'answer' },
+      { title: 'Declined or no answer', text: 'Auto-snooze', kind: 'stop', edge: 'decline / missed' },
+    ],
+    { title: 'Listen for a reply', text: 'Microphone + Whisper.cpp on the phone' },
+    { title: 'What did the student say?', kind: 'decision' },
+    [
+      { title: '"Done" / "Okay"', text: 'Reminder acknowledged', kind: 'end', edge: 'acknowledge' },
+      { title: '"Give me 10 minutes"', text: 'Snoozed for that time, rings again later', kind: 'end', edge: 'snooze' },
+      { title: 'Not understood', text: 'Asks again. After 3 tries: auto-snooze', kind: 'stop', edge: 'unclear' },
+    ],
+  ]}
+/>
+
+Key details:
+
+- **Trigger:** Android `AlarmManager` registers each reminder. Recovery code re-registers pending alarms after a reboot or timezone change.
+- **Listening:** Whisper (`ggml-tiny.en-q5_1`) runs on the phone. A keyword matcher turns the transcript into **acknowledge** or **snooze (with minutes)**, e.g. "five more minutes" becomes snooze 5.
+- **Buttons always work.** If the microphone or speech model is not available, the call switches to Acknowledge / Snooze buttons.
+- **Missed calls:** declining or not answering auto-snoozes. Once the snooze limit is reached, the reminder is marked **missed**. A repeating reminder still schedules its next occurrence.
+- **Online voice option:** if the student is online with online voice enabled, LAFINA first says the reminder, then hands the call to the online conversation (see below).
+
+<Card title="Q: What if the phone is locked or the app is closed?">
+  The alarm is registered with Android itself, so the app does not need to be open. Android wakes LAFINA and shows the call screen over the lock screen. Exact timing still depends on the phone's permissions and battery settings, which is why Profile has an <strong>Alarm & Reminder Health</strong> screen with a test alarm.
+</Card>
+
+## How Call LAFINA works
+
+**Call LAFINA** is different from a reminder call. The *student* starts it, to talk to LAFINA hands-free like a phone call. It has two modes, and LAFINA picks one when the call starts.
+
+<FlowChart
+  label="Call mode decision"
+  steps={[
+    { title: 'Student taps Call LAFINA', kind: 'start' },
+    { title: 'Signed in? Online Mode on? Internet available?', kind: 'decision' },
+    [
+      { title: 'Online call', text: 'ElevenLabs voice + DeepSeek', kind: 'online', edge: 'all yes' },
+      { title: 'Offline call', text: 'Whisper.cpp + local parser + phone TTS', edge: 'any no' },
+    ],
+  ]}
+  caption="The mode is decided once at the start. A running call never switches by itself."
+/>
+
+### Online call
+
+<FlowChart
+  label="Online Call LAFINA"
+  steps={[
+    { title: 'Local checks first', text: 'Signed in, Online Mode, consent, internet, microphone permission', kind: 'start' },
+    { title: 'Backend grants a short-lived voice session', text: 'Signed connection. API keys stay on the server', kind: 'online' },
+    { title: 'Live audio streams to ElevenLabs', text: 'Speech to text, then voice reply', kind: 'online' },
+    { title: 'DeepSeek writes the reply', text: 'Connected through the LAFINA backend', kind: 'online' },
+    { title: 'Needs your data? Tool call to the phone', text: 'Reads the planner or prepares a review card locally' },
+    { title: 'Student ends the call', text: 'Transcript saved to chat', kind: 'end' },
+  ]}
+/>
+
+### Offline call
+
+The offline call works like a walkie-talkie: **one speaker at a time** (half-duplex), so LAFINA never hears her own voice as the student.
+
+<FlowChart
+  label="Offline Call LAFINA loop"
+  caption="Ends when the student taps End, after 3 silent listens in a row, or after 20 minutes."
+  steps={[
+    { title: 'LAFINA speaks', text: 'Phone text-to-speech. Microphone is off', kind: 'start' },
+    { title: 'Microphone listens', text: 'Silero VAD detects when you stop talking (~0.7 s pause)' },
+    { title: 'Whisper.cpp writes down the words', text: 'On the phone' },
+    { title: 'LAFINA responds', text: 'Same rules as chat: answer, or show a review card' },
+    { title: 'Back to "LAFINA speaks"', text: 'Repeat until the call ends', kind: 'end' },
+  ]}
+/>
+
+<Card title="Q: Does LAFINA always listen in the background?">
+  No. There is no wake word and no always-on microphone. The microphone opens only during a call or push-to-talk the student started, and only after microphone permission is granted.
+</Card>
+
+## How sync works (short version)
+
+<FlowChart
+  label="Sync flow"
+  steps={[
+    { title: 'Student saves a change', kind: 'start' },
+    { title: 'Write to SQLite + add to outbox', text: 'In one transaction, so they cannot get out of step', kind: 'store' },
+    { title: 'Signed in and connected?', kind: 'decision' },
+    [
+      { title: 'Wait', text: 'Keep the change for later', edge: 'no' },
+      { title: 'Send to backend', text: 'Receive changes from other devices, record conflicts', kind: 'online', edge: 'yes' },
+    ],
+  ]}
+/>
+
+Seven record types sync: **profile, tasks, events, time blocks, reminders, notes, and custom categories**. Alarm clocks stay on the phone where they were created. Guest mode works without an account and never syncs.
+
+## Paper design vs. the built app
+
+The original research pages describe the first design. The app changed during development. If a panelist asks about a difference, these are the honest answers.
+
+| Topic | Original design | Current app | Why it changed |
+|---|---|---|---|
+| **Reminder call** | Real outgoing phone call via telephony | Simulated in-app call screen | No phone number or carrier needed, and it works offline |
+| **Text-to-speech** | Kokoro-82M | Phone's built-in TTS (`react-native-tts`) offline, ElevenLabs online | Kokoro is not used. System TTS is lighter and already on the phone |
+| **Understanding** | SmolLM2 reads every reply | Rule-based parser first. On-device model (SmolLM2, Qwen 2.5, Gemma 3) only when needed | Rules are instant and predictable. The model adds latency and RAM |
+| **During a reminder call** | SmolLM2 judges intent | Keyword matcher for acknowledge / snooze | A ringing call has to respond fast |
+| **Scope** | Offline only, closed-domain scheduler, no chit-chat | AI student companion: offline planner core + online conversation, trivia, study skills, Ask USTP, sync | Students use a companion every day. Online features add value but are never required |
+
+## Likely panel questions
+
+<Card title="Is LAFINA a chatbot?">
+  It's an <strong>AI student companion</strong>. Online, it chats, answers general and trivia questions, and helps with studying through DeepSeek. Underneath is a task-oriented planner that works offline. Whatever the conversation, any change to the planner still goes through a review card.
+</Card>
+
+<Card title="What happens with no internet?">
+  Tasks, notes, calendar, alarms, and reminder calls all keep working. Voice commands work after the offline speech model is set up. Only open-ended AI chat, online voice, document generation, and sync need internet.
+</Card>
+
+<Card title="How does it understand Taglish or casual phrasing?">
+  The rule parser handles clear commands. When it sees Taglish or colloquial scheduling phrases, it does not trust itself and asks the on-device model (or DeepSeek, if online). The result is always validated before it is used.
+</Card>
+
+<Card title="What stops the AI from making a wrong change?">
+  Three layers: (1) the intent is validated, and invalid output becomes plain chat, which never writes; (2) every change becomes a review card the student must confirm; (3) deletes are never prepared from model output alone.
+</Card>
+
+<Card title="Where is the data stored, and is it private?">
+  On the phone in SQLite. Nothing goes to the cloud unless the student signs in. Online features send only what that request needs, and provider API keys stay on the backend server, not in the app.
+</Card>
+
+<Card title="Does answering the reminder call mark the task as done?">
+  No, on purpose. Acknowledging only means "I heard it". The student still marks the task complete, so a reminder answered while half-asleep doesn't hide unfinished work.
+</Card>
+
+## Quick numbers to remember
+
+| Fact | Value |
+|---|---|
+| Platform | Android 11+ (API 30), React Native 0.86 |
+| Local database | SQLite, schema version 28, 36 tables |
+| Synced record types | 7 |
+| Offline speech model | Whisper `tiny.en` (q5_1), plus Silero VAD |
+| Intent "confident" threshold | 0.85 |
+| Reminder call retries before auto-snooze | 3 |
+| Chat agent steps (online) | Up to 4 |
+| Offline call limits | 20 min max, ends after 3 silent listens |
+| Backend | FastAPI on Vercel + Neon PostgreSQL |
+
+For more depth, see [System Architecture](/architecture), [AI Models](/ai-models), and the [Glossary](/glossary). For many more practice questions with hidden answers, go to [Q&A Practice](/qa-practice).

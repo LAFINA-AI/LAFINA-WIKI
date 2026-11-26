@@ -1,61 +1,81 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Use Case Scenarios & FAQ"
-description: "Real-world scenarios where LAFINA's proactive call system outperforms standard reminders, plus frequently asked questions."
+description: "Everyday scenarios where LAFINA helps students, plus frequently asked questions about the AI student companion."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
 
-<Alert type="info" title="Real-World Application">
-  LAFINA is engineered to solve practical, everyday scheduling problems faced by university students.
+<Alert type="info" title="Preparing for the defense?">
+  For practice questions with hidden model answers, use the <a href="/qa-practice">Q&A Practice</a> page.
 </Alert>
 
 ## Scenarios
 
-For the full side-by-side paradigm comparison, visit the [Proactive vs. Reactive](/proactive-vs-reactive) page.
+For the full paradigm comparison, visit the [Proactive vs. Reactive](/proactive-vs-reactive) page.
 
 ### Overcoming Notification Fatigue
-A student has their phone on silent mode during a busy day. They completely miss a standard, silent push notification for an upcoming assignment. However, because LAFINA triggers an audible, native phone call, the student's attention is immediately captured — silent mode does not suppress the native call ringer.
+A student's phone is locked in their bag. A normal notification for an assignment deadline goes unnoticed. LAFINA rings with a full-screen call over the lock screen, reads the reminder aloud, and waits for a response.
 
-### Intent-Based Acknowledgment
-LAFINA calls a student to remind them of a quiz in ten minutes. The student is currently finishing up a meal and replies, "Give me five more minutes." The AI comprehends this complex intent and proactively adjusts the schedule to call back slightly later.
+### Natural Replies During a Call
+LAFINA calls about a quiz in ten minutes. The student says, *"Give me five more minutes."* LAFINA snoozes the reminder for five minutes and calls back.
 
-### Autonomous Execution (Offline)
-A student is commuting home through an area with no cell service or Wi-Fi. Because LAFINA's AI models run entirely on the local device hardware, the student still receives their critical study reminder call precisely on time.
+### Planning by Voice
+A student says, *"Block two hours for my thesis on Saturday morning."* LAFINA shows a review card with the time block and warns about any overlap with existing classes. One tap on Confirm saves it.
+
+### A Study Companion
+At night, a student asks, *"Can you explain photosynthesis simply?"* and then, *"Make flashcards from my biology notes."* With Online Mode, LAFINA explains the topic and opens the flashcard skill.
+
+### Just Talking
+After a long day, a student types *"I'm so tired, how are you?"* LAFINA replies warmly. If the student mentions *"I'm a night owl"*, LAFINA can save it to Memory and use it later when suggesting study times.
+
+### Offline Commute
+With no signal, the student's reminder still rings on time, and voice commands like *"What's on my schedule tomorrow?"* still work, because they run on the phone.
+
+### USTP Questions
+A student asks, *"When is the last day of enrollment?"* or *"What's the retention policy?"* **Ask USTP** answers from the handbook and campus knowledge pack and shows the source.
 
 ---
 
 ## Frequently Asked Questions (FAQ)
 
 <Card title="Is LAFINA a chatbot?">
-  No, LAFINA is a closed-domain, task-oriented spoken dialogue system (TOSDS). It does not engage in general chit-chat or answer trivia questions. Its sole purpose is to manage and enforce your academic schedule. See the [Glossary](/glossary) for a definition of TOSDS.
+  It's an <strong>AI student companion</strong>. With Online Mode, it chats about anything, answers general and trivia questions, and helps you study. At its core, it's also a planner that manages your schedule and calls you for reminders. Any change to your planner still needs your confirmation.
 </Card>
 
 <Card title="Does it need Wi-Fi or data to work?">
-  No. LAFINA is completely offline-first. All Voice-to-Text (Whisper.cpp), Language Modeling (SmolLM2), and Text-to-Speech (Kokoro) processing occur directly on your phone's processor via GGML binaries.
+  Not for the core. Tasks, notes, the calendar, alarms, reminder calls, small talk, and supported voice commands work offline. Open conversation, trivia, AI study generation, online voice, and sync need internet.
 </Card>
 
-<Card title="Why does it call me instead of sending a text?">
-  Text messages and push notifications contribute to "alert fatigue" and are easily ignored. A simulated phone call forces you to actively answer and verbally engage, vastly improving task compliance and awareness. Healthcare studies show this approach reduces missed appointments by up to 39%.
+<Card title="Why does it call me instead of sending a notification?">
+  Notifications are easy to swipe away (alert fatigue). A call asks you to answer and respond, so you actually notice the reminder. Healthcare studies show call reminders cut missed appointments by up to 39%.
+</Card>
+
+<Card title="Is it a real phone call?">
+  No. It's a simulated call screen inside LAFINA. It doesn't use your SIM, carrier, or load.
 </Card>
 
 <Card title="Is my voice data sent to the cloud?">
-  No. Because the entire AI layer operates via GGML binaries directly on your device, your voice data and schedule details are never transmitted over the internet, ensuring complete privacy.
+  Push-to-talk, reminder calls, and the offline Call LAFINA transcribe speech on your phone. Only the <strong>online</strong> Call LAFINA streams audio to ElevenLabs, and only during a call you started, after you give consent.
+</Card>
+
+<Card title="Can the AI change my schedule by itself?">
+  No. The assistant prepares a review card, and nothing is saved until you confirm. Only small, easily undone actions (like snoozing or completing a task) apply right away, with Undo.
 </Card>
 
 ---
 
 ## Scope & Limitations
 
-<Alert type="warning" title="Manage Your Expectations">
-  LAFINA is purpose-built for one job: proactive schedule enforcement. Understanding what it does **not** do is just as important as knowing what it does.
-</Alert>
-
-<Card title="⚠️ Strictly Task-Oriented — No Casual Chat">
-  LAFINA is a **closed-domain TOSDS** (Task-Oriented Spoken Dialogue System). It is designed exclusively to create, confirm, delay, or cancel scheduled reminders. It will not answer general questions, tutor you on academic subjects, play music, engage in small talk, or perform any function outside of academic schedule management. Attempts to use it as a general-purpose AI assistant will result in it redirecting you back to scheduling tasks.
+<Card title="⚠️ Some Features Need Online Mode">
+  Offline, LAFINA handles small talk and planning commands but will ask you to turn on Online Mode for general-knowledge questions, trivia, and AI-generated study material.
 </Card>
 
-<Card title="⚠️ Acoustic Constraint — Background Noise">
-  LAFINA's Speech-to-Text engine (Whisper.cpp, Tiny/Base quantized) is optimized for typical indoor acoustic environments. **Extreme background noise** — such as a loud cafeteria, a busy street, or a crowded event space — may significantly degrade transcription accuracy. In such environments, the AI may misinterpret your response or ask you to repeat yourself. For best results, speak clearly in a reasonably quiet environment.
+<Card title="⚠️ Acoustic Constraint: Background Noise">
+  On-device speech recognition (Whisper <code>tiny.en</code>) works best in reasonably quiet places. Loud cafeterias or streets can cause misheard replies, and LAFINA may ask you to repeat yourself. Buttons and typing are always available.
+</Card>
+
+<Card title="⚠️ Phone Battery Policies">
+  Some phone brands delay alarms when the screen is off to save battery. Use <strong>Profile → Alarm & Reminder Health</strong> and set LAFINA's battery setting to <em>Unrestricted</em> for reliable reminders.
 </Card>

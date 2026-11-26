@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Introduction, Problem & Objectives"
-description: "The research background, localized Philippine context, core objectives, and scope of the LAFINA voice-call reminder system."
+description: "The research background, Philippine context, objectives, and scope of LAFINA, an AI student companion with proactive reminder calls."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
@@ -9,12 +9,12 @@ import Badge from '../components/Badge.astro';
 import StatCard from '../components/StatCard.astro';
 
 <Alert type="info" title="Research Context">
-  This section details the foundational research, localized context, and core objectives that drive the development of the LAFINA application.
+  This section covers the background, local context, and objectives behind LAFINA. The project began as a voice-call reminder scheduler and grew into an AI student companion. The objectives below reflect the current app.
 </Alert>
 
 ## Background & Statistical Context
 
-The rapid evolution of digital technologies has shifted productivity tools from manual planners to AI assistants. The voice assistant market has reached massive scale:
+Productivity tools have shifted from paper planners to AI assistants, and the voice assistant market has reached massive scale:
 
 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin:1.5rem 0;">
   <StatCard value="8B+" label="Voice assistant devices in use worldwide" source="Statista, 2023–2024" color="primary" />
@@ -22,36 +22,54 @@ The rapid evolution of digital technologies has shifted productivity tools from 
   <StatCard value="40%" label="potential productivity improvement with AI assistants" source="Noy & Zhang, 2023" color="success" />
 </div>
 
-Despite this scale, a significant gap remains: while people use voice assistants for calls, music, and searches, only **4.3%** use them for alarms or reminders — the most practical scheduling use case.
+Despite this scale, people mostly use voice assistants for calls, music, and searches. Only **4.3%** use them for alarms or reminders, the most practical scheduling use case.
 
 ## The Localized Problem (Philippines Context)
 
-The Philippines has high mobile penetration (over 90%) and roughly 57% of the population owns smartphones. Despite this, students face high cognitive loads balancing subjects, projects, and part-time work.
+The Philippines has high mobile penetration (over 90%), and roughly 57% of the population owns a smartphone. Students carry heavy loads: subjects, projects, organizations, and often part-time work. Their plans end up scattered across calendars, chat threads, notes apps, and memory.
 
-Relying on standard push notifications leads to **"alert fatigue"** — users become desensitized and ignore them. In contrast, healthcare studies show telephone call reminders can reduce missed appointments by up to:
+Two problems follow:
+
+1. **Fragmentation.** Schedules, tasks, notes, and school information sit in different places, so students forget or double-book.
+2. **Alert fatigue.** Constant push notifications teach users to ignore them. Healthcare studies show that telephone call reminders can reduce missed appointments by up to:
 
 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin:1rem 0 1.5rem;">
   <StatCard value="39%" label="reduction in missed appointments with call reminders vs. push notifications" source="Mehranbod et al." color="warning" />
 </div>
 
-LAFINA applies this proven telephony advantage from healthcare directly to academic scheduling at USTP.
+LAFINA addresses both: one companion app that holds a student's academic life and delivers important reminders as a call.
 
 ## General Objective
 
-To design, develop, and evaluate **LAFINA**, a mobile-based AI Offline Scheduler application for the University of Science and Technology of Southern Philippines (USTP) in Cagayan de Oro (CDO), targeting students who struggle with academic deadlines.
+To design, develop, and evaluate **LAFINA**, an AI student companion for Android that helps students at the University of Science and Technology of Southern Philippines (USTP), Cagayan de Oro, and beyond organize their academic life. LAFINA delivers proactive call-style reminders and keeps core planning available without internet.
 
 ## Specific Objectives
 
-1. **Design** a voice-first mobile AI reminder application utilizing simulated phone calls.
-2. **Implement** on-device natural language processing to convert voice into structured data (date, time, task) without internet connectivity.
-3. **Test** system usability using the System Usability Scale (SUS).
+1. **Provide** manual, text, and voice ways to manage tasks, events, time blocks, reminders, alarms, and notes.
+2. **Deliver** reminders as simulated phone calls that the student acknowledges or snoozes by voice or button, using Android alarms that work even when the app is closed.
+3. **Implement** on-device speech recognition and intent understanding so that supported commands work offline.
+4. **Offer** a conversational companion: open conversation, general questions, and study help with Online Mode, and small talk and planner help offline.
+5. **Ensure** user control: the assistant proposes planner changes that the student reviews and confirms before they are saved.
+6. **Support** USTP students with COR schedule import and **Ask USTP** answers that show their sources.
+7. **Synchronize** personal records through an optional account while keeping the phone as the working copy.
+8. **Evaluate** usability (System Usability Scale), correctness, and reliability on real devices.
 
 ## Scope and Limitations
 
-<Card title="System Boundaries">
-  The system strictly handles academic scheduling. It does **NOT** integrate with learning management systems or university portals.
-  
-  * It does not extract deadlines from social media or emails.
-  * It is not a general knowledge chatbot.
-  * It does not support iOS platforms or older 32-bit Android devices.
+<Card title="In Scope">
+  * Personal academic planning: tasks, events, time blocks, reminders, notes, alarms.
+  * Conversation: small talk, general and trivia questions, explanations, and study help (open conversation requires Online Mode).
+  * Study skills: Pomodoro, flashcards, quizzes, GWA calculator, summarizer, lecture recording and transcription, document generation.
+  * USTP features: COR import and Ask USTP (handbook and campus information with sources).
+  * Guest mode on the phone, plus optional account sync.
+</Card>
+
+<Card title="Out of Scope / Limitations">
+  * Android only (Android 11 or later). No iOS.
+  * No login to or integration with university portals or learning management systems. The COR is a file the student provides.
+  * No Gmail or inbox integration, and no control of other apps.
+  * No wake word and no always-on listening.
+  * Open-ended conversation and AI generation need internet. Offline understanding covers supported commands and small talk.
+  * Alarm timing can be affected by aggressive battery saving on some phone brands.
+  * LAFINA is a personal assistant. It does not replace official university advice.
 </Card>

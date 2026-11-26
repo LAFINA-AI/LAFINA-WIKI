@@ -1,0 +1,46 @@
+---
+/** Buttons for the practice page: open all answers, hide all, or jump to a random question. */
+---
+
+<div class="pc not-prose" role="group" aria-label="Practice controls">
+  <button type="button" data-pc="random">🎲 Random question</button>
+  <button type="button" data-pc="open">Show all answers</button>
+  <button type="button" data-pc="close">Hide all answers</button>
+</div>
+
+<script>
+  const all = () => Array.from(document.querySelectorAll<HTMLDetailsElement>('details.pq'));
+  document.querySelectorAll<HTMLButtonElement>('.pc button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.pc;
+      const items = all();
+      if (action === 'open') items.forEach((d) => (d.open = true));
+      if (action === 'close') items.forEach((d) => (d.open = false));
+      if (action === 'random' && items.length) {
+        items.forEach((d) => (d.open = false));
+        const pick = items[Math.floor(Math.random() * items.length)];
+        pick.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        pick.classList.add('pq-picked');
+        setTimeout(() => pick.classList.remove('pq-picked'), 1600);
+        pick.querySelector('summary')?.focus({ preventScroll: true });
+      }
+    });
+  });
+</script>
+
+<style>
+  .pc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0 1.75rem; }
+  .pc button {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+    border-radius: 0.5rem;
+    background: var(--color-background);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pc button:hover { border-color: var(--color-primary); background: var(--color-surface); }
+  :global(details.pq.pq-picked) { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+</style>

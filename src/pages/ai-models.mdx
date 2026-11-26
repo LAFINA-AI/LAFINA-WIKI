@@ -1,129 +1,92 @@
 ---
 layout: ../layouts/Layout.astro
 title: "AI Models Deep Dive"
-description: "A detailed look at SmolLM2, Whisper.cpp, and Kokoro 82M — the three on-device AI models powering LAFINA's offline voice pipeline."
+description: "The on-device and online AI behind LAFINA: Whisper speech recognition, the layered intent pipeline, optional on-device models, phone TTS, DeepSeek, ElevenLabs, and Pinecone."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
+import FlowChart from '../components/FlowChart.astro';
 
-<Alert type="info" title="All Models Run Offline">
-  Every model in LAFINA's AI pipeline runs entirely on-device via GGML/C++ binaries. No audio, text, or scheduling data ever leaves the phone.
+<Alert type="info" title="Hybrid AI">
+  LAFINA uses <strong>small, fast AI on the phone</strong> for everything that must work offline, and <strong>large online AI</strong> for open conversation and natural voice. The app always works without the online part.
 </Alert>
 
-## The Three-Model Pipeline
+## The Pipeline
 
-LAFINA's voice intelligence is powered by a carefully selected chain of three specialized models, each chosen to maximize accuracy within the strict constraints of a mobile device with 4GB RAM.
+<FlowChart
+  label="LAFINA AI pipeline"
+  steps={[
+    { title: 'Student speaks', kind: 'start' },
+    { title: 'Whisper.cpp + Silero VAD', text: 'Speech to text, on the phone' },
+    { title: 'Intent pipeline', text: 'Rules first, then an on-device model, then DeepSeek if online' },
+    [
+      { title: 'Planner change → review card', text: 'Saved only after Confirm' },
+      { title: 'Conversation → reply', text: 'DeepSeek online / local reply offline', kind: 'online' },
+    ],
+    { title: 'Reply spoken', text: 'Phone TTS offline, ElevenLabs online', kind: 'end' },
+  ]}
+/>
 
-<div style="display:grid; gap:1.5rem; margin: 1.5rem 0;">
+## On-Device Models <Badge variant="success">Offline</Badge>
 
-<div style="border:1px solid color-mix(in srgb,#7c3aed 25%,transparent); border-radius:0.875rem; padding:1.5rem; background:color-mix(in srgb,#7c3aed 6%,transparent);">
-
-### 🎙️ Whisper.cpp — Speech-to-Text (STT)
-
-<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-  <Badge variant="info">STT</Badge>
-  <Badge variant="default">~39–74 MB</Badge>
-  <Badge variant="default">Whisper.cpp Runtime</Badge>
-</div>
-
-| Property | Detail |
-|---|---|
-| **Model** | OpenAI Whisper Tiny / Base (Quantized) |
-| **Task** | Transcribes spoken user audio into text |
-| **Size** | ~39 MB (Tiny) / ~74 MB (Base) |
-| **Runtime** | Whisper.cpp — C++ port, no Python required |
-| **Language** | Multilingual; handles Filipino accents & Taglish |
-
-**Why Whisper over alternatives?**
-
-Whisper was chosen for its exceptional robustness with accented and non-native English speakers. Competing options like CMU PocketSphinx have significantly lower accuracy with Taglish speech patterns, while cloud-based solutions (Google STT, Azure) violate the offline-first requirement.
-
-The *quantized* Tiny/Base models reduce memory footprint by 50–70% compared to full-precision models with minimal accuracy loss for short scheduling commands.
-
-</div>
-
-<div style="border:1px solid color-mix(in srgb,#4f46e5 25%,transparent); border-radius:0.875rem; padding:1.5rem; background:color-mix(in srgb,#4f46e5 6%,transparent);">
-
-### 🧠 SmolLM2-135M-Instruct — Language Model (NLU)
-
-<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-  <Badge variant="success">NLU / Intent</Badge>
-  <Badge variant="default">135M Parameters</Badge>
-  <Badge variant="default">llama.cpp Runtime</Badge>
-</div>
+### 🎙️ Whisper.cpp: Speech-to-Text
 
 | Property | Detail |
 |---|---|
-| **Model** | SmolLM2-135M-Instruct (HuggingFace) |
-| **Task** | Intent classification, slot-filling, response generation |
-| **Parameters** | **135 million** |
-| **On-Device Footprint** | **723 MB** |
-| **Runtime** | llama.cpp — GGML binary |
-| **Capability** | Extracts date, time, and task from natural language |
+| **Model** | OpenAI Whisper `tiny.en`, quantized (`q5_1`) |
+| **Runtime** | whisper.cpp (C++), called through a native Android module |
+| **Helper** | **Silero VAD** (voice activity detection) detects when the student stops talking |
+| **Used for** | Push-to-talk voice input, reminder call replies, offline Call LAFINA, lecture transcription |
 
-**Why SmolLM2 over alternatives?**
+Whisper runs entirely on the phone, so voice commands work without internet. The `tiny` model keeps transcription fast enough for a live call. The trade-off is lower accuracy in noisy places, so buttons and typing always remain available.
 
-| Model | Params | RAM Use | Why Not Chosen |
+### 🧠 The Intent Pipeline: Understanding Requests
+
+LAFINA does **not** send every message to a language model. It uses layers, cheapest first:
+
+1. **Fast-path parser (rules).** Instantly reads clear commands such as "remind me tomorrow at 5 PM", "wake me up at 6", or "what's on my schedule today". If the reading is confident (≥ 0.85) and clean, it is used as is.
+2. **Optional on-device model.** For unclear, Taglish, or casual phrasing, a small GGUF model run by **llama.cpp** reads the request.
+3. **DeepSeek (online only).** With Online Mode on, DeepSeek can also extract planner commands. If it fails, LAFINA keeps the local result.
+
+Every result is **validated**. Invalid output becomes plain conversation, which never changes data.
+
+**Selectable on-device models:**
+
+| Model | Size | Recommended RAM | Notes |
 |---|---|---|---|
-| **SmolLM2-135M** ✅ | **135M** | **723 MB** | Chosen — optimal for mobile |
-| Qwen2.5-0.5B | 500M | ~1 GB | Too heavy for background execution |
-| Regex / Rule-based | — | Minimal | Fails on messy, conversational inputs |
-| GPT-4 / Cloud API | — | N/A | Requires internet; violates privacy model |
+| Fast-Path Only | none | 2 GB | Built-in rules, always available |
+| SmolLM2-135M-Instruct | ~105 MB | 3 GB | Smallest model, for 3–4 GB phones |
+| Gemma 3 270M | ~253 MB | 4 GB | Better title and phrasing extraction |
+| Qwen 2.5 0.5B | ~491 MB | 4 GB | Multilingual, better with Taglish |
+| Gemma 3 1B | ~806 MB | 6 GB | Most accurate, needs a strong phone |
 
-SmolLM2's instruct-tuned variant excels at structured output generation — it can be prompted to return clean JSON (`{"task": "study review", "date": "2025-05-14", "time": "18:00"}`) from conversational input like *"remind me to review my notes tonight at six."*
+### 🔊 Phone Text-to-Speech
 
-</div>
+Offline, LAFINA speaks with the phone's own speech engine through `react-native-tts`. It is already installed, starts quickly, and uses little memory. The original design used Kokoro-82M, but it was replaced for speed and size.
 
-<div style="border:1px solid color-mix(in srgb,#0ea5e9 25%,transparent); border-radius:0.875rem; padding:1.5rem; background:color-mix(in srgb,#0ea5e9 6%,transparent);">
+## Online Models <Badge variant="info">Online Mode</Badge>
 
-### 🔊 Kokoro 82M — Text-to-Speech (TTS)
+All online requests go through the LAFINA backend, so API keys never sit in the app.
 
-<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-  <Badge variant="warning">TTS</Badge>
-  <Badge variant="default">82M Parameters</Badge>
-  <Badge variant="default">GGML Runtime</Badge>
-</div>
+<Card title="DeepSeek: Conversation and Planning Help">
+  Powers LAFINA as a companion: small talk, general and trivia questions, explanations, and study help, streamed word by word. As the <strong>Chat agent</strong>, it can use tools that run on the phone to look up your planner (up to 4 steps) and prepare one review card. It also writes Ask USTP answers from retrieved sources and generates quizzes, summaries, and documents.
+</Card>
 
-| Property | Detail |
+<Card title="ElevenLabs: Natural Voice">
+  Provides more natural spoken replies and the <strong>live voice</strong> used in online Call LAFINA. The backend issues a short-lived signed session, and the phone streams microphone audio only during a call the student started, with consent. If it fails, LAFINA falls back to the phone's voice.
+</Card>
+
+<Card title="Pinecone: Handbook Retrieval">
+  A vector database that finds relevant USTP Student Handbook passages for online Ask USTP answers. Offline, LAFINA uses its own local knowledge pack with SQLite full-text search instead.
+</Card>
+
+## Why This Design?
+
+| Choice | Reason |
 |---|---|
-| **Model** | Kokoro 82M |
-| **Task** | Converts LLM-generated text into natural speech |
-| **Size** | ~164 MB (Q4 quantized) |
-| **Runtime** | GGML binary |
-| **Voice Quality** | Natural prosody, low latency, suitable for phone calls |
-
-**Why Kokoro over alternatives?**
-
-Kokoro 82M was selected for its balance between voice naturalness and model size. Traditional rule-based TTS engines (eSpeak, Festival) produce robotic output unsuitable for a conversational phone call context. Larger neural TTS systems exceed LAFINA's memory budget.
-
-Kokoro generates warm, natural-sounding audio that feels appropriate for a simulated phone call — a critical factor since the call metaphor relies on the voice sounding human-enough to trigger the user's social conditioning to engage.
-
-</div>
-
-</div>
-
-## How They Chain Together
-
-```
-User speaks → [Whisper.cpp STT] → text transcript
-text transcript → [SmolLM2 NLU] → intent + JSON schedule
-JSON schedule → [stored in SQLite] → triggers at reminder time
-At reminder time → [SmolLM2 generates reminder text]
-reminder text → [Kokoro TTS] → audio over phone call
-User speaks back → [Whisper.cpp STT] → acknowledgment text
-acknowledgment text → [SmolLM2 intent evaluation] → confirmed / delay / reschedule
-```
-
-## Total On-Device AI Footprint
-
-| Model | Footprint | Task |
-|---|---|---|
-| Whisper.cpp Base | ~74 MB | STT |
-| SmolLM2-135M | **723 MB** | NLU |
-| Kokoro 82M Q4 | ~164 MB | TTS |
-| **Total** | **~961 MB** | **Full pipeline** |
-
-<Alert type="success" title="Well Within Budget">
-  The combined ~961 MB AI footprint fits comfortably within LAFINA's 1 GB minimum storage allocation and the 4 GB RAM constraint, with headroom for the React Native framework and SQLite database.
-</Alert>
+| Rules before models | Instant, predictable, and nearly free on battery and memory. Important during a ringing call |
+| Optional, selectable on-device model | Students choose based on their phone's RAM and storage |
+| Large online model for conversation | Small on-device models can't reliably answer trivia or hold open conversation |
+| Phone TTS instead of Kokoro | Already installed, faster first audio, lower memory |
+| Everything validated, changes confirmed | AI mistakes become corrections on a card, not wrong data |

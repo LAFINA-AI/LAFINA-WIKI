@@ -1,48 +1,62 @@
 ---
 layout: ../layouts/Layout.astro
 title: "AI Model Evaluation & Benchmarks"
-description: "Benchmarking methodology, on-device performance targets, and comparative analysis for LAFINA's SmolLM2-135M-Instruct language model."
+description: "How LAFINA's speech recognition, intent understanding, reminder delivery, Ask USTP answers, and usability are evaluated."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
 
-<Alert type="info" title="Testing Methodology">
-  This section details the rigorous benchmarking used to validate the localized SmolLM2-135M-Instruct language model for on-device execution.
+<Alert type="warning" title="Report Only Measured Results">
+  This page describes <strong>what</strong> is evaluated and <strong>how</strong>. When presenting, use only results the team actually measured, with the phone model, sample size, and conditions. Do not present targets as results.
 </Alert>
 
-## Task-Specific Accuracy
+## Research Questions
 
-To ensure reliability, we evaluate the model using a "Golden Dataset" containing 50 to 100 typical voice commands. This dataset includes straightforward requests, messy inputs, and relative time expressions. The primary metric is the **Exact Match Rate** for accurately extracting JSON schedule data from these spoken inputs.
+| # | Question |
+|---|---|
+| **RQ1** | Does the phone's built-in TTS start speaking faster and use less memory than the earlier Kokoro engine, at acceptable clarity? |
+| **RQ2** | How accurate and fast is on-device speech recognition (Whisper) for student academic commands without internet? |
+| **RQ3** | Does the rule-based fast path shorten response time without causing more wrong acknowledgments or scheduling mistakes? |
+| **RQ4** | How reliably are call-style reminders delivered, given permissions, app lifecycle, and phone-brand battery policies? |
+| **RQ5** | How accurately does Ask USTP answer handbook questions, cite the right source, and decline unsupported questions? |
 
-## On-Device System Performance
+## What Is Measured
 
-Given the strict hardware constraints of mobile devices, system performance is continuously monitored to ensure smooth execution within a 4GB RAM footprint.
+### Speech recognition (Whisper)
+* **Word Error Rate (WER)** on a labeled set of student commands.
+* **Latency** after the student stops talking. In-app targets: median about **1.5 s**, 95th percentile under **3 s**.
+* Results are grouped by phone and room condition (quiet vs. noisy).
 
-| Metric | Description | Target |
-| :--- | :--- | :--- |
-| **Latency** | Time to first token generation | Minimization for real-time feel |
-| **Throughput** | Tokens generated per second | Fluid conversational output |
-| **Memory** | Active RAM consumption during inference | Strict adherence to the 4GB RAM constraint |
+### Intent understanding
+* **Accuracy and critical errors** on a labeled command set: clear commands, casual phrasing, Taglish, and relative times ("tomorrow", "next Friday").
+* Compared across the fast-path parser only, each on-device model (SmolLM2, Gemma 3, Qwen 2.5), and DeepSeek.
+* **Command completion time.** LAFINA has a built-in developer benchmark that records timing for each step: fast path, on-device model, and online extraction.
 
-## Comparative Analysis
+### Reminder delivery
+* The share of alarms delivered within a set time window, in different states: app open, app closed, screen locked, after reboot.
+* Results with permissions denied and with aggressive battery saving are recorded separately.
 
-LAFINA's selected architecture was chosen after extensive comparative testing against alternative methods. See the [AI Models](/ai-models) page for the full model-by-model breakdown.
+### Ask USTP (RAG)
+* Retrieval recall, citation correctness, and correct "I couldn't verify that" answers on a gold question set with known source pages.
 
-<Card title="Vs. Traditional Regex">
-  The LLM approach significantly outperforms regular expressions when handling conversational or messy inputs.
+### Usability
+* **System Usability Scale (SUS)** with student participants (informed consent), cross-checked against ISO/IEC 25010 quality characteristics: usability, performance efficiency, reliability, and security.
+
+## Design Comparisons
+
+<Card title="Rules vs. Language Models">
+  Rules are instant and predictable but weak on casual phrasing. Models handle messy input but cost time, memory, and battery. LAFINA uses rules first and calls a model only when the rules aren't confident.
 </Card>
 
-<Card title="Vs. Larger Local Models (Qwen2.5-0.5B)">
-  While larger models offer expansive knowledge, SmolLM2 uses significantly less battery and RAM, making it optimal for background mobile execution.
+<Card title="Small vs. Larger On-Device Models">
+  SmolLM2-135M fits 3 GB phones. Qwen 2.5 0.5B and Gemma 3 1B handle Taglish and complex phrasing better but need more RAM. Students choose based on their phone.
 </Card>
 
-<Card title="Vs. Cloud APIs">
-  Unlike cloud-based solutions, SmolLM2 offers zero internet dependency, zero latency from network drops, and total user privacy.
+<Card title="On-Device vs. Cloud">
+  On-device AI works without internet and keeps data private. Cloud AI (DeepSeek) is far better at open conversation and trivia. LAFINA uses both: on-device for the core, cloud as an optional extra.
 </Card>
 
-## Handling Imperfect English
+## Handling Imperfect English and Taglish
 
-A key strength of the SmolLM2 implementation is its robustness in handling imperfect English. The model successfully processes misspelled words, heavy regional accents, and "Taglish" transcriptions passed down from the Whisper STT layer.
-
-This is especially important for the Philippine context: USTP students frequently switch between Filipino and English mid-sentence. A rigid keyword-based system would fail; SmolLM2's instruction-tuned training handles this naturally.
+USTP students often switch between Filipino and English mid-sentence. The rule parser detects Taglish and colloquial phrasing and hands it to a model instead of trusting its own reading. Every interpretation is shown on a review card, so the student can correct it before anything is saved.

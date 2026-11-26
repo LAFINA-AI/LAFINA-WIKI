@@ -1,34 +1,51 @@
 ---
 layout: ../layouts/Layout.astro
 title: "System Classification: Conversational AI"
-description: "How LAFINA is classified as a Task-Oriented Spoken Dialogue System (TOSDS) and why its closed-domain, multi-turn architecture enables offline operation."
+description: "How LAFINA works as a conversational AI: a task-oriented planner core combined with an open-domain student companion."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
 import Badge from '../components/Badge.astro';
 
-<Alert type="info" title="System Design">
-  LAFINA is meticulously designed as a closed-domain system to maximize efficiency on mobile devices.
+<Alert type="info" title="From Scheduler to Companion">
+  LAFINA started as a closed-domain, task-only dialogue system. It is now a <strong>hybrid</strong>: a task-oriented core for planning, plus an open-domain companion for conversation and study help.
 </Alert>
 
-## Task-Oriented Spoken Dialogue System (TOSDS)
+## Two Kinds of Dialogue in One Assistant
 
-LAFINA is explicitly defined as a **Task-Oriented Spoken Dialogue System (TOSDS)**. It is a closed-domain model designed to accomplish specific scheduling tasks.
+### 1. Task-Oriented Dialogue (the planner core) <Badge variant="success">Offline</Badge>
 
-It is important to note that LAFINA is **not** an open-domain chit-chat bot. It does not possess the capability to answer general knowledge inquiries, write essays, or engage in casual conversation outside of its scheduling parameters. This strict scoping allows the models to remain small enough to run offline.
+For planning, LAFINA behaves like a **Task-Oriented Spoken Dialogue System (TOSDS)**. It understands a specific set of intents (create, update, or delete tasks, reminders, notes, time blocks, and alarms; query schedule; snooze; acknowledge) and fills slots such as title, date, and time. This part works offline with the rule parser and on-device models.
 
-For definitions of TOSDS and related terms, see the [Glossary](/glossary).
+### 2. Open-Domain Conversation (the companion) <Badge variant="info">Online Mode</Badge>
 
-## Multi-Turn Interaction Loop
+With Online Mode, LAFINA can talk about almost anything a student brings up: small talk, trivia, explaining a lesson, study tips, or just chatting after a long day. This is powered by DeepSeek. LAFINA also remembers personal preferences the student shares (Memory), so conversations feel personal.
 
-LAFINA completely redefines the standard reminder format.
+Offline, LAFINA still handles **small talk**: greetings, "how are you", "who made you", "what can you do", thanks, and goodbyes. For general-knowledge questions, it tells the student to turn on Online Mode rather than guess.
 
-We must contrast LAFINA against zero-turn alarms (which only ring) and single-turn voice commands (like asking Siri to set a timer). LAFINA requires a sophisticated **multi-turn, bi-directional exchange**. In this loop, the AI initiates the call, the user responds, the AI evaluates that response, and finally, the AI closes the loop autonomously.
+## How the Two Work Together
 
-## Intent Evaluation
+Every message first goes through intent understanding:
 
-A critical component of LAFINA's conversational intelligence is its nuanced intent evaluation.
+| The message is… | LAFINA… |
+|---|---|
+| A planner change ("add a task…") | Prepares a **review card**. Nothing is saved until Confirm |
+| A question about the student's plans ("what's on today?") | Answers from local data. Nothing is written |
+| Conversation, trivia, or study help | Replies conversationally (DeepSeek online, local reply offline) |
+| A USTP question | Answers with sources through Ask USTP |
 
-Instead of relying on strict, rigid keyword spotting like "Yes" or "Stop", LAFINA utilizes the **SmolLM2** language model to evaluate natural language intent. For example, if a user replies with "Give me five minutes," the AI comprehends the request for a delay rather than failing due to a missing keyword.
+A single message can mix them. For example, *"I'm a night owl, help me plan my week"* saves a memory **and** starts planning.
 
-For a deeper look at SmolLM2's capabilities, see the [AI Models](/ai-models) page.
+## Multi-Turn Interaction
+
+LAFINA is multi-turn in several places:
+
+* **Chat:** follow-ups like "move it to 4 PM" or "book the first one" refer to earlier messages. The review card can be edited, confirmed, or cancelled by voice or text ("yes", "make it 5 instead").
+* **Reminder calls:** LAFINA starts the call, speaks the reminder, listens, interprets the reply ("give me ten minutes"), and closes the loop.
+* **Call LAFINA:** a hands-free voice conversation, online (ElevenLabs + DeepSeek) or offline (Whisper + phone TTS).
+
+## Intent Evaluation During Calls
+
+During a reminder call, LAFINA must respond quickly. It uses an on-device keyword matcher that understands natural replies such as "okay", "got it", "five more minutes", or "in half an hour" and turns them into **acknowledge** or **snooze for N minutes**. It does not require exact words like "Yes" or "Stop".
+
+For more on the models, see [AI Models](/ai-models).

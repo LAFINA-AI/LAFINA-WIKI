@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/Layout.astro
 title: "Introduction"
-description: "LAFINA is a voice-first AI scheduler for university students — a proactive call-based reminder system that calls you instead of sending a push notification."
+description: "LAFINA is an AI student companion for Android: an offline-first planner and assistant that chats with you, helps you study, and calls you when a reminder is due."
 ---
 import Alert from '../components/Alert.astro';
 import Card from '../components/Card.astro';
@@ -11,14 +11,24 @@ import StatCard from '../components/StatCard.astro';
 <Hero />
 
 <Card title="Using the LAFINA app? Start here.">
-  The new [User Manual](/user-manual) walks you through classes, alarms, tasks, notes, AI conversations, calls, and settings with screenshots from the app. Read the [full manual and table of contents](/user-manual/full), or [download the illustrated PDF](/manual/LAFINA-User-Manual.pdf).
+  The [User Manual](/user-manual) walks you through classes, alarms, tasks, notes, AI conversations, calls, and settings with screenshots from the app. Read the [full manual and table of contents](/user-manual/full), or [download the illustrated PDF](/manual/LAFINA-User-Manual.pdf).
+</Card>
+
+<Card title="Preparing for the defense?">
+  Read [How LAFINA Works](/how-it-works) for the core technical flows with simple diagrams, then test yourself with [Q&A Practice](/qa-practice).
 </Card>
 
 ## What is LAFINA?
 
-**LAFINA** is a mobile-based AI application designed to combat **notification fatigue** among university students. Instead of passive push notifications that are easily ignored, LAFINA takes a proactive, voice-first approach — it **initiates simulated phone calls** to ensure tasks are actually acknowledged and schedules are actually followed.
+**LAFINA** is an **AI student companion** for Android. It brings a student's classes, tasks, notes, reminders, and alarms into one app, and it is someone to talk to. Students can:
 
-LAFINA supports local scheduling and optional online services. Online AI, cloud synchronization, and online voice calls require connectivity and can send information to their configured services. See the [User Manual](/user-manual) for current workflows and privacy guidance. The research pages below describe the project's original design.
+- **Plan** by tapping, typing, or speaking ("remind me to submit my lab report tomorrow at 5 PM").
+- **Chat** about anything: small talk, general and trivia questions, explanations, and study help.
+- **Study** with built-in skills: Pomodoro focus sessions, flashcards, quizzes, a GWA calculator, a summarizer, and lecture recordings.
+- **Ask USTP** about handbook rules, academic dates, offices, and campus services, with sources shown.
+- **Get called.** When something is due, LAFINA shows a simulated incoming call that the student answers and responds to by voice, instead of a banner that is easy to swipe away.
+
+The planner works **offline**. Online Mode adds open conversation (DeepSeek), a natural live voice (ElevenLabs), and cloud sync.
 
 ## The Problem in Numbers
 
@@ -28,29 +38,36 @@ LAFINA supports local scheduling and optional online services. Online AI, cloud 
   <StatCard value="39%" label="fewer missed appointments with call reminders" source="Mehranbod et al." color="success" />
 </div>
 
-The gap is clear: voice assistants are everywhere, but almost nobody uses them for what they're actually good at — proactive schedule enforcement.
+Voice assistants are everywhere, but few people use them to stay on schedule, and push notifications are easy to ignore. LAFINA combines a companion people want to talk to with reminders that are hard to ignore.
 
 ## The LAFINA Approach
 
-<Card title="Offline-First Architecture">
-  Local scheduling, notes, and tasks remain available offline. Supported offline models and native Android speech provide on-device options, while online AI and voice are available when connected. Check model readiness before relying on offline AI.
+<Card title="A Companion, Not Just a Scheduler">
+  With Online Mode, LAFINA holds a natural conversation, answers general questions, explains lessons, and remembers your preferences (for example, "I'm a night owl"). Offline, it still handles small talk and every supported planner command.
 </Card>
 
-<Card title="Proactive Voice Calls">
-  Instead of a silent push notification banner, LAFINA triggers the device's native ringing mechanism — the same one used for actual phone calls. Humans are conditioned to answer calls. Notifications, not so much.
+<Card title="Offline-First Planning">
+  Your plans live in a database on your phone. Tasks, notes, the calendar, alarms, and reminder calls work without internet. With an optional account, they sync when you are back online.
 </Card>
 
-<Card title="Closed-Loop Confirmation">
-  The AI doesn't just deliver the reminder — it verifies acknowledgment. If you reply "give me five more minutes," SmolLM2 understands and re-queues the reminder. The loop closes only when you've truly acknowledged.
+<Card title="Proactive Reminder Calls">
+  Instead of a silent banner, LAFINA rings with a full-screen call, even over the lock screen. Say "okay" to acknowledge or "give me ten minutes" to snooze, or use the buttons.
+</Card>
+
+<Card title="You Stay in Control">
+  The AI proposes; you confirm. Any change to your planner appears as a review card first, and nothing is saved until you confirm it.
 </Card>
 
 ## Explore the Wiki
 
 | Page | What You'll Find |
 |---|---|
+| [How LAFINA Works](/how-it-works) | Technical guide with diagrams: conversations, reminder calls, Call LAFINA, sync |
+| [Q&A Practice](/qa-practice) | Practice questions with hidden model answers for the defense |
 | [Problem & Goals](/problem-and-goals) | Research background, objectives, and scope |
-| [AI Models](/ai-models) | Deep dive on Whisper, SmolLM2, and Kokoro |
-| [Interaction Flow](/interaction-flow) | Step-by-step animated call flow |
-| [Proactive vs. Reactive](/proactive-vs-reactive) | Paradigm comparison table + scenarios |
+| [System Architecture](/architecture) | The on-device layers and optional cloud services |
+| [AI Models](/ai-models) | Whisper, the intent pipeline, on-device models, and online AI |
+| [Interaction Flow](/interaction-flow) | Step-by-step reminder call flow |
+| [Proactive vs. Reactive](/proactive-vs-reactive) | Paradigm comparison table and scenarios |
 | [Team](/team) | Research members and examination committee |
-| [Glossary](/glossary) | Definitions for GGML, STT, TTS, TOSDS, and more |
+| [Glossary](/glossary) | Definitions for RAG, STT, TTS, VAD, GGUF, and more |

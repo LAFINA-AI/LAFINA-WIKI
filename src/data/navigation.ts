@@ -9,7 +9,7 @@ export const manualNavigation = {
 };
 export const researchNavigation = [
   { label: 'Overview', links: [
-    { text: 'Introduction', href: '/' }, { text: 'Problem & Goals', href: '/problem-and-goals' },
+    { text: 'Introduction', href: '/' }, { text: 'How LAFINA Works', href: '/how-it-works' }, { text: 'Q&A Practice', href: '/qa-practice' }, { text: 'Problem & Goals', href: '/problem-and-goals' },
     { text: 'System Architecture', href: '/architecture' }, { text: 'Interaction Flow', href: '/interaction-flow' },
     { text: 'Requirements', href: '/requirements' }, { text: 'Scenarios & FAQ', href: '/scenarios-and-faq' },
   ] },

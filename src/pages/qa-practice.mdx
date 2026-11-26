@@ -1,0 +1,356 @@
+---
+layout: ../layouts/Layout.astro
+title: "Q&A Practice"
+description: "Practice questions for the LAFINA capstone technical Q&A, with hidden model answers you can reveal after answering out loud."
+---
+import Alert from '../components/Alert.astro';
+import PracticeQuestion from '../components/PracticeQuestion.astro';
+import PracticeControls from '../components/PracticeControls.astro';
+
+<Alert type="info" title="How to practice">
+  Read a question, <strong>answer it out loud first</strong>, then open it to compare with the model answer. Use <em>Random question</em> to quiz each other as a group. Labels show difficulty: <strong>Basic</strong> (expect these), <strong>Deeper</strong> (follow-ups), and <strong>Curveball</strong> (tricky or critical questions). For the diagrams behind these answers, see <a href="/how-it-works">How LAFINA Works</a>.
+</Alert>
+
+<PracticeControls />
+
+## 1. The project and its purpose
+
+<PracticeQuestion q="In one or two sentences, what is LAFINA?" tip="Companion + planner + calls. Offline core, optional online AI.">
+
+LAFINA is an AI student companion for Android. It keeps a student's classes, tasks, notes, reminders, and alarms in one place, lets them manage everything by tapping, typing, or talking, chats with them, and calls them with a simulated phone call when a reminder is due.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What problem does LAFINA solve?" tip="Scattered tools + alert fatigue → one companion that calls you.">
+
+Students juggle classes, deadlines, notes, and personal commitments across many apps, and ordinary push notifications are easy to swipe away (alert fatigue). LAFINA puts planning, reminders, and an assistant in one app, and makes important reminders harder to ignore by delivering them as a call that the student answers and responds to.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Your earlier scope said LAFINA is not a chatbot. Now it chats and answers trivia. What changed?" level="deeper" tip="Started task-only; grew into a companion. Planner core and safety rules did not change.">
+
+The original design was a closed-domain, task-only scheduler so that small on-device models could run it. During development we added optional online AI (DeepSeek), so with Online Mode LAFINA can hold a normal conversation, answer general and trivia questions, and help with studying. That makes it a student companion, not only a scheduler.
+
+The core did not change. Planning still works offline, and any change to the student's data still goes through a review card that the student confirms.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Who are the target users?" tip="Students first; USTP-specific extras.">
+
+University students in general, with extra features for USTP Cagayan de Oro students: importing a Certificate of Registration (COR) into the schedule, and **Ask USTP**, which answers handbook and campus questions with sources.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What makes LAFINA different from Google Calendar or a normal alarm app?" tip="Proactive call + conversation + offline + review before saving.">
+
+- **It is proactive.** Reminders arrive as a call you answer and respond to, not a silent banner.
+- **It is conversational.** You can say "remind me to submit my lab report tomorrow at 5" or "give me ten more minutes".
+- **It works offline.** Planning, alarms, and reminder calls work without internet.
+- **It is a companion.** It also chats, helps you study (flashcards, quizzes, Pomodoro, summaries), and answers USTP questions.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Why not just use ChatGPT or Google Assistant?" level="curveball" tip="They don't own your schedule offline or call you; LAFINA does both, safely.">
+
+General assistants are online-only for most features, don't keep a student-focused planner on the phone, and don't deliver reminders as a call you have to acknowledge. LAFINA combines an offline planner, call-style reminders, and an assistant that can only change your data after you confirm. We do use a large online model (DeepSeek) for conversation, so we benefit from that kind of intelligence without depending on it.
+
+</PracticeQuestion>
+
+## 2. Architecture
+
+<PracticeQuestion q="Describe the system architecture." tip="Phone (UI, services, SQLite, native) + optional backend + providers.">
+
+There are two parts.
+
+- **The Android app does the core work.** React Native and TypeScript screens sit on top of app services that understand requests, check them, and prepare review cards. One SQLite database on the phone holds all planner data. Native Kotlin and C++ code handles alarms, the microphone, Whisper speech recognition, and the optional on-device model.
+- **An optional backend adds online features.** It is built with FastAPI, runs on Vercel, and stores accounts in Neon PostgreSQL. It handles sign-in, sync, and online AI, and connects to DeepSeek (chat), ElevenLabs (voice), and Pinecone (handbook search).
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What does 'offline-first' mean in LAFINA?" tip="Local first, sync later.">
+
+The phone holds the working copy of all data. Saving a task never waits for a server. Changes are written to SQLite first, and if the student is signed in they are queued and synced later when there is a connection.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Why SQLite?" tip="Embedded, no server, works offline, transactions.">
+
+It is an embedded database that needs no server, works fully offline, and supports transactions. The app also uses SQLite's FTS5 full-text search for the offline handbook search.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How does sync work, and what happens to edits made offline?" level="deeper" tip="Outbox in the same transaction.">
+
+Every change is written to its table **and** to a sync outbox in the same database transaction, so they can't get out of step. When the student is signed in and online, a sync worker sends the outbox to the backend, receives changes from other devices, and records any conflicts. Offline edits simply wait in the outbox. Seven record types sync: profile, tasks, events, time blocks, reminders, notes, and custom categories. Alarm clocks stay on the device.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Can you use LAFINA without an account?" tip="Guest mode.">
+
+Yes. Guest mode works fully on the phone. An account adds sync and online features such as DeepSeek chat and online voice.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Why React Native instead of native Android only?" level="deeper" tip="One TypeScript codebase for UI; native modules where needed.">
+
+React Native lets us write the interface and most logic in TypeScript, which is faster to build and test. Where performance or Android features matter (alarms, audio, Whisper, the local model, OCR) we write native Kotlin and C++ modules and call them from the app.
+
+</PracticeQuestion>
+
+## 3. Conversation and AI
+
+<PracticeQuestion q="Walk us through what happens when a student sends a message." tip="Save → understand → route → reply.">
+
+1. The message is saved to the chat history.
+2. LAFINA works out the **intent**: what the student wants, plus details such as title, date, and time.
+3. The intent is routed one of three ways:
+   - **A change** (add, edit, or delete something) becomes a review card.
+   - **A question about their plans** is answered by reading local data.
+   - **General chat** goes to DeepSeek when online, or to a local reply when offline.
+4. The reply is saved, shown, and can be read aloud.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How does LAFINA understand a request? Is it all an LLM?" tip="Cheapest first: rules → on-device model → DeepSeek. Always validated.">
+
+No. LAFINA tries the cheapest method first.
+
+1. **A rule-based "fast-path" parser** handles clear commands instantly.
+2. **An optional on-device model** (via llama.cpp) is used if the parser is not confident (below 0.85) or the request is Taglish or casual.
+3. **DeepSeek** can also read planner commands when Online Mode is on.
+
+Whatever method is used, the result is validated before anything happens.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Can LAFINA chit-chat and answer trivia? Does that work offline?" tip="Online: full conversation. Offline: small talk + planner only.">
+
+Yes, with Online Mode: DeepSeek handles open conversation, trivia, explanations, and study help, and replies stream word by word.
+
+Offline, LAFINA still handles small talk (greetings, "how are you", thanks, "what can you do") and all supported planner commands. For general-knowledge questions it says that Online Mode is needed. We don't pretend a tiny on-device model can answer trivia reliably.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What stops the AI from making a wrong or harmful change?" tip="Validation → review card → no model-only deletes.">
+
+There are three safeguards:
+
+1. Every intent is validated, and broken model output falls back to plain "chat", which never writes data.
+2. Every planner change becomes a **review card** that the student must confirm.
+3. Deleting is never prepared from the model's words alone.
+
+A few small, easily undone actions (completing a task, snoozing or acknowledging a reminder, pinning a note) apply right away with an Undo option.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What if the AI hallucinates a date or time?" level="deeper" tip="The student sees it on the card before it is saved.">
+
+The review card shows the interpreted title, date, and time, plus any schedule conflict, before anything is saved. The student can edit or cancel. So a wrong reading becomes a correction, not a wrong reminder.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What is the Chat agent?" level="deeper" tip="DeepSeek asks; tools run on the phone; max 4 steps; ends in a review card.">
+
+When online, DeepSeek can use tools to look up the student's planner (for example, free time) over up to four steps and prepare one review card. The tools run **on the phone** against local data, and the server only relays. It still cannot save anything without the student's confirmation.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How does LAFINA remember things about the student?" level="deeper" tip="Memory is visible, editable, and filtered for secrets.">
+
+Students can say things like "I'm a night owl" or "call me Jo", and LAFINA saves them to **Memory**. These preferences are used for study scheduling and the Morning Briefing. Students can ask "what do you remember about me?", forget items, or turn Memory off. Passwords, PINs, OTPs, card numbers, and bank or GCash numbers are blocked from being saved. Temporary Chat saves no memories.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How do you handle Taglish?" tip="Parser detects it and hands it to a model.">
+
+The rule parser detects Taglish and casual scheduling phrases and doesn't trust its own reading for those. It hands them to the on-device model, or DeepSeek when online. The student still confirms the result on the review card.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Which AI models does LAFINA use?" tip="Whisper + VAD, fast-path + optional GGUF, phone TTS; online DeepSeek, ElevenLabs, Pinecone.">
+
+**On the phone:**
+- Whisper (`tiny.en`, quantized) with Silero VAD for speech recognition
+- A rule-based parser, plus an optional GGUF model run through llama.cpp. The student can choose SmolLM2-135M, Gemma 3 270M, Qwen 2.5 0.5B, or Gemma 3 1B.
+- The phone's built-in text-to-speech
+
+**Online:**
+- DeepSeek for replies
+- ElevenLabs for voice
+- Pinecone for handbook retrieval
+
+</PracticeQuestion>
+
+## 4. Reminder calls and Call LAFINA
+
+<PracticeQuestion q="How does a reminder call work?" tip="AlarmManager → checks → ring → speak → listen → acknowledge/snooze.">
+
+1. Android's `AlarmManager` fires at the reminder time, even if the app is closed.
+2. LAFINA checks the reminder is still valid: right owner, still pending, task not already done.
+3. A full-screen call appears, including over the lock screen.
+4. When the student answers, LAFINA speaks the reminder and listens with Whisper on the phone.
+5. "Okay" or "done" acknowledges the reminder. "Give me ten minutes" snoozes it for that long.
+6. Buttons are always available as a fallback.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Is it a real phone call?" tip="No. Simulated, in-app, offline.">
+
+No. It is a simulated call screen inside LAFINA. It uses no phone number or carrier, which is why it works offline and costs nothing.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What if the student declines, doesn't answer, or isn't understood?" tip="Auto-snooze; after the limit, 'missed'.">
+
+- **Declined or unanswered:** the reminder auto-snoozes.
+- **Speech not understood:** LAFINA asks again, and after 3 failed tries it auto-snoozes.
+- **Snooze limit reached:** the reminder is marked **missed**. A repeating reminder still schedules its next occurrence.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Does acknowledging the call mark the task as done?" level="deeper" tip="No, by design.">
+
+No, on purpose. Acknowledging means "I heard it". The student still marks the task complete, so answering half-asleep doesn't hide unfinished work.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Will the reminder ring if the app is closed or the phone is locked?" level="deeper" tip="Android owns the alarm; recovery after reboot; OEM battery caveat.">
+
+Yes. The alarm is registered with Android, which wakes LAFINA and shows the call over the lock screen. Pending alarms are re-registered after a reboot or timezone change.
+
+The honest limitation: some phone brands (for example some Infinix, Tecno, and itel models) delay alarms to save battery. That is why the app has an **Alarm & Reminder Health** screen and a test alarm.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What is Call LAFINA, and how is it different from a reminder call?" tip="Student starts it; online or offline mode picked at start.">
+
+A reminder call is started **by LAFINA** when something is due. Call LAFINA is started **by the student** to talk hands-free.
+
+When the call starts, LAFINA picks a mode:
+- **Online** if the student is signed in, Online Mode is on, and there is internet. This uses ElevenLabs live voice with DeepSeek.
+- **Offline** otherwise. This uses Whisper, the local parser, and the phone's voice.
+
+A running call never switches modes by itself.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How does the offline call avoid hearing its own voice?" level="deeper" tip="Half-duplex + VAD + ignore lead-in.">
+
+It is half-duplex, like a walkie-talkie: the microphone is closed while LAFINA speaks. Then Silero VAD listens until the student pauses (about 0.7 seconds). Audio right after LAFINA stops speaking is ignored, and Whisper then transcribes what the student said. The call ends after 3 silent listens in a row or after 20 minutes.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Is the microphone always listening?" tip="No wake word, no background mic.">
+
+No. There is no wake word and no always-on microphone. The microphone opens only during a call or push-to-talk that the student started, and only with microphone permission. Online voice also requires consent.
+
+</PracticeQuestion>
+
+## 5. Ask USTP and study tools
+
+<PracticeQuestion q="What is RAG and how does Ask USTP use it?" tip="Retrieve sources first, then answer from them, with citations.">
+
+RAG stands for Retrieval-Augmented Generation. LAFINA first retrieves relevant passages from the USTP handbook and its knowledge pack, then answers from those passages and shows the sources. Offline, it searches the local pack using SQLite full-text search. Online, DeepSeek writes a friendlier answer from the retrieved evidence. If the sources don't support an answer, LAFINA says it couldn't verify it instead of guessing.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What study features does LAFINA have?" tip="Pomodoro, flashcards, quiz, GWA, summarizer, documents, recordings.">
+
+There is a Skills hub with:
+- Pomodoro focus timer
+- Flashcards and quiz maker
+- GWA calculator
+- Summarizer
+- Lecture recording and transcription
+- Document generation
+
+The focus timer, flashcard reviews, and GWA calculator work locally. AI generation (making quizzes, summaries, documents, and meeting notes) needs online access.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How does COR import work?" tip="On-device text/OCR → checks → student review.">
+
+LAFINA reads the COR PDF's text on the phone (PDFBox), or uses ML Kit OCR for photos. It checks the subjects, days, and times, then shows a review screen before adding the classes. It does not log in to the university portal.
+
+</PracticeQuestion>
+
+## 6. Privacy and security
+
+<PracticeQuestion q="Where is the student's data stored, and who can see it?" tip="On the phone; cloud only when signed in; keys on server.">
+
+On the phone, in SQLite. Nothing leaves the phone unless the student signs in and uses sync or online features. Online requests include only what that request needs: planner details are sent only for questions about the student's own plans. API keys for DeepSeek, ElevenLabs, and Pinecone stay on the backend server, not in the app.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Does the online voice send audio to a third party?" level="deeper" tip="Yes, with consent, during a call the student started.">
+
+Yes, and we say so openly. During an online Call LAFINA, microphone audio is streamed to ElevenLabs through a short-lived session authorized by our backend. It happens only after consent, during a call the student started. The offline call and push-to-talk keep audio on the phone.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How do you stop prompt injection, e.g. a saved note that says 'ignore your rules'?" level="curveball" tip="Treated as data; validated tools; confirm before write.">
+
+Saved notes, memories, and retrieved passages are sent to the model marked as untrusted data, not instructions. Prompts are sanitized, and tool calls are checked against fixed schemas. Most importantly, even a fooled model can only *propose* a change, and the student still has to confirm it.
+
+</PracticeQuestion>
+
+## 7. Evaluation and limitations
+
+<PracticeQuestion q="How did you evaluate LAFINA?" tip="Automated tests + device tests + SUS/ISO 25010. Only cite numbers you measured.">
+
+We used:
+- Automated tests (Jest unit and integration tests, type checks, linting)
+- Phone testing of alarms and calls
+- Developer benchmarks for response time and speech recognition
+- A usability survey using the System Usability Scale (SUS), aligned with ISO/IEC 25010 quality attributes
+
+*(Before the defense, replace this with your actual measured results and sample size.)*
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What are LAFINA's main limitations?" tip="Be honest; it earns trust.">
+
+- Android only.
+- Some phone brands delay alarms because of battery restrictions.
+- Offline understanding covers supported commands, not open conversation.
+- Whisper `tiny` struggles in loud places.
+- Online features depend on internet and third-party services.
+- Ask USTP is only as current as its handbook and knowledge pack.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What happens if DeepSeek or the internet goes down mid-use?" level="curveball" tip="Graceful fallback, labelled honestly.">
+
+LAFINA falls back to its on-device reply and labels it as an offline reply. Planner commands still work locally. If the internet drops during an online reminder call, the call switches to on-device voice instead of freezing.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Your paper mentions Kokoro TTS and a real phone call. Why is that not in the app?" level="curveball" tip="Design evolved for speed, size, and reliability.">
+
+The design changed during development.
+- **Kokoro was replaced by the phone's built-in text-to-speech**, which is already installed, starts faster, and uses less memory. Online, ElevenLabs gives a more natural voice.
+- **The real telephony call became a simulated in-app call**, so it needs no SIM or carrier, works offline, and gives us full control of the call screen.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="Why use the rule parser first instead of always using the model?" level="deeper" tip="Speed, predictability, low resources.">
+
+Rules are instant, predictable, and use almost no memory or battery. They also matter during a ringing call, where the student shouldn't wait. The model is used only where rules are weak (unclear, Taglish, or casual phrasing), so we get accuracy without paying the model's cost on every message.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="How would LAFINA scale to many users? What about API costs?" level="curveball" tip="Most work is on-device; backend is serverless; access limits exist.">
+
+Most of the work (planning, alarms, calls, offline voice) runs on each student's phone, so the server load is small. The backend is serverless (Vercel) with a managed database (Neon). Online AI goes through the backend, which applies account checks and usage limits, so provider costs can be controlled per account.
+
+</PracticeQuestion>
+
+<PracticeQuestion q="What would you improve next?" tip="Show you know the gaps.">
+
+- Fix alarm delays on phones with aggressive battery saving.
+- Run larger usability and accuracy studies with USTP students.
+- Make offline understanding better at Taglish.
+- Bring more online features (such as handbook answers) to full offline quality.
+- Bring the PC client to full feature parity.
+
+</PracticeQuestion>

@@ -1,0 +1,141 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 6: Reminders & Alarms"
+description: "How LAFINA schedules and delivers reminders and alarms: reminder states, the reminder call, snooze rules, recovery, and adaptive timing."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Explain the difference between an alarm and a reminder, the reminder states, the full reminder-call flow, how reliability is handled, and how adaptive timing works.
+</Alert>
+
+## Alarm vs. reminder
+
+| | Alarm | Reminder |
+|---|---|---|
+| **Purpose** | Wake up at a time | Remember a deadline, class, or activity |
+| **Alert** | Native ringing screen with Dismiss / Snooze | Simulated incoming call, or notification only |
+| **Speech** | Optional **Morning Briefing** after dismiss | Spoken reminder + voice reply |
+| **Sync** | ❌ Stays on this phone | ✅ Synced with an account |
+| **Table** | `alarms` | `reminders` |
+
+## How a reminder gets scheduled
+
+<FlowChart
+  label="Scheduling a reminder"
+  steps={[
+    { title: 'Student creates the reminder', text: 'Manually, or by confirming a review card', kind: 'start' },
+    { title: 'Saved to SQLite', text: 'reminders row (status = pending) + sync outbox, one transaction', kind: 'store' },
+    { title: 'Registered with Android AlarmManager', text: 'With owner + generation number', kind: 'end' },
+  ]}
+/>
+
+- **Lead time:** a reminder can ring before the item it's about, with lead times of up to **24 hours**.
+- **Delivery style per reminder:** **Call me** (simulated call) or **Notify only** (a notification with Acknowledge and Snooze buttons).
+- **Generation number:** every rescheduling increases a generation. A late or old alarm with an outdated generation is ignored, so a stale alarm can never ring for a reminder that has moved.
+- SQLite and Android scheduling are not one atomic transaction, so a **reconciler** re-registers alarms from the database after changes.
+
+## Reminder states
+
+<FlowChart
+  label="Reminder status lifecycle"
+  steps={[
+    { title: 'pending', text: 'Scheduled, waiting', kind: 'start' },
+    { title: 'triggered', text: 'The call was answered' },
+    [
+      { title: 'acknowledged', text: '"Okay" / "Got it" / button', kind: 'end', edge: 'acknowledge' },
+      { title: 'snoozed', text: 'Rings again after N minutes', edge: 'snooze' },
+      { title: 'missed', text: 'Snooze limit reached', kind: 'stop', edge: 'ignored too often' },
+    ],
+  ]}
+  caption="A snoozed reminder goes back to ringing. A missed repeating reminder still schedules its next occurrence."
+/>
+
+<Alert type="warning" title="Acknowledged ≠ task done">
+  Acknowledging only means "I heard it". The linked task stays pending until the student completes it. If the task is <em>already</em> completed when the alarm fires, the call doesn't ring.
+</Alert>
+
+## The reminder call, step by step
+
+<FlowChart
+  label="Reminder call"
+  steps={[
+    { title: 'AlarmManager fires', text: 'App can be closed. Phone can be locked', kind: 'start' },
+    { title: 'Admission checks', text: 'Active owner? Reminder exists? Right owner? Current generation? Still actionable? Task not done?', kind: 'decision' },
+    { title: 'Full-screen call (over the lock screen)', text: 'Answer · Decline' },
+    [
+      { title: 'Answer', text: 'Speak the reminder with phone TTS', edge: 'answer' },
+      { title: 'Decline / no answer', text: 'Auto-snooze, call ends here (Decline works without unlocking)', kind: 'stop', edge: 'decline / timeout' },
+    ],
+    { title: 'Listen', text: 'Mic + Whisper tiny.en on the phone' },
+    { title: 'Keyword matcher', text: '"okay", "got it" → acknowledge · "5 more minutes", "in half an hour" → snooze N', kind: 'decision' },
+    [
+      { title: 'Acknowledge', text: 'Say confirmation, end call', kind: 'end' },
+      { title: 'Snooze N min', text: 'Say confirmation, end call, ring later', kind: 'end' },
+      { title: 'Not understood', text: '"Please try again". After 3 tries → auto-snooze', kind: 'stop' },
+    ],
+  ]}
+/>
+
+**Fallbacks:** if the microphone or Whisper is unavailable, the call shows **Acknowledge / Snooze buttons**. Buttons are always available.
+
+**Online version:** if the student is online with online voice enabled, LAFINA first speaks the reminder and then hands the call to a **live online conversation** (Lesson 7). If the internet drops mid-call, it switches back to on-device voice.
+
+**Time limits:** an answered call is limited to about 10 minutes, and a queued call to about 15 minutes.
+
+## Snooze rules
+
+| Setting | How it works |
+|---|---|
+| Spoken snooze | The minutes you say ("give me 10 minutes" → 10) |
+| Default / auto-snooze length | From the student's preferences (5 minutes by default) |
+| Snooze limit | When the limit is reached, an ignored call marks the reminder **missed** instead of snoozing again |
+
+## Reliability: why reminders still ring
+
+<Card title="What LAFINA does">
+  <ul>
+    <li>Uses Android <strong>AlarmManager</strong> exact alarms, not an in-app timer.</li>
+    <li><strong>Recovery receivers</strong> re-register pending alarms after a <strong>reboot</strong> or a <strong>timezone change</strong>.</li>
+    <li>Records <strong>delivery jobs and events</strong> (<code>reminder_delivery_jobs</code>, <code>reminder_delivery_events</code>) for recovery and audit.</li>
+    <li>Adopts snoozes that native code applied while the app's JavaScript wasn't running.</li>
+    <li>Provides <strong>Profile → Alarm & Reminder Health</strong>: permission checks plus a test alarm.</li>
+  </ul>
+</Card>
+
+**Honest limitation:** notification, exact-alarm, and full-screen permissions, plus aggressive battery saving on some brands (some Infinix, Tecno, and itel phones), can delay alerts. The fix is to set LAFINA's battery setting to *Unrestricted*.
+
+## Adaptive reminder timing (machine learning)
+
+LAFINA can **suggest** a better lead time based on how the student usually responds. It runs fully on the phone.
+
+<FlowChart
+  label="Adaptive timing"
+  steps={[
+    { title: 'Behavior log', text: 'How fast you respond, snooze habits, time of day, load', kind: 'store' },
+    { title: 'Features', text: 'Hour, day, workload, peak study hour, priority, snooze tendency' },
+    [
+      { title: 'EWMA', text: 'Tracks your average response delay over time' },
+      { title: 'KNN', text: 'Picks the channel: call vs. notification' },
+      { title: 'Random Forest', text: 'Predicts adherence and the best timing offset' },
+    ],
+    { title: 'Suggestion, clamped to −30 … +15 min', text: 'Needs at least 5 past samples. Otherwise normal scheduling', kind: 'end' },
+  ]}
+/>
+
+The student can turn adaptive timing off, and suggested timing changes appear in the review flow.
+
+## Morning Briefing
+
+After dismissing an alarm, LAFINA can speak a short **briefing** of the day (classes, tasks, reminders), personalized with Memory. It runs locally with the phone's voice.
+
+## Check yourself
+
+- Give three differences between an alarm and a reminder.
+- Name the five reminder states and what moves a reminder between them.
+- What is the generation number for?
+- What happens on decline, on silence, and after 3 misunderstood replies?
+- How does LAFINA survive a reboot?
+- Which three ML techniques does adaptive timing use, and what are the safety limits?

@@ -1,0 +1,73 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 10: Privacy & Security"
+description: "LAFINA's permissions, what data leaves the phone and when, and the safeguards around AI actions."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Know what stays on the phone, what can leave it and when, which permissions LAFINA uses, and how AI actions are kept safe.
+</Alert>
+
+## What leaves the phone?
+
+<FlowChart
+  label="Data boundary"
+  steps={[
+    { title: 'Guest, offline', text: 'NOTHING leaves the phone', kind: 'end' },
+    { title: 'Signed in', text: 'Sync sends the 7 record types to the backend', kind: 'online' },
+    { title: 'Online Mode, per request', text: 'Only what the request needs: the message, relevant context, or audio', kind: 'online' },
+  ]}
+/>
+
+| Feature | What is sent | To whom |
+|---|---|---|
+| Sync | Profile, tasks, events, time blocks, reminders, notes, categories | LAFINA backend (Neon) |
+| Online chat | Message, recent history, memories (if on), planner context **only for questions about your plans** | Backend → DeepSeek |
+| Online Ask USTP | Question + passages | Backend → Pinecone / DeepSeek |
+| Online voice call | **Live mic audio**, after consent, during a call you started | ElevenLabs (signed session) |
+| AI meeting notes | Transcript text (not the audio), after consent | Backend → DeepSeek |
+| Push-to-talk, reminder calls, offline call | Nothing. Transcribed on the phone | (none) |
+
+## Permissions
+
+| Permission | Why | Required? |
+|---|---|---|
+| Microphone | Push-to-talk, calls, recording | Only for voice features |
+| Notifications | Reminder alerts | For reminders |
+| Exact alarms | Ring at the exact time | For reliable timing |
+| Full-screen intent | Call screen over the lock screen | For call-style reminders |
+| Display over other apps | Floating LAFINA bubble | Optional, off by default |
+| Battery "Unrestricted" | Avoid delayed alarms on some brands | Recommended |
+
+**No wake word and no always-on listening.** The microphone opens only after a user action (push-to-talk, answering a call, starting a voice session, or starting a recording).
+
+## AI safety and data protection
+
+<Card title="Safeguards">
+  <ul>
+    <li><strong>Confirm before save:</strong> AI changes are review cards. Revision checks stop outdated cards from being confirmed.</li>
+    <li><strong>Exhaustive routing:</strong> every intent has a fixed route. Unknown or invalid output falls back to conversation, which never writes.</li>
+    <li><strong>No model-only deletes:</strong> deletion is never prepared from model output alone.</li>
+    <li><strong>Prompt-injection defense:</strong> notes, memories, and retrieved passages are treated as <em>untrusted data</em>, not instructions. Prompts are sanitized, and tool arguments are validated against schemas.</li>
+    <li><strong>Bounded tools:</strong> the Chat agent is limited to 4 steps and 5 tool calls per step. Tools run on the phone.</li>
+    <li><strong>Memory guard:</strong> passwords, PINs, OTPs, payment cards, and bank or GCash numbers are blocked from Memory.</li>
+    <li><strong>Server-side secrets:</strong> provider API keys live only on the backend. Live voice uses short-lived signed sessions.</li>
+    <li><strong>Account isolation:</strong> chats, sync, and calls are bound to the owning account. Switching accounts cancels in-flight work.</li>
+    <li><strong>USTP content gate:</strong> school answers are rechecked before publishing in case the student's eligibility changed mid-request.</li>
+  </ul>
+</Card>
+
+<Alert type="warning" title="Honest limits">
+  Online features send data to third-party providers (DeepSeek, ElevenLabs, Pinecone) through the backend. LAFINA says so clearly and asks for consent where audio is involved.
+</Alert>
+
+## Check yourself
+
+- What leaves the phone for a guest who never goes online?
+- When is planner context sent to DeepSeek, and when isn't it?
+- Which feature streams microphone audio off the phone, and under what conditions?
+- Name five AI safeguards.
+- Why must API keys stay on the backend?

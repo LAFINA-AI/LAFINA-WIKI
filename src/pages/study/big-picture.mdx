@@ -1,0 +1,125 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 1: The Big Picture"
+description: "What LAFINA is, what it can do, its context diagram, system architecture, and technology stack."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+import OfficialDiagram from '../../components/OfficialDiagram.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Be able to describe LAFINA in 30 seconds, list its main features, and explain the context and architecture diagrams.
+</Alert>
+
+## What LAFINA is
+
+**LAFINA is an AI student companion for Android.** It holds a student's academic life (classes, tasks, events, time blocks, reminders, alarms, and notes) in a database on the phone. The student can manage it by **tapping, typing, or talking**. LAFINA also chats, helps with studying, answers USTP questions with sources, and **calls** the student when a reminder is due.
+
+A separately maintained **Electron PC client** shares the same backend and account, so a student's synced records follow them between phone and PC.
+
+## Feature map
+
+| Area | What the student can do | Works offline? |
+|---|---|---|
+| **Home** | Today's timeline, "Up Next" countdown, quick actions, customizable layout | ✅ |
+| **Schedule** | Classes, events, time blocks, week and month views, recurring schedules, conflict checks, `.ics` import and export, Philippine holidays | ✅ |
+| **AI (Chat)** | Plan by text or voice, ask about your plans, small talk | ✅ |
+| | Open conversation, trivia, explanations, Chat agent, streamed replies | 🌐 Online Mode |
+| **Ask USTP** | Handbook and campus questions with sources | ✅ local pack, 🌐 nicer answers online |
+| **Skills** | Pomodoro, flashcards, GWA calculator, to-dos, notes, alarms | ✅ |
+| | AI quizzes, summaries, Lesson Q&A, documents, meeting notes | 🌐 |
+| **Calls** | Reminder calls (LAFINA calls you), Call LAFINA (you call LAFINA) | ✅ offline call, 🌐 live voice |
+| **Profile** | Account, sync, themes, voice settings, Memory, Alarm & Reminder Health, AI engine choice | ✅ (sync needs 🌐) |
+| **Floating LAFINA** | Optional bubble that opens Quick Chat over other apps (off by default) | ✅ |
+
+## The context diagram (Level 0)
+
+A **context diagram** shows the whole system as one box ("Process 0") and only the **external entities** it exchanges data with. Data stores like SQLite and Neon are *inside* the box, so they don't appear.
+
+<FlowChart
+  label="Simplified context diagram"
+  caption="Simplified. Arrows mean 'exchanges data with'."
+  steps={[
+    { title: 'Student', text: 'Guest or signed-in, on Android or the PC client', kind: 'start' },
+    { title: '0. LAFINA', text: 'Apps + local services + shared backend. Review → Confirm → Save' },
+    [
+      { title: 'DeepSeek', text: 'Gets prompts + context, returns replies and proposed actions', kind: 'online' },
+      { title: 'Pinecone', text: 'Gets handbook queries, returns passages + sources', kind: 'online' },
+      { title: 'ElevenLabs', text: 'Gets speech text and authorized mic audio, returns audio + transcripts', kind: 'online' },
+    ],
+  ]}
+/>
+
+<OfficialDiagram src="/study/diagrams/context-diagram.svg" alt="LAFINA context diagram (Level 0)" caption="Official context diagram: Process 0 with Student, DeepSeek, Pinecone and ElevenLabs." />
+
+**How to read it:**
+- **Student → LAFINA:** account details, planner entries, questions and voice, COR and calendar files, confirmations and preferences.
+- **LAFINA → Student:** sync status, saved plans, answers with sources, alerts and spoken replies, import previews and generated files.
+- **The three AI providers are optional.** Core guest planning never touches them.
+
+## System architecture
+
+<FlowChart
+  label="Simplified architecture"
+  caption="Purple boxes are optional online services. Everything else runs on the device."
+  steps={[
+    { title: 'Student', kind: 'start' },
+    [
+      { title: 'Android app', text: 'React Native + TypeScript. SQLite, Whisper, rules, AlarmManager' },
+      { title: 'Desktop app', text: 'Electron PC. Its own SQLite + sync queue' },
+    ],
+    { title: 'Internet (HTTPS + JWT)', text: 'Only when signed in / Online Mode', kind: 'decision' },
+    { title: 'LAFINA-backend', text: 'FastAPI on Vercel. Auth, sync, online chat + RAG, speech sessions, documents', kind: 'online' },
+    [
+      { title: 'Neon', text: 'PostgreSQL: accounts + synced data', kind: 'store' },
+      { title: 'DeepSeek', text: 'Online assistant', kind: 'online' },
+      { title: 'Pinecone', text: 'Handbook retrieval', kind: 'online' },
+      { title: 'ElevenLabs', text: 'TTS + live voice', kind: 'online' },
+    ],
+  ]}
+/>
+
+<OfficialDiagram src="/study/diagrams/system-architecture.svg" alt="LAFINA system architecture" caption="Official system architecture: clients, shared backend, data and AI services." />
+
+### The layers inside the Android app
+
+| Layer | Responsibility | Where in the code |
+|---|---|---|
+| **Presentation** | Screens, navigation, themes, onboarding, product tour, call UI | `App.tsx`, `src/ui` |
+| **Application services** | Conversation, intent parsing, review cards, scheduling, skills | `src/ai`, `src/scheduler`, `src/skills` |
+| **Local persistence** | One OP-SQLite database, migrations, stores, sync outbox, search indexes | `src/storage` |
+| **Android / native** | Kotlin bridges and receivers. C/C++ JNI for Whisper and the local model. PDF and OCR | `android/app/src/main` |
+| **Cloud boundary** | Cloud client, sync worker, voice session API | `src/cloud`, `src/sync` |
+
+<Card title="Two important details">
+  <ul>
+    <li><strong>Live voice is special:</strong> the backend only <em>authorizes</em> a session. The phone then streams audio directly to ElevenLabs over a signed WebSocket.</li>
+    <li><strong>Provider API keys stay on the backend.</strong> The app never contains DeepSeek, Pinecone or ElevenLabs secrets.</li>
+  </ul>
+</Card>
+
+## Technology stack
+
+| Area | Technology |
+|---|---|
+| Mobile UI | React Native 0.86, React 19.2, TypeScript 5.9 (strict), Hermes |
+| Native | Kotlin 2.1, JDK 17, C/C++ JNI, CMake, Android NDK 27 |
+| Database | `@op-engineering/op-sqlite` 16.2, SQLite migrations, FTS5 search |
+| Speech recognition | whisper.cpp + Silero VAD |
+| Understanding | Rule-based fast-path parser + optional llama.cpp GGUF model |
+| Speech output | `react-native-tts` (phone voice). ElevenLabs online |
+| Alerts | Android `AlarmManager`, receivers, full-screen call activity |
+| COR / files | PDFBox Android, ML Kit text recognition, document picker |
+| Calendar | `rrule` (recurrence), `ical-js-parser` (.ics) |
+| Backend | Python FastAPI on Vercel, Neon PostgreSQL |
+| Online AI | DeepSeek, Pinecone, ElevenLabs |
+| Testing | Jest, React Native Testing Library, ESLint, Prettier, TypeScript |
+
+## Check yourself
+
+- Explain LAFINA in two sentences, including the word "companion" and "offline-first".
+- Name the three external AI services and what each one does.
+- Why don't SQLite and Neon appear as external entities in the context diagram?
+- What does the backend do for live voice, and what does it *not* do?
+- Name three features that need Online Mode and three that don't.

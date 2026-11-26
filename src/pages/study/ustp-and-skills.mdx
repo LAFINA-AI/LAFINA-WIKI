@@ -1,0 +1,102 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 9: Ask USTP, COR & Skills"
+description: "How Ask USTP retrieves and cites sources (RAG) offline and online, how COR import works, and the study skills."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Explain RAG and how Ask USTP works offline and online, walk through COR import, and list the study skills with their requirements.
+</Alert>
+
+## What is RAG?
+
+**Retrieval-Augmented Generation:** first **retrieve** relevant source passages, then **generate** an answer *from those passages*, and show the sources. This reduces made-up answers because the reply must be supported by evidence.
+
+## Ask USTP sources
+
+- The **USTP Student Handbook (2023 edition)**.
+- The **USTP Cagayan de Oro knowledge snapshot**: AY 2026–2027 semester, exam and enrollment dates, offices and contacts, PRISMS and other portals, the library, programs, scholarships, and student organizations.
+
+USTP features follow the student's **USTP eligibility** (student setup). A handbook chat never reaches retrieval without it.
+
+## Ask USTP offline
+
+<FlowChart
+  label="Offline Ask USTP"
+  steps={[
+    { title: 'Student asks', text: '"What is the INC completion policy?"', kind: 'start' },
+    { title: 'Build a search query', text: 'Keywords, stop words removed, follow-ups merged' },
+    { title: 'SQLite FTS5 full-text search', text: 'handbook_chunks_fts over handbook_chunks', kind: 'store' },
+    { title: 'Rank and filter passages', text: 'Evidence gate', kind: 'decision' },
+    [
+      { title: 'Answer with excerpts + sources', text: 'Page numbers / official pages', kind: 'end', edge: 'evidence found' },
+      { title: '"I couldn\'t verify that from my USTP sources…"', text: 'Suggests better terms or the Registrar / OSA', kind: 'stop', edge: 'no evidence' },
+    ],
+  ]}
+/>
+
+## Ask USTP online
+
+<FlowChart
+  label="Online Ask USTP"
+  steps={[
+    { title: 'Student asks (Online Mode)', kind: 'start' },
+    { title: 'Local passages found?', kind: 'decision' },
+    [
+      { title: 'Send local passages as evidence', text: 'Backend skips Pinecone', edge: 'yes' },
+      { title: 'Backend retrieves from Pinecone', text: 'Vector search over the handbook', kind: 'online', edge: 'no' },
+    ],
+    { title: 'DeepSeek writes the answer from the evidence', text: 'Streamed. Sources attached', kind: 'online' },
+    { title: 'Citations shown only if the passages actually answered it', kind: 'end' },
+  ]}
+/>
+
+<Card title="Why it's trustworthy">
+  Answers show their sources, so students can check the exact passage. When the sources don't support an answer, LAFINA says it couldn't verify it instead of guessing. Students should still confirm official decisions with the university.
+</Card>
+
+## COR import
+
+<FlowChart
+  label="COR import"
+  steps={[
+    { title: 'Student picks the COR', text: 'Portal PDF (best) or a photo / screenshot', kind: 'start' },
+    [
+      { title: 'PDF → PDFBox', text: 'Reads the exact text layer + checks the layout', edge: 'PDF' },
+      { title: 'Image → ML Kit OCR', text: 'On-device text recognition', edge: 'image' },
+    ],
+    { title: 'Parse and check', text: 'Subjects, units, days, times, rooms. Reading problems flagged, not guessed' },
+    { title: 'Review screen', text: 'Student corrects and confirms', kind: 'decision' },
+    { title: 'Classes added to the schedule', text: 'Undo removes the imported classes cleanly', kind: 'end' },
+  ]}
+/>
+
+- Runs **on the phone**. No login to or integration with the university portal.
+- Small or blurry images can lose details. The original portal PDF works best.
+
+## Study skills
+
+| Skill | What it does | Needs internet? |
+|---|---|---|
+| Pomodoro / Focus timer | Timed focus sessions, started from Home gaps too | No |
+| Flashcards | Study decks with review | No to review. Yes to AI-generate |
+| Quiz maker | Quizzes from your material | Yes (AI generation) |
+| GWA calculator | Semester general weighted average | No |
+| Summarizer | Summaries of uploaded material | Yes |
+| Lesson Q&A | Ask questions about your uploaded study material (local library + chunked search) | Yes for AI answers |
+| Recording / transcription | Record lectures. Transcribed locally with Whisper | No to transcribe. Yes for AI notes |
+| Documents | Generate PDF, Word, Excel, PowerPoint | Yes |
+| To-dos, notes, alarms | Core tools | No |
+
+**Privacy detail:** for AI meeting notes, only the **transcript text** is sent, after consent. The recording audio is not uploaded.
+
+## Check yourself
+
+- Define RAG in one sentence, and say why it matters for handbook questions.
+- What search technology does offline Ask USTP use? What about online?
+- What does LAFINA say when the sources don't support an answer?
+- Walk through COR import for a PDF and for a photo.
+- Which skills work fully offline?

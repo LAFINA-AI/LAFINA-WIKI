@@ -1,0 +1,66 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Study Guide: Learn LAFINA"
+description: "A structured study path through everything about the LAFINA capstone: architecture, diagrams, database, conversation, reminders, calls, sync, Ask USTP, and privacy."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="How to use this section">
+  Read the lessons <strong>in order</strong>. Each one starts with a simple picture, then adds detail, and ends with a short <em>Check yourself</em> list. If you can explain every item on those lists without looking, you're ready. Finish with the <a href="/study/cheat-sheet">Cheat Sheet</a> and the <a href="/qa-practice">Q&A Practice</a>.
+</Alert>
+
+## The study path
+
+<FlowChart
+  label="Study path"
+  steps={[
+    { title: '1. The Big Picture', text: 'What LAFINA is, its features, context and architecture diagrams', kind: 'start' },
+    [
+      { title: '2. Use Cases', text: 'Who does what' },
+      { title: '3. Data Flow (DFD)', text: 'How data moves' },
+      { title: '4. Database (ERD)', text: 'What is stored', kind: 'store' },
+    ],
+    { title: '5. Conversation & AI', text: 'How a message becomes an answer or a review card' },
+    [
+      { title: '6. Reminders & Alarms', text: 'Scheduling, the reminder call, snooze, adaptive timing' },
+      { title: '7. Voice & Call LAFINA', text: 'Whisper, TTS, online and offline calls' },
+    ],
+    [
+      { title: '8. Sync & Accounts', text: 'Guest mode, outbox, conflicts', kind: 'online' },
+      { title: '9. Ask USTP, COR & Skills', text: 'RAG, schedule import, study tools' },
+    ],
+    { title: '10. Privacy & Security', text: 'Permissions, what leaves the phone, safeguards' },
+    { title: '11. Cheat Sheet → Q&A Practice', text: 'Review, then test yourself', kind: 'end' },
+  ]}
+/>
+
+## Lessons
+
+| # | Lesson | You will learn |
+|---|---|---|
+| 1 | [The Big Picture](/study/big-picture) | Features, the five tabs, context diagram, system architecture, tech stack |
+| 2 | [Use Cases](/study/use-cases) | Actors, use cases, «include» vs «extend» |
+| 3 | [Data Flow (DFD)](/study/data-flow) | The 8 processes and 7 data stores, traced through examples |
+| 4 | [Database (ERD)](/study/database) | Main tables, keys, relationships, the 36-table inventory |
+| 5 | [Conversation & AI](/study/conversation) | Message pipeline, intents, routes, review cards, Chat agent, Memory |
+| 6 | [Reminders & Alarms](/study/reminders) | Alarm vs. reminder, reminder states, the call, recovery, adaptive timing |
+| 7 | [Voice & Call LAFINA](/study/voice-and-calls) | Speech recognition, speech output, online and offline calls |
+| 8 | [Sync & Accounts](/study/sync) | Guest mode, the outbox, versions and conflicts, what syncs |
+| 9 | [Ask USTP, COR & Skills](/study/ustp-and-skills) | RAG offline and online, COR import pipeline, study skills |
+| 10 | [Privacy & Security](/study/privacy-security) | Permissions, data leaving the phone, AI safeguards |
+| 11 | [Cheat Sheet](/study/cheat-sheet) | Every number, name, and one-liner on one page |
+
+<Card title="The four ideas everything else builds on">
+  <ol>
+    <li><strong>Offline-first:</strong> the phone's SQLite database is the source of truth. Online is optional.</li>
+    <li><strong>The AI proposes, the student confirms:</strong> planner changes go through a review card.</li>
+    <li><strong>Proactive calls:</strong> reminders ring as a simulated call that the student answers and responds to.</li>
+    <li><strong>A companion:</strong> with Online Mode, LAFINA chats about anything, answers trivia, and helps with studying.</li>
+  </ol>
+</Card>
+
+<Alert type="warning" title="About the diagrams">
+  The official diagrams in these lessons (context, use case, DFD, ERD, architecture) come from the LAFINA-CAPSTONE repository and also show the separately maintained <strong>Electron PC client</strong>. The simple diagrams are simplified on purpose so they're easy to remember.
+</Alert>

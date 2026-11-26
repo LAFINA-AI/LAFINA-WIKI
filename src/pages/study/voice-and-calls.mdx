@@ -1,0 +1,116 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 7: Voice & Call LAFINA"
+description: "Speech recognition, speech output, push-to-talk, and the online and offline Call LAFINA conversations."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Explain how LAFINA hears (STT), speaks (TTS), and holds a voice conversation. Know how online and offline Call LAFINA differ and the safety gates for the online one.
+</Alert>
+
+## The voice building blocks
+
+| Block | Offline | Online |
+|---|---|---|
+| **Hearing (STT)** | whisper.cpp `tiny.en` (quantized `q5_1`) + **Silero VAD** | ElevenLabs (live voice) |
+| **Speaking (TTS)** | Phone's speech engine via `react-native-tts` (needs an installed offline voice) | ElevenLabs voices through the backend |
+| **Thinking** | Rule parser + optional on-device model | DeepSeek (via the backend) |
+
+- **VAD (Voice Activity Detection)** tells LAFINA when you start and stop talking, so it knows when to transcribe.
+- **Whisper targets** (in-app metrics): median about 1.5 s after you stop talking, 95th percentile under 3 s.
+- **Speech "ghosts":** LAFINA filters Whisper's known hallucinations on silence and ignores its own voice echoing back.
+- **Kokoro** is no longer used. The phone's TTS starts faster and uses less memory.
+
+## Push-to-talk (in Chat)
+
+<FlowChart
+  label="Push-to-talk"
+  steps={[
+    { title: 'Tap the mic', text: 'Only after microphone permission', kind: 'start' },
+    { title: 'Record until a ~1 s pause', text: 'Silero VAD' },
+    { title: 'Whisper transcribes on the phone', text: 'Editable draft before sending' },
+    { title: 'Same pipeline as typed messages', text: 'See Lesson 5', kind: 'end' },
+  ]}
+/>
+
+## Call LAFINA: choosing the mode
+
+**Call LAFINA** is a hands-free conversation that **the student starts** (unlike a reminder call, which LAFINA starts).
+
+<FlowChart
+  label="Call mode decision"
+  caption="Decided once when the call starts. A running call never switches by itself."
+  steps={[
+    { title: 'Student taps Call LAFINA', kind: 'start' },
+    { title: 'Signed in as this account?', kind: 'decision' },
+    { title: 'Did NOT choose Offline Mode in Chat?', kind: 'decision' },
+    { title: 'Internet available?', kind: 'decision' },
+    [
+      { title: 'Online call', text: 'All yes', kind: 'online', edge: 'all yes' },
+      { title: 'Offline call', text: 'Shows the reason: signed out / chose offline / no internet / online unavailable', edge: 'any no' },
+    ],
+  ]}
+/>
+
+## Online Call LAFINA
+
+<FlowChart
+  label="Online call"
+  steps={[
+    { title: 'Local gates, in order', text: 'Native support → signed in → Online Mode → consent → internet → mic permission', kind: 'start' },
+    { title: 'Server gates', text: 'Capability check → backend creates a short-lived signed session', kind: 'online' },
+    { title: 'Signed WebSocket to ElevenLabs', text: 'Live mic audio ↔ speech + transcripts', kind: 'online' },
+    { title: 'DeepSeek writes replies', text: 'Through the backend\'s custom-LLM bridge', kind: 'online' },
+    { title: 'Tool calls run on the phone', text: 'Read planner, prepare / revise draft cards, open a skill' },
+    { title: 'Student ends the call', text: 'Each finished turn saved once', kind: 'end' },
+  ]}
+/>
+
+<Card title="Online call rules worth remembering">
+  <ul>
+    <li><strong>Nothing reaches the network before the local gates pass.</strong></li>
+    <li>Each start gets a new <strong>generation</strong>. Late events from an old call are ignored and can't reopen the mic.</li>
+    <li>It <strong>never restarts by itself</strong>. Going to the background, a phone call, a network drop, or losing audio focus all require a new tap.</li>
+    <li><strong>Barge-in:</strong> if you interrupt, LAFINA stops talking and listens. An answer you didn't hear fully is saved as <em>interrupted</em>.</li>
+    <li><strong>Persona:</strong> short spoken sentences, first person, no markdown. It never invents tool progress or saved actions, and treats notes as untrusted data.</li>
+    <li><strong>Saving still needs approval:</strong> the model prepares a draft card, and only the student's explicit approval commits it.</li>
+    <li><strong>Skills:</strong> "make flashcards" → LAFINA ends the call and opens the skill. It doesn't make them during the call.</li>
+  </ul>
+</Card>
+
+## Offline Call LAFINA
+
+<FlowChart
+  label="Offline call loop"
+  steps={[
+    { title: 'LAFINA speaks', text: 'Phone TTS. Mic is CLOSED (half-duplex)', kind: 'start' },
+    { title: 'Ignore the first ~0.3 s', text: 'Room echo of her own voice' },
+    { title: 'Listen until a ~0.7 s pause', text: 'Silero VAD (shorter than push-to-talk for snappier turns)' },
+    { title: 'Whisper transcribes', text: 'Filters echoes and hallucinations' },
+    { title: 'Respond', text: 'Same rules as chat: answer, review card, or save' },
+    { title: 'Repeat', text: 'Until End, 3 silent listens in a row, or 20 minutes', kind: 'end' },
+  ]}
+/>
+
+| Offline call limit | Value |
+|---|---|
+| Max call length | 20 minutes |
+| Silent listens before hanging up | 3 |
+| Capture errors before stopping | 2 |
+| Max transcription time per utterance | 25 s |
+| Max response time per turn | 20 s |
+| End-of-speech pause | 0.7 s |
+
+Both call types report the **same snapshot** to the UI, so the call screen, mini bar, and app-wide call registry work with either.
+
+## Check yourself
+
+- Which engines handle STT and TTS offline and online?
+- What does VAD do, and why is the call's pause shorter than push-to-talk's?
+- What decides online vs. offline Call LAFINA? Can a call switch mid-way?
+- List the local gates for the online call in order.
+- What is half-duplex, and why does the offline call use it?
+- How can the online model save something to the planner?

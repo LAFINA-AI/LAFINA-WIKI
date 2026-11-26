@@ -1,0 +1,94 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 11: Cheat Sheet"
+description: "Every key number, name, and one-liner about LAFINA on a single page for final review."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+
+<Alert type="info" title="Final review">
+  Read this the night before. Then test yourself with <a href="/qa-practice">Q&A Practice</a>.
+</Alert>
+
+## One-liners
+
+| Topic | Say this |
+|---|---|
+| **What is LAFINA?** | An offline-first AI student companion for Android that plans with you, talks with you, and calls you when it matters. |
+| **Core problem** | Scattered planning tools, plus alert fatigue from easy-to-ignore notifications. |
+| **Core idea** | Proactive simulated calls + a companion students actually use + the student confirms every AI change. |
+| **Offline-first** | The phone's SQLite database is the source of truth. Cloud is optional. |
+| **Understanding** | Rules first, then an on-device model, then DeepSeek online. Always validated. |
+| **Safety** | AI proposes, the student confirms. Review cards, revision checks, receipts, Undo. |
+| **Reminder call** | AlarmManager → admission checks → full-screen call → speak → Whisper → acknowledge or snooze. |
+| **Call LAFINA** | Student-initiated voice chat. Online = ElevenLabs + DeepSeek. Offline = Whisper + rules + phone TTS. |
+| **Sync** | Transactional outbox, version-based conflicts, 7 entity types. |
+| **Ask USTP** | RAG with citations. Offline FTS5, online Pinecone + DeepSeek. "Couldn't verify" when unsupported. |
+| **Privacy** | Nothing leaves the phone for a guest. Keys on the server. Consent for audio. |
+
+## Numbers
+
+| Fact | Value |
+|---|---|
+| App version | v1.0.7 |
+| Minimum Android | 11 (API 30), target API 36 |
+| Architecture | arm64-v8a (x86_64 for emulators) |
+| React Native / React / TypeScript | 0.86 / 19.2 / 5.9 |
+| SQLite schema version | 28 |
+| Application tables | 36 |
+| Declared foreign keys | 3 |
+| Sync entity types | 7 |
+| Max synced chats per account | 20 |
+| Fast-path "confident" threshold | 0.85 |
+| Chat agent limits | 4 steps, 5 tool calls per step |
+| Whisper model | `ggml-tiny.en-q5_1` |
+| Whisper latency targets | Median ~1.5 s, 95th percentile < 3 s |
+| Reminder: misheard replies before auto-snooze | 3 |
+| Default snooze | 5 minutes |
+| Reminder lead time | Up to 24 hours |
+| Adaptive timing clamp | −30 to +15 minutes, ≥ 5 samples |
+| Offline call | 20 min max, ends after 3 silent listens, 0.7 s end pause |
+| Push-to-talk end pause | ~1 s |
+| Themes | 12 (light and dark variants) |
+| On-device model sizes | SmolLM2 ~105 MB · Gemma 3 270M ~253 MB · Qwen 2.5 0.5B ~491 MB · Gemma 3 1B ~806 MB |
+
+## Names to know
+
+| Name | What it is |
+|---|---|
+| **whisper.cpp** | On-device speech-to-text |
+| **Silero VAD** | Detects when speech starts and stops |
+| **llama.cpp** | Runs GGUF language models on the phone |
+| **react-native-tts** | Phone's built-in voice |
+| **OP-SQLite / FTS5** | Local database / full-text search |
+| **AlarmManager** | Android alarm scheduling |
+| **PDFBox / ML Kit** | COR PDF text / image OCR |
+| **FastAPI on Vercel** | LAFINA backend |
+| **Neon** | Cloud PostgreSQL |
+| **DeepSeek** | Online conversation and planning help |
+| **ElevenLabs** | Online voice and live calls |
+| **Pinecone** | Vector search for the handbook |
+| **EWMA, KNN, Random Forest** | Adaptive reminder timing |
+
+## Diagrams: what each shows
+
+| Diagram | Shows | Key point |
+|---|---|---|
+| Context (Level 0) | LAFINA as one process + Student, DeepSeek, Pinecone, ElevenLabs | Stores are inside the boundary |
+| Use case | Student, Android OS, backend → 15 use cases | «include» = must, «extend» = optional |
+| DFD Level 1 | 8 processes, D1–D7 stores | Record + outbox in one transaction (2.0) |
+| ERD | 36 tables, 3 declared FKs | Most links are logical, enforced in code |
+| Architecture | Android + Electron clients → backend → Neon + AI providers | Live voice: signed WebSocket after authorization |
+
+## Paper vs. app (be ready)
+
+| Paper | App | Why |
+|---|---|---|
+| Real phone call | Simulated in-app call | No SIM or carrier, works offline |
+| Kokoro TTS | Phone TTS + ElevenLabs | Faster, lighter |
+| SmolLM2 for everything | Rules first, selectable models | Speed and predictability |
+| Closed-domain, no chit-chat | Companion with open conversation online | Students use a companion daily |
+
+<Card title="If you blank on a question">
+  Fall back on the four ideas: <strong>offline-first</strong>, <strong>the AI proposes and the student confirms</strong>, <strong>proactive calls</strong>, <strong>a companion</strong>. Most answers start from one of them.
+</Card>

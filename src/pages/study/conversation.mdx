@@ -1,0 +1,153 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 5: Conversation & AI"
+description: "How LAFINA turns a message into an answer or a review card: the pipeline, intents, routes, review cards, the Chat agent, Memory, and online vs. offline replies."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Walk through the message pipeline step by step, list the intent types and the three routes, and explain review cards, the Chat agent, and Memory.
+</Alert>
+
+## The pipeline in one picture
+
+<FlowChart
+  label="Message pipeline"
+  caption="Simplified from the chat orchestrator. Each step can finish the turn early with a reply."
+  steps={[
+    { title: '1. Save the student\'s message', text: 'Shown right away. Not saved in Temporary Chat', kind: 'start' },
+    { title: '2. Shortcuts', text: 'Answer to an open review card ("yes", "make it 5")? Skill request ("start a pomodoro")? Memory command ("what do you remember?")?', kind: 'decision' },
+    { title: '3. Understand the intent', text: 'Fast-path rules → on-device model → DeepSeek (online)' },
+    { title: '4. Multiple actions? Points back to earlier messages?', text: '"Add A and B" → batch. "Book the first one" → Chat agent', kind: 'decision' },
+    { title: '5. Route the intent' },
+    [
+      { title: 'Reviewed change', text: 'Review card. Low-risk actions apply now with Undo', edge: 'change' },
+      { title: 'Read only', text: 'Answer from local data', edge: 'question' },
+      { title: 'Conversation', text: 'DeepSeek online / local reply offline', kind: 'online', edge: 'chat' },
+    ],
+    { title: '6. Save LAFINA\'s reply', text: 'With card, sources, and receipts in metadata', kind: 'store' },
+    { title: '7. Speak it (optional)', text: 'Phone TTS / online voice', kind: 'end' },
+  ]}
+/>
+
+## Step 3 in detail: understanding the intent
+
+<FlowChart
+  label="Intent extraction"
+  steps={[
+    { title: 'Fast-path parser', text: 'Deterministic rules. Instant', kind: 'start' },
+    { title: 'Scheduling intent, confidence ≥ 0.85, clean title, not Taglish or casual?', kind: 'decision' },
+    [
+      { title: 'Use the rule result', kind: 'end', edge: 'yes' },
+      { title: 'Ask the on-device model', text: 'GGUF via llama.cpp, with a time limit', edge: 'no' },
+    ],
+    { title: 'Online Mode + planner command?', text: 'DeepSeek structured extraction. Keeps the local result if it fails', kind: 'online' },
+    { title: 'validateIntent()', text: 'Bad output → "chat", which never writes', kind: 'end' },
+  ]}
+/>
+
+- **Offline**, the installed model reads every scheduling request, not only unclear ones.
+- **During a live call**, a confident rule result is trusted immediately so the student isn't kept waiting.
+- Non-scheduling intents (queries, updates, deletes, notes, call replies) **never** go to the model's title extractor.
+
+### The intent types
+
+| Group | Intents |
+|---|---|
+| Create | `create_task`, `create_time_block`, `create_reminder`, `create_note`, `create_alarm` |
+| Update | `update_task`, `update_time_block`, `update_note`, `update_alarm`, `toggle_alarm`, `reschedule` |
+| Delete | `delete_task`, `delete_time_block`, `delete_note`, `delete_alarm` |
+| Reminder replies | `acknowledge`, `snooze` |
+| Read only | `query_schedule`, `query_notes`, `list_alarms` |
+| Conversation | `chat`, `out_of_scope` |
+
+An intent carries **slots**: `title`, `date`, `time`, `endTime`, `durationMinutes`, `category`, `details`, `snoozeMinutes`, `confidence`, and `source`.
+
+## Step 5 in detail: the three routes
+
+| Route | Writes? | Which intents | Notes |
+|---|---|---|---|
+| **reviewed_mutation** | Only after Confirm | All create, update, and delete intents, plus acknowledge and snooze | Low-risk ones apply immediately with Undo |
+| **read_only** | Never | `query_schedule`, `query_notes`, `list_alarms` | Answered from SQLite |
+| **conversation** | Never | `chat`, `out_of_scope` | DeepSeek or a local reply |
+| *call_context_immediate* | Yes | `acknowledge`, `snooze` | **Only while a reminder call is ringing**, using that call's identity |
+
+<Card title="Exhaustive by design">
+  The route table is a typed map in code (<code>INTENT_ROUTES</code>). Adding a new intent <strong>fails to compile</strong> until someone chooses its route, so no intent can accidentally write without review. An unknown value falls back to <em>conversation</em>, which never writes.
+</Card>
+
+## Review cards: the lifecycle
+
+<FlowChart
+  label="Review card lifecycle"
+  steps={[
+    { title: 'Proposal prepared', text: 'Interpreted fields + any schedule conflict + free-time choices', kind: 'start' },
+    { title: 'Student response', text: 'Tap or say it in chat', kind: 'decision' },
+    [
+      { title: 'Revise', text: '"Make it 5 PM instead". Card updates (revision number)', edge: 'edit' },
+      { title: 'Cancel', text: 'Nothing saved', kind: 'stop', edge: 'cancel' },
+      { title: 'Confirm', text: 'Saved in one transaction + operation receipt', kind: 'end', edge: 'confirm' },
+    ],
+  ]}
+/>
+
+- **Revision checks:** confirming an outdated version of a card is refused, so you always save what you saw.
+- **Receipts:** every confirmed operation is recorded in `assistant_operation_receipts`.
+- **Low-risk actions** skip the card and offer **Undo**: completing a task, acknowledging or snoozing a reminder, and pinning or re-categorizing a note.
+- **Multi-action:** "Add my quiz on Monday and a study block on Sunday" becomes a batch with **Confirm All**.
+- **Conflicts** are shown on the card, with free times offered as one-tap choices.
+- **Deletes** are never prepared from the model's words alone.
+
+## Conversation replies: online vs. offline
+
+| | Offline | Online Mode |
+|---|---|---|
+| Small talk (hi, thanks, who made you, what can you do) | ✅ Varied local replies | ✅ DeepSeek |
+| Trivia and general knowledge | ❌ "That question needs Online Mode" | ✅ DeepSeek, streamed word by word |
+| Questions about your plans | ✅ From SQLite | ✅ Chat agent can look things up |
+| If DeepSeek fails | n/a | Local reply, labeled *"Offline reply"* |
+
+**Privacy rule:** the planner snapshot is sent only when the question is about the student's own plans, notes, or time. A general study question never sends the planner.
+
+## The Chat agent (online)
+
+<FlowChart
+  label="Chat agent loop"
+  caption="Bounded: at most 4 model steps and 5 tool calls per step."
+  steps={[
+    { title: 'Student asks about their plans', text: '"Find me a free hour tomorrow and book review time"', kind: 'start' },
+    { title: 'DeepSeek decides to call a tool', kind: 'online' },
+    { title: 'Tool runs ON THE PHONE', text: 'Reads the planner / finds free time / prepares a card. The server only relays' },
+    { title: 'Result goes back to DeepSeek', text: 'Repeat up to 4 steps' },
+    { title: 'Final answer + at most one review card', text: 'Saving still needs Confirm', kind: 'end' },
+  ]}
+/>
+
+## Memory
+
+| Item | Detail |
+|---|---|
+| What | Facts the student shares: preferred name, study hours ("night owl"), goals |
+| Tiers | `core`, `preference`, `episodic` |
+| Commands | "What do you remember about me?", "Forget that I'm a morning person", with Undo |
+| Used for | Online replies, study scheduling, Morning Briefing |
+| Guard | Passwords, PINs, OTPs, card numbers, and bank or GCash numbers are never saved |
+| Off switch | Memory can be turned off. **Temporary Chat** saves nothing |
+
+## Other chat features
+
+- **Temporary Chat:** messages and memories are not saved.
+- **Ask USTP mode:** a dedicated chat that goes straight to handbook Q&A (Lesson 9).
+- **Quick Chat / Floating LAFINA:** the same rules in a small window over other apps.
+- **Chat history sync:** chats sync with an account, up to **20 chats** per account.
+
+## Check yourself
+
+- List the pipeline steps in order. Where can a turn end early?
+- When does the on-device model run, and when is it skipped?
+- What are the three routes? Which intents become immediate during a ringing call?
+- What prevents confirming an outdated review card?
+- What does the Chat agent's tool actually run on, and what are its limits?
+- What happens if you ask a trivia question offline?

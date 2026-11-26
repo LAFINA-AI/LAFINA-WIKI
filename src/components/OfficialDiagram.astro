@@ -1,0 +1,48 @@
+---
+/**
+ * An official project diagram (from the LAFINA-CAPSTONE repository), shown on a white card
+ * so it stays readable in dark mode, with a link to open it full size.
+ */
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  tall?: boolean;
+}
+const { src, alt, caption, tall = false } = Astro.props;
+---
+
+<figure class={`official not-prose ${tall ? 'official-tall' : ''}`}>
+  <a href={src} target="_blank" rel="noopener" class="official-frame" aria-label={`${alt}: open full size in a new tab`}>
+    <img src={src} alt={alt} loading="lazy" decoding="async" />
+  </a>
+  <figcaption>
+    <span>{caption}</span>
+    <a href={src} target="_blank" rel="noopener">Open full size ↗</a>
+  </figcaption>
+</figure>
+
+<style>
+  .official { margin: 1.75rem 0; }
+  .official-frame {
+    display: block;
+    padding: 1rem;
+    border-radius: 0.875rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    background: #ffffff;
+    cursor: zoom-in;
+    transition: border-color 0.15s;
+  }
+  .official-frame:hover { border-color: var(--color-primary); }
+  .official-frame img { display: block; width: 100%; height: auto; margin: 0 auto; }
+  .official-tall .official-frame { max-height: 80vh; overflow: auto; }
+  figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.6rem;
+    font-size: 0.75rem;
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  }
+  figcaption a { color: var(--color-primary); white-space: nowrap; font-weight: 600; }
+</style>

@@ -41,16 +41,32 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://lafina-w
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
+    <!-- Browser UI color (mobile address bar); kept in sync with the theme below -->
+    <meta name="theme-color" content="#ffffff" />
+
     <!-- Prevent FOUC for dark mode -->
     <script is:inline>
-      if (
-        localStorage.getItem('theme') === 'dark' ||
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      (function () {
+        var root = document.documentElement;
+        if (
+          localStorage.getItem('theme') === 'dark' ||
+          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+        // Keep native UI (scrollbars, form controls, mobile browser bar) in step with the theme,
+        // including when the theme toggle switches it later.
+        var sync = function () {
+          var dark = root.classList.contains('dark');
+          root.style.colorScheme = dark ? 'dark' : 'light';
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', dark ? '#0f172a' : '#ffffff');
+        };
+        sync();
+        new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['class'] });
+      })();
     </script>
   </head>
   <body class="bg-background text-text antialiased min-h-screen flex flex-col">

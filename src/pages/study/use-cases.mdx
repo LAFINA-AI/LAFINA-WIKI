@@ -1,0 +1,79 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 2: Use Cases"
+description: "LAFINA's actors and use cases, and the meaning of include and extend relationships."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+import OfficialDiagram from '../../components/OfficialDiagram.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Know the four actors, group the use cases, and explain «include» vs. «extend» using LAFINA's own examples.
+</Alert>
+
+## The actors
+
+| Actor | Type | Role |
+|---|---|---|
+| **Student** | Primary | Guest or signed-in user. Starts almost every use case |
+| **Signed-in student** | Primary | Same as Student, plus account services (sync, online AI, online voice) |
+| **Android OS** | Supporting | Delivers alarms and reminder alerts, and provides microphone and audio |
+| **LAFINA backend** | Supporting | Account, sync, online AI and voice services |
+
+## Use cases, grouped
+
+<FlowChart
+  label="Use case groups"
+  steps={[
+    { title: 'Student (guest or signed-in)', kind: 'start' },
+    [
+      { title: 'Plan', text: 'Manage tasks, events, time blocks, notes, categories, profile' },
+      { title: 'Be reminded', text: 'Manage alarms and reminders. Respond to alerts and simulated calls', edge: 'with Android OS' },
+      { title: 'Ask', text: 'Chat, query plans, request changes, Ask USTP, import a COR' },
+    ],
+    { title: 'Optional cloud services', text: 'Account, sync, online AI chat, online voice conversation', kind: 'online', edge: 'with LAFINA backend' },
+  ]}
+/>
+
+<OfficialDiagram src="/study/diagrams/use-case-diagram.svg" alt="LAFINA core student use case diagram" caption="Official use case diagram: Student, Android OS and LAFINA backend actors." tall />
+
+## «include» vs. «extend»
+
+| Relationship | Meaning | LAFINA examples |
+|---|---|---|
+| **«include»** | **Always** happens as part of the base use case | *Import class schedule from COR* «include» *Review and confirm extracted classes* |
+| | | *Request assistant planning changes* «include» *Review and confirm proposed change* |
+| | | *Ask USTP handbook questions* «include» *Retrieve supporting handbook evidence* |
+| **«extend»** | **Optionally** adds to the base use case, under a condition | *Use push-to-talk voice input* «extend» *Chat and query personal plans* [when voice is selected] |
+
+<Card title="Memory trick">
+  <strong>Include = must</strong> (you can't import a COR without reviewing it). <strong>Extend = may</strong> (you can chat without voice, and voice is an optional extra). Read-only questions do <em>not</em> include a review, because nothing is written.
+</Card>
+
+## Full use case list
+
+| Use case | Actor(s) | Needs internet? |
+|---|---|---|
+| Continue as guest | Student | No |
+| Manage profile and preferences | Student | No |
+| Manage tasks | Student | No |
+| Manage calendar events and time blocks | Student | No |
+| Manage notes and categories | Student | No |
+| Import class schedule from COR (+ review) | Student | No |
+| Manage alarms and reminders | Student, Android OS | No |
+| Respond to reminder alerts and simulated calls | Student, Android OS | No |
+| Chat and query personal plans (+ push-to-talk) | Student | No (open conversation needs it) |
+| Request assistant planning changes (+ review) | Student | No |
+| Ask USTP handbook questions (+ evidence) | Student | No (better online) |
+| Manage cloud account | Student, backend | Yes |
+| Sync personal records | Student, backend | Yes |
+| Chat with online AI | Student, backend | Yes |
+| Start online voice conversation | Student, backend | Yes |
+
+## Check yourself
+
+- Who are the two supporting actors, and which use cases connect to each?
+- Give one «include» and one «extend» example from LAFINA, and explain the difference.
+- Why doesn't a read-only question include a review?
+- Which use cases can a guest *not* do?

@@ -1,0 +1,110 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 4: Database (ERD)"
+description: "LAFINA's on-device SQLite schema: the main tables, keys, relationships, and the full table inventory."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import EntityGrid from '../../components/EntityGrid.astro';
+import OfficialDiagram from '../../components/OfficialDiagram.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Describe the main tables, explain the three declared foreign keys, and know why most relationships are "logical" instead of enforced by the database.
+</Alert>
+
+## Quick facts
+
+| Fact | Value |
+|---|---|
+| Database | One SQLite file, `lafina.db`, on the phone (OP-SQLite) |
+| Schema version | **28** (versioned migrations) |
+| Tables | **36** application tables (with FTS5), excluding SQLite internals |
+| Declared foreign keys | **3** |
+| Sync entity types | **7**: profile, task, event, time_block, reminder, note, custom_category |
+| Guest user ID | `local_guest_user` |
+
+<Alert type="warning" title="Android only">
+  This ERD is the <strong>Android SQLite</strong> schema. The backend's Neon PostgreSQL database is a separate schema.
+</Alert>
+
+## Personal planning tables
+
+<EntityGrid
+  caption="PK = primary key. FK = declared SQL foreign key. Every planner table has a user_id that points to users logically (not enforced)."
+  entities={[
+    { name: 'users', about: 'Local and cloud identities', fields: [
+      { name: 'id', key: true }, { name: 'username' }, { name: 'email' }, { name: 'role' }, { name: 'cloud_account_id' } ] },
+    { name: 'user_preferences', about: 'One row per user', tone: '#0891b2', fields: [
+      { name: 'id', key: true }, { name: 'user_id', fk: true, note: '→ users.id, UNIQUE, cascade' }, { name: 'wake_time' }, { name: 'sleep_time' }, { name: 'reminder_lead_minutes' } ] },
+    { name: 'tasks', about: 'To-dos and deadlines', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'title' }, { name: 'due_date' }, { name: 'due_time' }, { name: 'is_completed' }, { name: 'recurrence_rule' } ] },
+    { name: 'events', about: 'Calendar events and classes', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'title' }, { name: 'date' }, { name: 'start_time' }, { name: 'end_time' } ] },
+    { name: 'time_blocks', about: 'Planned focus or study time', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'title' }, { name: 'date' }, { name: 'start_time' }, { name: 'end_time' } ] },
+    { name: 'reminders', about: 'Things LAFINA calls you about', tone: '#d97706', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'task', note: 'reminder TEXT, not a task ID' }, { name: 'scheduled_at' }, { name: 'trigger_at' }, { name: 'status', note: 'pending / triggered / snoozed / acknowledged / missed' } ] },
+    { name: 'notes', about: 'Markdown notes', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'title' }, { name: 'body' }, { name: 'is_pinned' }, { name: 'category' } ] },
+    { name: 'custom_categories', about: 'User-made labels', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'name' }, { name: 'color' } ] },
+  ]}
+/>
+
+## Conversations, recordings, and alarms
+
+<EntityGrid
+  entities={[
+    { name: 'chat_sessions', about: 'One chat thread', tone: '#7c3aed', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'title' }, { name: 'generation' } ] },
+    { name: 'messages', about: 'Messages in a thread', tone: '#7c3aed', fields: [
+      { name: 'id', key: true }, { name: 'session_id', fk: true, note: '→ chat_sessions.id, cascade' }, { name: 'sender' }, { name: 'content' }, { name: 'seq' }, { name: 'metadata_json', note: 'review cards, sources' } ] },
+    { name: 'chat_memories', about: 'Things LAFINA remembers', tone: '#7c3aed', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'text' }, { name: 'session_id' } ] },
+    { name: 'recorded_meetings', about: 'Lecture/meeting recordings', tone: '#059669', fields: [
+      { name: 'id', key: true }, { name: 'user_id', fk: true, note: '→ users.id, no cascade' }, { name: 'title' }, { name: 'status' }, { name: 'transcript_json' }, { name: 'notes_json' } ] },
+    { name: 'alarms', about: 'Device-local alarm clocks', tone: '#dc2626', fields: [
+      { name: 'id', key: true }, { name: 'user_id' }, { name: 'hour' }, { name: 'minute' }, { name: 'repeat_days' }, { name: 'next_trigger_at' }, { name: 'source_reminder_id' } ] },
+  ]}
+/>
+
+## The three declared foreign keys
+
+| Foreign key | On delete |
+|---|---|
+| `user_preferences.user_id → users.id` | Cascade |
+| `messages.session_id → chat_sessions.id` | Cascade (delete a chat → its messages go too) |
+| `recorded_meetings.user_id → users.id` | No cascade |
+
+<Card title="Why are most relationships 'logical' only?">
+  Planner tables point to <code>users</code> by <code>user_id</code>, but the app enforces that link in code instead of with a database foreign key. Reasons:
+  <ul>
+    <li>Records arrive from <strong>sync</strong> and must be applied safely even if related rows arrive in a different order.</li>
+    <li>Delivery jobs and events must be able to <strong>outlive</strong> their reminder for audit and recovery.</li>
+    <li><code>reminders.task</code> stores <strong>text</strong>, not a task ID, so a reminder can exist without a task.</li>
+  </ul>
+</Card>
+
+## All 36 tables, grouped
+
+| Group | Tables |
+|---|---|
+| Identity and preferences (5) | `users`, `user_preferences`, `active_session`, `remember_me`, `local_settings` |
+| Personal planning (6) | `tasks`, `events`, `time_blocks`, `reminders`, `notes`, `custom_categories` |
+| Conversations (4) | `chat_sessions`, `messages`, `chat_memories`, `chat_legacy_quarantine` |
+| Alarms and delivery (5) | `alarms`, `job_queue_items`, `reminder_delivery_jobs`, `reminder_delivery_events`, `reminder_delivery_styles` |
+| Synchronization (6) | `sync_outbox`, `sync_metadata`, `sync_state`, `sync_control`, `sync_conflicts`, `entity_local_revisions` |
+| Derived local metadata (3) | `notes_search_index`, `event_time_local`, `attachment_cleanup` |
+| Reviewed operations (1) | `assistant_operation_receipts` |
+| Recordings and personalization (3) | `recorded_meetings`, `user_behavior_logs`, `ml_feature_snapshots` |
+| Handbook retrieval (3) | `handbook_meta`, `handbook_chunks`, `handbook_chunks_fts` |
+
+<OfficialDiagram src="/study/diagrams/erd.svg" alt="LAFINA entity relationship diagram" caption="Official ERD (generated from the schema). Large: open full size and zoom." tall />
+
+## Check yourself
+
+- How many tables, which schema version, and how many declared foreign keys?
+- Why is `reminders.task` text instead of a foreign key to `tasks`?
+- What happens to messages when a chat session is deleted?
+- Which tables support sync? Which one stores review-card receipts?
+- What is `handbook_chunks_fts` and why does it exist?

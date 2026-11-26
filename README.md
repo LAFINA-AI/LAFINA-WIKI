@@ -6,6 +6,7 @@ The LAFINA research wiki and illustrated Android user manual, built with Astro, 
 
 - `/user-manual` — searchable guide index.
 - `/user-manual/<topic>` — 13 topic guides with 41 numbered steps, step navigation, and screenshot enlargement.
+- `/study` — 11-lesson study guide with official and simplified diagrams.
 - `/how-it-works` and `/qa-practice` — technical guide and Q&A practice for the capstone defense.
 - `/user-manual/full` — complete manual with linked topic/step contents and Print / Save PDF.
 - `/manual/LAFINA-User-Manual.pdf` — downloadable 44-page manual with exact page-numbered contents, internal links, and bookmarks.

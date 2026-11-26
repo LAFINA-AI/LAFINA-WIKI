@@ -1,0 +1,89 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 8: Sync & Accounts"
+description: "Guest mode, accounts, the transactional outbox, versions and conflicts, and what LAFINA does and doesn't sync."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Explain guest vs. account use, the outbox pattern, how conflicts are detected, and exactly what syncs.
+</Alert>
+
+## Guest vs. account
+
+| | Guest | Signed-in account |
+|---|---|---|
+| Identity | `local_guest_user` on this phone | Cloud account (backend, Neon) |
+| Planner, alarms, reminder calls | ✅ | ✅ |
+| Offline voice, local Ask USTP | ✅ | ✅ |
+| Sync across phone and PC | ❌ | ✅ |
+| Online AI, online voice, documents | ❌ | ✅ (Online Mode, subject to account access and limits) |
+
+**Upgrading:** when a guest signs in or registers, their tasks, notes, schedule, and chats are **carried over to the account once**, without duplicates.
+
+## The outbox pattern
+
+<FlowChart
+  label="Outbox sync"
+  steps={[
+    { title: 'Student saves a change', text: 'Manual edit or confirmed review card', kind: 'start' },
+    { title: 'ONE SQLite transaction', text: '① update the record table  ② add a sync_outbox entry', kind: 'store' },
+    { title: 'UI updates immediately', text: 'No waiting for the server' },
+    { title: 'Signed in AND connected?', kind: 'decision' },
+    [
+      { title: 'Wait', text: 'Outbox keeps the change', edge: 'no' },
+      { title: 'Sync worker sends a batch', text: 'Authenticated /v1/sync/batch', kind: 'online', edge: 'yes' },
+    ],
+    { title: 'Server acknowledges + sends remote changes', text: 'Cursor moves forward. Conflicts recorded', kind: 'online' },
+    { title: 'Incoming changes applied locally', text: 'Validated, and not re-queued as new local changes', kind: 'end' },
+  ]}
+/>
+
+<Card title="Why one transaction?">
+  If the record were saved but the outbox entry wasn't (for example, if the app crashed in between), that change would <strong>never sync</strong>. Writing both together means either both happen or neither does. This is called the <strong>transactional outbox</strong> pattern.
+</Card>
+
+## Versions and conflicts
+
+Each synced record has a **version**. A local change remembers the **base version** it was edited from.
+
+<FlowChart
+  label="Conflict detection"
+  steps={[
+    { title: 'Local change sent with its base version', kind: 'start' },
+    { title: 'Does the server still have that version?', kind: 'decision' },
+    [
+      { title: 'Accepted', text: 'New version returned', kind: 'end', edge: 'yes' },
+      { title: 'Conflict recorded', text: 'Both copies kept in sync_conflicts (local + server version)', kind: 'stop', edge: 'no, someone else changed it' },
+    ],
+  ]}
+/>
+
+Nothing is silently overwritten. The conflict stores the local payload, base version, server version, and server payload.
+
+## What syncs and what doesn't
+
+| Syncs (7 entity types) | Stays on the device |
+|---|---|
+| profile | Alarm clocks |
+| tasks | Floating LAFINA settings and most local settings |
+| events | Downloaded models, recordings, attachments |
+| time blocks | Delivery jobs and history |
+| reminders | Handbook index |
+| notes | |
+| custom categories | |
+
+**Chats** sync separately through chat history sync, up to **20 chats per account**.
+
+<Alert type="warning" title="Sync is not a full backup">
+  Clearing app data or uninstalling removes device-only content such as alarms and recordings. Sign Out and Clear All Data remove local leftovers thoroughly.
+</Alert>
+
+## Check yourself
+
+- What can a guest do, and what can't they do?
+- Explain the transactional outbox in one sentence. What problem does it prevent?
+- How is a conflict detected, and what is stored when it happens?
+- Name the 7 sync entity types. Name 3 things that never sync.

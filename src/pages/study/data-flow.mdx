@@ -1,0 +1,92 @@
+---
+layout: ../../layouts/Layout.astro
+title: "Lesson 3: Data Flow (DFD)"
+description: "LAFINA's Level 1 data flow diagram: the eight processes, the data stores, and example traces."
+---
+import Alert from '../../components/Alert.astro';
+import Card from '../../components/Card.astro';
+import FlowChart from '../../components/FlowChart.astro';
+import OfficialDiagram from '../../components/OfficialDiagram.astro';
+
+<Alert type="info" title="Goal of this lesson">
+  Name the 8 processes and the data stores, and trace a request through the DFD from start to finish.
+</Alert>
+
+## DFD basics
+
+A **Data Flow Diagram** shows how **data** moves, not the order code runs in.
+
+| Symbol | Meaning | LAFINA examples |
+|---|---|---|
+| **External entity** | Outside the system, sends or receives data | Student, DeepSeek, Pinecone, ElevenLabs |
+| **Process** (numbered) | Transforms data | 4.0 Answer questions and review actions |
+| **Data store** (D#) | Data at rest | D2 Personal records + sync |
+| **Arrow** | Named data moving | "Confirmed, validated planner mutations" |
+
+**Level 0** (the context diagram, Lesson 1) is one process. **Level 1** breaks it into 8 processes.
+
+## The 8 processes
+
+| # | Process | What it does |
+|---|---|---|
+| **1.0** | Manage accounts and preferences | Guest or cloud account, sign-in, profile and voice settings |
+| **2.0** | Manage personal plans and notes | Validates and saves planner changes. **Record + queued sync change share one SQLite transaction** |
+| **3.0** | Import / export academic schedules | COR text or OCR, `.ics` parsing, **review before import writes** |
+| **4.0** | Answer questions and review actions | Rules or a local model for intents, DeepSeek and handbook RAG, **student confirmation before writes**, Memory |
+| **5.0** | Deliver alarms and reminder calls | AlarmManager and recovery, simulated call UI. **Acknowledging is not completing the task** |
+| **6.0** | Synchronize personal account records | Sends the outbox, applies remote changes, tracks conflicts and cursors |
+| **7.0** | Recognize speech and provide voice | Whisper + Silero VAD, phone TTS, backend TTS, signed live-voice session |
+| **8.0** | Create documents and process recordings | Recording plus local transcription. The backend generates documents and notes |
+
+## The data stores
+
+| Store | Contents | Where |
+|---|---|---|
+| **D1** Local identity / settings | Users, session, preferences, local settings | SQLite on the phone |
+| **D2** Personal records + sync | The 7 core entity types, outbox, sync metadata, conflicts | SQLite on the phone |
+| **D3** Chat / personal memory | Chat sessions, messages, memories | SQLite on the phone |
+| **D4** Local handbook | Handbook pack, chunks, FTS5 index | SQLite on the phone |
+| **D5** Local alarms / delivery | Alarm clocks, delivery jobs, delivery history | SQLite on the phone |
+| **D6** Local files / metadata | Import batches, recordings, attachments, generated files | Device files + SQLite |
+| **D7** Cloud database | Accounts, synced records, usage and quota | Neon PostgreSQL |
+
+<Alert type="warning" title="Two DFD versions">
+  The README version of the DFD groups the stores slightly differently (D1–D6, with D6 as the cloud). The official image below uses D1–D7. The ideas are the same: <strong>D1–D6 are on the device, and the last one is the cloud</strong>.
+</Alert>
+
+<OfficialDiagram src="/study/diagrams/data-flow-diagram.svg" alt="LAFINA Level 1 data flow diagram" caption="Official Level 1 DFD: 8 processes with their external entities and data stores." tall />
+
+## Trace 1: "Remind me to submit my lab report tomorrow at 5 PM"
+
+<FlowChart
+  label="Trace: create a reminder"
+  steps={[
+    { title: 'E1 Student → 7.0 Speech', text: 'Voice becomes text (Whisper)', kind: 'start' },
+    { title: '7.0 → 4.0 Answer & review', text: 'Transcript in. Intent = create_reminder' },
+    { title: '4.0 → Student', text: 'Proposed change shown as a review card' },
+    { title: 'Student → 4.0 → 2.0', text: 'Confirmation, then validated planner mutation' },
+    { title: '2.0 → D2', text: 'Reminder row + outbox entry, one transaction', kind: 'store' },
+    { title: '5.0 reads D2 → Android OS', text: 'Alarm registration for tomorrow 5 PM', kind: 'end' },
+  ]}
+/>
+
+## Trace 2: the reminder rings
+
+<FlowChart
+  label="Trace: reminder delivery"
+  steps={[
+    { title: 'Android OS → 5.0', text: 'Due trigger', kind: 'start' },
+    { title: '5.0 → Student', text: 'Simulated call. 7.0 speaks the reminder' },
+    { title: 'Student → 5.0', text: '"Give me ten minutes" (via 7.0 transcription)' },
+    { title: '5.0 → D5 and D2', text: 'Delivery outcome + snoozed reminder + queued sync change', kind: 'store' },
+    { title: '6.0 → D7', text: 'Later, when signed in and online', kind: 'online' },
+  ]}
+/>
+
+## Check yourself
+
+- What is the difference between a process and a data store?
+- Which process enforces "review before write" for imports? For assistant changes?
+- Which store holds the outbox? Which one is in the cloud?
+- Trace "What's on my schedule today?" through the DFD. *(Hint: 4.0 reads D2 and never goes to 2.0.)*
+- Why does 2.0 write the record and the sync change in the same transaction?
